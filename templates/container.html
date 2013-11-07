@@ -1,8 +1,61 @@
 <html>
-<head>
-	<title>Test Form</title>
-</head>
-<body>
-Start here
-</body>
+	<head>
+		<title>Test Form</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
+		<style type="text/css">
+			body {
+				padding-top: 120px;
+				height: 100%;
+			}
+			section {
+				padding-top: 120px;
+				margin-top: -120px;
+			}
+			.content div {
+				background-color: #f5f5f5;
+				height: 1200px;
+			}
+		</style>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('body').scrollspy({target: '#navbar', offset: 120})
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="navbar navbar-fixed-top" id="navbar">
+				<div class="navbar-inner">
+					<ul class="nav">
+						<li class="active"><a href="#cinfo">Customer Info</a></li>
+						<li><a href="#pkgsel">Package/Monitoring Select</a></li>
+						<li><a href="#rtdrop">Rate Drop</a></li>
+						<li><a href="#premium">Premium Add-Ons</a></li>
+						<li><a href="#custom">Customize</a></li>
+						<li><a href="#shipping">Shipping</a></li>
+						<li><a href="#publish">Publish</a></li>
+					</ul>
+					<div class="pull-right">
+						<pre>
+							Joe Blow
+							30913 Jeffro Lane
+							Austin, Texas
+						</pre>
+					</div>
+				</div>
+			</div>
+			<div class="content">
+				<section id="cinfo"><div>Customer Info Form</div></section>
+				<section id="pkgsel"><div>Package Select Form</div></section>
+				<section id="rtdrop"><div>Rate Drop Form</div></section>
+				<section id="premium"><div>Premium Form</div></section>
+				<section id="custom"><div>Customize Form</div></section>
+				<section id="shipping"><div>Shipping</div></section>
+				<section id="publish"><div>Publish</div></section>
+			</div>
+		</div>
+	</body>
 </html>

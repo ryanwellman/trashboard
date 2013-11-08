@@ -5,7 +5,8 @@ def draw_container(request):
 	ctx	=	{	'name': "Joe Blow",
 				'address': "3490 Jeffro Lane",
 				'city': "Austin",
-				'state': "Texas"
+				'state': "Texas",
+				'zip': "78728"
 			}
 
 	# uses render_to to draw the template

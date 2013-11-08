@@ -1,0 +1,91 @@
+		<script type="text/html" id="customer_info">
+			<div class="well">
+				<form>
+					<fieldset>
+						<div class="controls controls-row">
+							<legend>Customer Info</legend>
+							<div class="span4">
+								<div class="control-group">
+									<label class="control-label">First Name:</label>
+									<div class="controls">
+										<input type="text" placeholder="First">
+									</div>
+									<span class="help-inline"></span>
+								</div>
+								<div class="control-group">
+									<label class="control-label">Middle Initial:</label>
+									<div class="controls">
+										<input type="text" placeholder="M" maxlength="1">
+									</div>
+									<span class="help-inline"></span>
+								</div>
+
+								<div class="control-group">
+									<label class="control-label">Last Name:</label>
+									<div class="controls">
+										<input type="text" placeholder="Last">
+									</div>
+									<span class="help-inline"></span>
+								</div>
+
+								<div class="control-group">
+									<label class="control-label">Address:</label>
+									<div class="controls">
+										<input type="text" placeholder="Address">
+									</div>
+									<span class="help-inline"></span>
+								</div>								
+								<div class="control-group">
+									<label class="control-label">City:</label>
+									<div class="controls">
+										<input type="text" placeholder="City">
+									</div>
+									<span class="help-inline"></span>
+								</div>
+							</div>
+							<div class="span4">
+								<div class="control-group">
+									<label class="control-label">State:</label>
+									<div class="controls">
+										<select data-bind="options: states"></select>
+									</div>
+									<span class="help-inline"></span>
+								</div>
+								<div class="control-group">
+									<label class="control-label">ZIP:</label>
+									<div class="controls">
+										<input type="text" placeholder="ZIP">
+									</div>
+									<span class="help-inline"></span>
+								</div>
+								<div class="control-group">
+									<label class="control-label">Country:</label>
+									<div class="controls">
+										<select data-bind="options: countries, value: card"></select>
+									</div>
+									<span class="help-inline"></span>
+								</div>
+								<div class="control-group">
+									<label class="control-label">SSN or Tax ID:</label>
+									<div class="controls">
+										<input type="text" placeholder="SSN or Tax ID">
+									</div>
+									<span class="help-inline"></span>
+								</div>
+							</div>
+							<div class="span2">
+								<div class="well">
+									<a class="btn btn-large btn-warning">Approved DCS</a>
+								</div>
+							</div>
+						</div>
+						<div class="form-actions">
+							<div class="pull-right">
+								<button type="submit" class="btn btn-primary"><i class="icon-ok-circle icon-white"></i> Submit</button>
+								<button class="btn">Clear</button>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</script>

@@ -10,4 +10,5 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'views.draw_container', name='draw_container'),
+    url(r'^test$', 'views.draw_test', name='draw_test'),
 )

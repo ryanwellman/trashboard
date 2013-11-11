@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>Test Form</title>
@@ -61,9 +62,15 @@
 			});
 		</script>
 {% include 'templates/customer_info.html' %}
+{% include 'templates/customize.html' %}
+{% include 'templates/package_monitoring.html' %}
+{% include 'templates/premium_add_ons.html' %}
+{% include 'templates/publish.html' %}
+{% include 'templates/rate_drop.html' %}
+{% include 'templates/shipping.html' %}
 	</head>
 	<body>
-		<div class="affix" style="top:40;right:0">
+		<div class="affix" style="top:40px;right:0px">
 			<div id="infobar" class="well">
 				<i id="infobar_resize" class="icon-resize-small"></i>
 				<div id="infobar_content">
@@ -97,7 +104,7 @@
 			<div class="navbar navbar-fixed-top" id="navbar">
 				<div class="navbar-inner">
 					<ul class="nav">
-						<li class="active"><a href="#cinfo">Customer Info</a></li>
+						<li><a href="#cinfo">Customer Info</a></li>
 						<li><a href="#pkgsel">Package/Monitoring Select</a></li>
 						<li><a href="#rtdrop">Rate Drop</a></li>
 						<li><a href="#premium">Premium Add-Ons</a></li>
@@ -112,11 +119,18 @@
 					<div data-bind="template: { name: 'customer_info', data: dat }">Customer Info Form</div>
 				</section>
 				<section id="pkgsel"><p>Package Select Form</p></section>
-				<section id="rtdrop"><p>Rate Drop Form</p></section>
+				<section id="rtdrop">
+					<div data-bind="template: { name: 'rate_drop', data: dat }">Rate Drop Form</div>
+				</section>
 				<section id="premium"><p>Premium Form</p></section>
 				<section id="custom"><p>Customize Form</p></section>
-				<section id="shipping"><p>Shipping</p></section>
-				<section id="publish"><p>Publish</p></section>
+				<section id="shipping">
+					<div data-bind="template: { name: 'shipping_', data: dat }">Rate Drop Form</div>
+				</section>
+				<section id="publish">
+					<div data-bind="template: { name: 'publish_', data: dat }">Publish Form</div>
+				</section>
+				<section id="scroller"><p>Scroll Buffer</p></section>
 			</div>
 		</div>
 		<script type="text/javascript">

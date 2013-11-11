@@ -11,3 +11,8 @@ def draw_container(request):
 
 	# uses render_to to draw the template
 	return dict(customer=ctx)
+
+
+@render_to('templates/dyntest.html')
+def draw_test(request):
+	return dict()

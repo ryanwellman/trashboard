@@ -61,7 +61,7 @@
 								<div class="control-group">
 									<label class="control-label">Country:</label>
 									<div class="controls">
-										<select data-bind="options: countries, value: card"></select>
+										<select data-bind="options: countries"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -72,16 +72,26 @@
 									</div>
 									<span class="help-inline"></span>
 								</div>
+								<div class="control-group">
+									<label class="control-label">E-mail Address:</label>
+									<div class="controls">
+										<input type="text" placeholder="E-mail">
+									</div>
+									<span class="help-inline"></span>
+								</div>
 							</div>
-							<div class="span2">
+							<div class="span3">
 								<div class="well">
-									<a class="btn btn-large btn-warning">Approved DCS</a>
+									<a class="btn btn-large btn-success"><i class="icon-ok icon-white"></i> Approved</a>
+									<a class="btn btn-large btn-info"><i class="icon-time icon-white"></i> Pending</a>
+									<a class="btn btn-large btn-inverse"><i class="icon-warning-sign icon-white"></i> No Hit</a>
+									<a class="btn btn-large btn-danger"><i class="icon-remove icon-white"></i> Approved DCS</a>
 								</div>
 							</div>
 						</div>
 						<div class="form-actions">
 							<div class="pull-right">
-								<button type="submit" class="btn btn-primary"><i class="icon-ok-circle icon-white"></i> Submit</button>
+								<button type="submit" class="btn btn-primary"><i class="icon-check icon-white"></i> Submit</button>
 								<button class="btn">Clear</button>
 							</div>
 						</div>

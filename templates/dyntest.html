@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Dynamic Loading Test</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
+		<script type="text/javascript">
+			// jquery wrapper to anonymous function
+			$(function() {
+
+				$('#frm1').on("submit", function(e) {
+					// prevent form from submitting
+					e.preventDefault();
+
+					var result = $.ajax({
+						type: "POST",
+						url: "/test",
+						data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive"},
+						success: function() { console.log("snow!") }
+					});
+
+					result.done(function(data) {
+						$(".nav").append("<li><a href='#'>step two</a></li>");
+						$("#two").attr("data-bind", "template: { name: 'tpl2' }");
+						ko.cleanNode(document.body);
+						ko.applyBindings(new TestVM());
+
+						$('#frm2').on("submit", function(e) {
+							// prevent form from submitting
+							e.preventDefault();
+
+							var result = $.ajax({
+								type: "POST",
+								url: "/test",
+								data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive"},
+								success: function() { console.log("snow too!") }
+							});
+
+							result.done(function(data) {
+								$(".nav").append("<li><a href='#'>step three</a></li>");
+								$("#three").attr("data-bind", "template: { name: 'tpl3' }");
+								ko.cleanNode(document.body);
+								ko.applyBindings(new TestVM());
+
+								$('#frm3').on("submit", function(e) {
+									// prevent form from submitting
+									e.preventDefault();
+
+									var result = $.ajax({
+										type: "POST",
+										url: "/test",
+										data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive"},
+										success: function() { console.log("snow again!") }
+									});
+
+									result.done(function(data) {
+										$(".nav").append("<li><a href='#'>finish!</a></li>");
+										$("#console").empty().append("We're done!");
+										ko.cleanNode(document.body);
+										ko.applyBindings(new TestVM());
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		</script>
+		<script type="text/html" id="tpl1">
+			<form id="frm1">
+				<fieldset>
+					<button type="submit" class="btn" id="btn1">Load next piece...</button>
+				</fieldset>
+			</form>
+		</script>
+		<script type="text/html" id="tpl2">
+			<form id="frm2">
+				<fieldset>
+					<button type="submit" class="btn" id="btn2">Load another piece...</button>
+				</fieldset>
+			</form>
+		</script>
+		<script type="text/html" id="tpl3">
+			<form id="frm3">
+				<fieldset>
+					<button type="submit" class="btn btn-primary" id="btn3">End it</button>
+				</fieldset>
+			</form>
+		</script>
+	</head>
+	<body>
+		<div class="navbar">
+			<div class="navbar-inner">
+				<a class="brand" href="#">dynamic load test</a>
+				<ul class="nav">
+					<li><a href="#">step one</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="container">
+			<div class="content">
+				<section>
+					<div id="one" data-bind="template: { name: 'tpl1' }">1</p>
+				</section>
+				<section>
+					<div id="two"></div>
+				</section>
+				<section>
+					<div id="three"></div>
+				</section>
+				<section>
+					<div id="console">Click the buttons to load forms.</div>
+				</section>
+			</div>
+		</div>
+		<script type="text/javascript">
+			// KNOCKOUT TEMPLATES
+
+			// initialize a view model
+			function TestVM(blob) {
+				// make blob a thing if it isn't
+				blob = blob || {};
+
+				// declare things that should be visible to templates
+				this.dat = {};
+			}
+
+			// apply bindings for knockout
+			ko.applyBindings(new TestVM());
+		</script>
+	</body>
+</html>

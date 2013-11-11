@@ -8,7 +8,8 @@ def draw_container(request):
 	ctx	=	{	'name': "Joe Blow",
 				'address': "3490 Jeffro Lane",
 				'city': "Austin",
-				'state': "Texas"
+				'state': "Texas",
+				'zip': "78728"
 			}
 
 	# uses render_to to draw the template
@@ -89,3 +90,6 @@ def Package(request):
                 json_fire_sensors=json_fire_sensors,
                 json_home_automation=json_home_automation,
                 json_security_panels=json_security_panels)
+@render_to('templates/dyntest.html')
+def draw_test(request):
+	return dict()

@@ -1,19 +1,29 @@
 from annoying.decorators import render_to, ajax_request
+from dynamicresponse.response import *
+from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from json import dumps
+from random import choice
+
+def serve_json(request):
+    approval_states = ['approved', 'no hit', 'dcs']
+
+    ctx =   {   'name': "Joe Blow",
+                'address': "3490 Jeffro Lane",
+                'city': "Austin",
+                'state': "Texas",
+                'zip': "78728",
+                'approved': choice(approval_states)
+            }
+
+    return SerializeOrRedirect(reverse(draw_test), ctx)
+
 
 @render_to('templates/container.html')
 def draw_container(request):
-	ctx	=	{	'name': "Joe Blow",
-				'address': "3490 Jeffro Lane",
-				'city': "Austin",
-				'state': "Texas",
-				'zip': "78728"
-			}
-
 	# uses render_to to draw the template
-	return dict(customer=ctx)
+	return dict()
 
 
 @render_to('templates/package.html')
@@ -90,6 +100,8 @@ def Package(request):
                 json_fire_sensors=json_fire_sensors,
                 json_home_automation=json_home_automation,
                 json_security_panels=json_security_panels)
+
+
 @render_to('templates/dyntest.html')
 def draw_test(request):
 	return dict()

@@ -23,9 +23,13 @@
 				display: table;
 				border-spacing: 5px;
 			}
+			.infobar_zero {
+				margin: 0;
+				padding: 2px;
+			}
 			#infobar i {
 				position: absolute;
-				top: 2px;
+				top: 4px;
 				right: 2px;
 			}
 			#infobar_content {
@@ -35,33 +39,6 @@
 				display: table-cell;
 			}
 		</style>
-		<script type="text/javascript">
-			// jquery wrapper to anonymous function
-			$(function() {
-
-				// SCROLL SPY
-
-				// scrollspy to activate elements in the navbar when they are visible
-				$(document).ready(function(e) {
-					$('body').scrollspy({target: '#navbar', offset: 60});
-					$('#pkgsel').
-				});
-
-				// JQUERY DOM MANIPS
-
-				// toggle the info bar
-				$('#infobar_resize').click(function(e) {
-					$('#infobar_content').toggle();
-					$('#infobar_resize').toggleClass("icon-resize-small icon-resize-full");
-				});
-				// toggle the info bar resize icon on hover
-				$('#infobar_resize').hover(function() {
-					$(this).toggleClass("icon-white");
-				}, function() {
-					$(this).toggleClass("icon-white");
-				});
-			});
-		</script>
 {% include 'templates/customer_info.html' %}
 {% include 'templates/customize.html' %}
 {% include 'templates/package_monitoring.html' %}
@@ -76,9 +53,11 @@
 				<i id="infobar_resize" class="icon-resize-small"></i>
 				<div id="infobar_content">
 					<div id="infobar_left">
-						<p>
-							{{ customer.name }}<br>{{ customer.address }}<br>{{ customer.city }}, {{ customer.state }}<br>{{ customer.zip }}
-						</p>
+						<span data-bind="text: dat.blob.name"></span><br>
+						<span data-bind="text: dat.blob.address"></span><br>
+						<span data-bind="text: dat.blob.city"></span>,
+						<span data-bind="text: dat.blob.state"></span><br>
+						<span data-bind="text: dat.blob.zip"></span><br>
 					</div>
 					<div id="infobar_middle">
 						<p>
@@ -136,23 +115,72 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			// KNOCKOUT TEMPLATES
+			// jquery wrapper to anonymous function
+			$(function() {
+				var blob = {};
 
-			// initialize a view model
-			function TrashboardVM(blob) {
-				// make blob a thing if it isn't
-				blob = blob || {};
+				// KNOCKOUT TEMPLATES
 
-				// declare things that should be visible to templates
-				this.dat = {	cname: "joe",
-								countries: ["USA"].concat(["Canada"].sort()), // sort everyone else
-								states: ["AK", "CA", "HI", "TX"].sort() // sort states
-							};
-			}
+				// initialize a view model
+				function TrashboardVM(blob) {
+					// make blob a thing if it isn't
+					blob = blob || {};
 
-			// apply bindings for knockout
-			// ko.applyBindings(viewmodel, $('something')[0])
-			ko.applyBindings(new TrashboardVM());
+					// declare things that should be visible to templates
+					this.dat = {	blob: blob,
+									countries: ["USA"].concat(["Canada"].sort()), // sort everyone else
+									states: ["AK", "CA", "HI", "TX"].sort() // sort states
+								};
+				}
+
+				// AJAX JSON LOADER
+
+				var result = $.ajax({
+					dataType: "json",
+					url: '/json',
+					async: false, // asynchronous load means empty blob
+					success: function() { console.log("loaded json"); }
+				});
+
+				// populate blob with keys and values
+				result.done(function(data) {
+					$.each(data, function(k, v) {
+						blob[k] = v;
+					});
+				});
+
+				// apply bindings for knockout
+				ko.applyBindings(new TrashboardVM(blob));
+
+				// SCROLL SPY
+
+				// scrollspy to activate elements in the navbar when they are visible
+				$('body').scrollspy({target: '#navbar', offset: 60});
+
+
+				// JQUERY DOM MANIPS
+
+				// toggle the info bar
+				$('#infobar_resize').click(function(e) {
+					$('#infobar_content').toggle();
+					$('#infobar').toggleClass("infobar_zero");
+					$('#infobar_resize').toggleClass("icon-resize-small icon-resize-full");
+				});
+				// toggle the info bar resize icon on hover
+				$('#infobar_resize').hover(function() {
+					$(this).toggleClass("icon-white");
+				}, function() {
+					$(this).toggleClass("icon-white");
+				});
+
+				// select the correct credit button
+				var credit_str = "<a class='btn btn-large ";
+				if (blob.approved == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
+				if (blob.approved == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
+				if (blob.approved == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
+				$('#credit_btn').empty().append(credit_str);
+			});
 		</script>
 	</body>
 </html>
+.

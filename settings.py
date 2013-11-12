@@ -48,6 +48,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dynamicresponse.middleware.api.APIMiddleware',
+    'dynamicresponse.middleware.dynamicformat.DynamicFormatMiddleware',
 )
 
 ROOT_URLCONF = 'urls'

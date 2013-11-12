@@ -12,4 +12,5 @@ urlpatterns = patterns('',
     url(r'^$', 'views.draw_container', name='draw_container'),
     url(r'^package/', 'views.Package', name='package'),
     url(r'^test$', 'views.draw_test', name='draw_test'),
+    url(r'^json$', 'views.serve_json', name='serve_json'),
 )

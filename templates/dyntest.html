@@ -51,6 +51,11 @@
 				<section id="sxn4">
 					<div id="console">Click the buttons to load forms.</div>
 				</section>
+				<section id="sxn5">
+					<hr class="soften">
+					<p>JSON Trace:</p>
+					<pre id="blobview"></pre>
+				</section>
 			</div>
 		</div>
 		<script type="text/javascript">
@@ -64,6 +69,7 @@
 				// declare things that should be visible to templates
 				this.dat = blob;
 				this.loadfn = function() {
+					$("#blobview").empty().append(JSON.stringify(blob, null, 4));
 					ko.applyBindings(blob, $('#sxn1')[0]);
 
 					$('#frm1').on("submit", function(e) {
@@ -74,11 +80,12 @@
 							type: "POST",
 							url: "/test",
 							data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive" },
-							success: function() { console.log("step one") }
+							success: function() { console.log("step one"); }
 						});
 
 						result.done(function(data) {
-							var vm2 = new TestVM2();
+							blob.one = 'complete';
+							var vm2 = new TestVM2(blob);
 							vm2.loadfn();
 						});
 					});
@@ -92,6 +99,7 @@
 				// declare things that should be visible to templates
 				this.dat = blob;
 				this.loadfn = function() {
+					$("#blobview").empty().append(JSON.stringify(blob, null, 4));
 					$("#btn1").prop('disabled', true);
 					$(".nav").append("<li><a href='#'>step two</a></li>");
 					$("#two").attr("data-bind", "template: { name: 'tpl2' }");
@@ -105,11 +113,12 @@
 							type: "POST",
 							url: "/test",
 							data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive" },
-							success: function() { console.log("step two") }
+							success: function() { console.log("step two"); }
 						});
 
 						result.done(function(data) {
-							var vm3 = new TestVM3()
+							blob.two = 'complete';
+							var vm3 = new TestVM3(blob);
 							vm3.loadfn();
 						});
 					});		
@@ -123,6 +132,7 @@
 				// declare things that should be visible to templates
 				this.dat = blob;
 				this.loadfn = function() {
+					$("#blobview").empty().append(JSON.stringify(blob, null, 4));
 					$("#btn2").prop('disabled', true);
 					$(".nav").append("<li><a href='#'>step three</a></li>");
 					$("#three").attr("data-bind", "template: { name: 'tpl3' }");
@@ -136,11 +146,12 @@
 							type: "POST",
 							url: "/test",
 							data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive" },
-							success: function() { console.log("step three") }
+							success: function() { console.log("step three"); }
 						});
 
 						result.done(function(data) {
-							var vm4 = new TestVM4()
+							blob.three = 'complete';
+							var vm4 = new TestVM4(blob)
 							vm4.loadfn();
 						});
 					});
@@ -154,9 +165,10 @@
 				// declare things that should be visible to templates
 				this.dat = blob;
 				this.loadfn = function() {
+					$("#blobview").empty().append(JSON.stringify(blob, null, 4));
 					$("#btn3").prop('disabled', true);
 					$(".nav").append("<li><a href='#'>finish!</a></li>");
-					$("#console").empty().append("We're done! Reload to try again.");
+					$("#console").empty().append("We're done! <a href='javascript:window.location.reload()'>Reload</a> to try again.");
 				}
 			}
 
@@ -164,7 +176,22 @@
 
 			// jquery wrapper to anonymous function
 			$(function() {
-				var vm1 = new TestVM1()
+				var blob = {};
+
+				var result = $.ajax({
+					dataType: "json",
+					url: '/json',
+					async: false, // asynchronous load means empty blob
+					success: function() { console.log("loaded json"); }
+				});
+
+				result.done(function(data) {
+					$.each(data, function(k, v) {
+						blob[k] = v;
+					});
+				});
+
+				var vm1 = new TestVM1(blob);
 				vm1.loadfn();
 			});
 		</script>

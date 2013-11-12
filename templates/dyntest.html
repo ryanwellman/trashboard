@@ -6,68 +6,6 @@
 		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
-		<script type="text/javascript">
-			// jquery wrapper to anonymous function
-			$(function() {
-
-				$('#frm1').on("submit", function(e) {
-					// prevent form from submitting
-					e.preventDefault();
-
-					var result = $.ajax({
-						type: "POST",
-						url: "/test",
-						data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive"},
-						success: function() { console.log("snow!") }
-					});
-
-					result.done(function(data) {
-						$(".nav").append("<li><a href='#'>step two</a></li>");
-						$("#two").attr("data-bind", "template: { name: 'tpl2' }");
-						ko.cleanNode(document.body);
-						ko.applyBindings(new TestVM());
-
-						$('#frm2').on("submit", function(e) {
-							// prevent form from submitting
-							e.preventDefault();
-
-							var result = $.ajax({
-								type: "POST",
-								url: "/test",
-								data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive"},
-								success: function() { console.log("snow too!") }
-							});
-
-							result.done(function(data) {
-								$(".nav").append("<li><a href='#'>step three</a></li>");
-								$("#three").attr("data-bind", "template: { name: 'tpl3' }");
-								ko.cleanNode(document.body);
-								ko.applyBindings(new TestVM());
-
-								$('#frm3').on("submit", function(e) {
-									// prevent form from submitting
-									e.preventDefault();
-
-									var result = $.ajax({
-										type: "POST",
-										url: "/test",
-										data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive"},
-										success: function() { console.log("snow again!") }
-									});
-
-									result.done(function(data) {
-										$(".nav").append("<li><a href='#'>finish!</a></li>");
-										$("#console").empty().append("We're done!");
-										ko.cleanNode(document.body);
-										ko.applyBindings(new TestVM());
-									});
-								});
-							});
-						});
-					});
-				});
-			});
-		</script>
 		<script type="text/html" id="tpl1">
 			<form id="frm1">
 				<fieldset>
@@ -101,16 +39,16 @@
 		</div>
 		<div class="container">
 			<div class="content">
-				<section>
+				<section id="sxn1">
 					<div id="one" data-bind="template: { name: 'tpl1' }">1</p>
 				</section>
-				<section>
+				<section id="sxn2">
 					<div id="two"></div>
 				</section>
-				<section>
+				<section id="sxn3">
 					<div id="three"></div>
 				</section>
-				<section>
+				<section id="sxn4">
 					<div id="console">Click the buttons to load forms.</div>
 				</section>
 			</div>
@@ -118,17 +56,117 @@
 		<script type="text/javascript">
 			// KNOCKOUT TEMPLATES
 
-			// initialize a view model
-			function TestVM(blob) {
+			// initialize view models
+			function TestVM1(blob) {
 				// make blob a thing if it isn't
 				blob = blob || {};
 
 				// declare things that should be visible to templates
-				this.dat = {};
+				this.dat = blob;
+				this.loadfn = function() {
+					ko.applyBindings(blob, $('#sxn1')[0]);
+
+					$('#frm1').on("submit", function(e) {
+						// prevent form from submitting
+						e.preventDefault();
+
+						var result = $.ajax({
+							type: "POST",
+							url: "/test",
+							data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive" },
+							success: function() { console.log("step one") }
+						});
+
+						result.done(function(data) {
+							var vm2 = new TestVM2();
+							vm2.loadfn();
+						});
+					});
+				}
 			}
 
-			// apply bindings for knockout
-			ko.applyBindings(new TestVM());
+			function TestVM2(blob) {
+				// make blob a thing if it isn't
+				blob = blob || {};
+
+				// declare things that should be visible to templates
+				this.dat = blob;
+				this.loadfn = function() {
+					$("#btn1").prop('disabled', true);
+					$(".nav").append("<li><a href='#'>step two</a></li>");
+					$("#two").attr("data-bind", "template: { name: 'tpl2' }");
+					ko.applyBindings(blob, $('#sxn2')[0]);
+
+					$('#frm2').on("submit", function(e) {
+						// prevent form from submitting
+						e.preventDefault();
+
+						var result = $.ajax({
+							type: "POST",
+							url: "/test",
+							data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive" },
+							success: function() { console.log("step two") }
+						});
+
+						result.done(function(data) {
+							var vm3 = new TestVM3()
+							vm3.loadfn();
+						});
+					});		
+				}
+			}
+
+			function TestVM3(blob) {
+				// make blob a thing if it isn't
+				blob = blob || {};
+
+				// declare things that should be visible to templates
+				this.dat = blob;
+				this.loadfn = function() {
+					$("#btn2").prop('disabled', true);
+					$(".nav").append("<li><a href='#'>step three</a></li>");
+					$("#three").attr("data-bind", "template: { name: 'tpl3' }");
+					ko.applyBindings(blob, $('#sxn3')[0]);
+
+					$('#frm3').on("submit", function(e) {
+						// prevent form from submitting
+						e.preventDefault();
+
+						var result = $.ajax({
+							type: "POST",
+							url: "/test",
+							data: { csrfmiddlewaretoken: "{{ csrf_token }}", state: "inactive" },
+							success: function() { console.log("step three") }
+						});
+
+						result.done(function(data) {
+							var vm4 = new TestVM4()
+							vm4.loadfn();
+						});
+					});
+				}
+			}
+
+			function TestVM4(blob) {
+				// make blob a thing if it isn't
+				blob = blob || {};
+
+				// declare things that should be visible to templates
+				this.dat = blob;
+				this.loadfn = function() {
+					$("#btn3").prop('disabled', true);
+					$(".nav").append("<li><a href='#'>finish!</a></li>");
+					$("#console").empty().append("We're done! Reload to try again.");
+				}
+			}
+
+			// JQUERY DOM MANIPS
+
+			// jquery wrapper to anonymous function
+			$(function() {
+				var vm1 = new TestVM1()
+				vm1.loadfn();
+			});
 		</script>
 	</body>
 </html>

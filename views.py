@@ -2,22 +2,69 @@ from annoying.decorators import render_to, ajax_request
 from dynamicresponse.response import *
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.shortcuts import get_object_or_404
+from django.http import QueryDict
+from django.views.decorators.csrf import csrf_exempt
 import json
-from json import dumps
+from json import dumps, loads
 from random import choice
+from agreement.models import Agreement
+
+@csrf_exempt
+def dyn_json(request, agreement_id=None):
+    # XXX: this method and the next one are trash
+    agreement = None
+    if agreement_id:
+        agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
+    
+    blob = {}
+    if request.method == 'POST':
+        # create a new agreement and use .save()
+        for key in request.POST:
+            blob = loads(key)
+
+        # debug
+        print blob
+
+        agreement = Agreement.objects.create(   name=blob['name'],
+                                                address=blob['address'],
+                                                city=blob['city'],
+                                                state=blob['state'],
+                                                zip=blob['zip'],
+                                                approved=blob['approved']   )
+        agreement.save()
+
+        print agreement
+
+    return SerializeOrRedirect(reverse(draw_test), blob)
+
 
 def serve_json(request):
-    approval_states = ['approved', 'no hit', 'dcs']
+    # XXX: this method and the one befoer are trash
+    agreement = Agreement.objects.order_by('?')[0]
+    #agreement = Agreement.objects.raw('SELECT * FROM agreement_agreement ORDER BY RANDOM() LIMIT 1')
 
-    ctx =   {   'name': "Joe Blow",
-                'address': "3490 Jeffro Lane",
-                'city': "Austin",
-                'state': "Texas",
-                'zip': "78728",
-                'approved': choice(approval_states)
+    ctx =   {   'name': agreement.name,
+                'address': agreement.address,
+                'city': agreement.city,
+                'state': agreement.state,
+                'zip': agreement.zip,
+                'approved': agreement.approved
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)
+
+    #approval_states = ['approved', 'no hit', 'dcs']
+    #
+    #ctx =   {   'name': "Joe Blow",
+    #            'address': "3490 Jeffro Lane",
+    #            'city': "Austin",
+    #            'state': "Texas",
+    #            'zip': "78728",
+    #            'approved': choice(approval_states)
+    #        }
+    #
+    #return SerializeOrRedirect(reverse(draw_test), ctx)
 
 
 @render_to('templates/container.html')

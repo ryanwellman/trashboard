@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^package/', 'views.Package', name='package'),
     url(r'^test$', 'views.draw_test', name='draw_test'),
     url(r'^json$', 'views.serve_json', name='serve_json'),
+    url(r'^json2$', 'views.dyn_json', name='dyn_json'),    
 )

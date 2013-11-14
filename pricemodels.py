@@ -15,11 +15,12 @@ class Product(models.Model):
     # ptypes = ['shipping', 'incentives', 'equipment', 'combos', 'ratedrop',
     #          'part', 'service', 'monitoring', 'package']
 
-    code =  CharField(max_length=20, primary_key=True)
-    type =  CharField(max_length=10)
+    code        =   CharField(max_length=20, primary_key=True)
+    type        =   CharField(max_length=10)
+    category    =   CharField(max_length=20)
 
     def __unicode__(self):
-        return "<" + self.__class__.__name__ + ":" + ','.join([code, type]) + ">"
+        return "<" + self.__class__.__name__ + ":" + ','.join([code, type, category]) + ">"
 
     class Meta:
         ordering = ['code']

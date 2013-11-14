@@ -52,8 +52,25 @@ def serve_json(request):
 
 @render_to('templates/container.html')
 def draw_container(request):
-	# uses render_to to draw the template
-	return dict()
+    # uses render_to to draw the template
+    premiums    =  [    {'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
+                        {'name':'Cellular Service', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
+                        {'name':'Smoke Detectors', 'price':'$99.99', 'description': 'Smoke inhalation kills people every day; be safe with our smoke detectors!'}    ]
+
+    combos      =  [    {'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!'},
+                        {'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!'},
+                        {'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!'}    ]
+
+    services    =  [    {'name':'Video Service', 'price':'$19.99/mo', 'reason': 'cameras'},
+                        {'name':'Smoke Service', 'price':'$29.99/mo', 'reason': 'smoke detector(s)'},
+                        {'name':'Alpaca Rental Service', 'price':'$159.99/mo', 'reason': 'alpaca shears'}    ]
+
+    closers     =  [    {'name': '$5/mo rate drop', 'description': 'Removes $5 from the monthly monitoring rate'},
+                        {'name': '$10/mo rate drop', 'description': 'Removes $10 (requires manager approval)'},
+                        {'name': 'Free Keychains', 'description': 'Give away some of our famous disposable keychains'},
+                        {'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
+    
+    return dict(premiums=premiums, combos=combos, services=services, closers=closers)
 
 
 @render_to('templates/package.html')
@@ -134,4 +151,4 @@ def Package(request):
 
 @render_to('templates/dyntest.html')
 def draw_test(request):
-	return dict()
+    return dict()

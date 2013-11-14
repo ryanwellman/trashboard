@@ -1,30 +1,23 @@
 		<script type="text/html" id="combos_">
 			<div class="well">
-				<span class="badge badge-inverse box-rotate tab-pos">Combos</span>
+				<span class="label label-inverse box-rotate tab-pos">Combos</span>
 				<form>
 					<fieldset>
 						<div class="controls controls-row">
-							<!-- <legend>Rate Drop</legend> -->
-							<div class="span4">
-								<div class="control-group">
-									<label class="control-label checkbox">
-										<input type="checkbox">
-										Combo #1
-									</label>
-									<label class="control-label checkbox">
-										<input type="checkbox">
-										Combo #2
-									</label>
-									<label class="control-label checkbox">
-										<input type="checkbox">
-										Combo #3
-									</label>
-									<label class="control-label checkbox">
-										<input type="checkbox">
-										Combo #4
-									</label>
-								</div>
+							<!-- <legend>Combos</legend> -->
+							{% for c in combos %}
+							<div class="control-group well well-small span3">
+								<label class="control-label checkbox">
+									<input type="checkbox">
+									<h5>{{c.name}}</h5>&nbsp;
+									<span class="badge badge-info">{{c.price}}</span>
+									<hr class="muted">
+									<ul>
+										<li><small>{{c.description}}</small></li>
+									</ul>
+								</label>
 							</div>
+							{% endfor %}
 						</div>
 						<div class="form-actions">
 							<div class="pull-right">

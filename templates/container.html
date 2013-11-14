@@ -38,9 +38,33 @@
 			#infobar_content > div {
 				display: table-cell;
 			}
+			/* shamelessly ripped from css3please.com */
+			/* 	ie's rotate macro thing before ie9 has an unescaped colon in it
+				and it breaks my css */
+			.box-rotate {
+     			-moz-transform: rotate(-90deg);  /* ff3.5+ */
+       			-o-transform: rotate(-90deg);  /* opera 10.5 */
+  				-webkit-transform: rotate(-90deg);  /* safari 3.1+, chrome */
+  				-ms-transform: rotate(-90deg); /* ie9 */
+  				transform: rotate(-90deg); /* else */
+			}
+			/*	the box-rotate style breaks positioning
+				and this kind of brings it back */
+			.tab-pos {
+				-webkit-transform-origin: 25% 217%; /* this is crazy! */
+				-moz-transform-origin: 25% 217%; /* crazy, i tell you! */
+				-o-transform-origin: 25% 217%;
+				-ms-transform-origin: 25% 217%;
+				transform-origin: 25% 217%;
+				width: 120px;
+				font-size: 12pt;
+				padding: 10px;
+				text-align: center;
+			}
 		</style>
 {% include 'templates/customer_info.html' %}
 {% include 'templates/customize.html' %}
+{% include 'templates/combos.html' %}
 {% include 'templates/package_monitoring.html' %}
 {% include 'templates/premium_add_ons.html' %}
 {% include 'templates/publish.html' %}
@@ -83,13 +107,15 @@
 		<div class="container">
 			<div class="navbar navbar-fixed-top" id="navbar">
 				<div class="navbar-inner">
-					<a class="brand" href="/">&nbsp;&nbsp;&nbsp;Test Form</a>
 					<ul class="nav">
 						<li><a href="#cinfo">Customer Info</a></li>
 						<li><a href="#pkgsel">Package/Monitoring Select</a></li>
 						<li><a href="#rtdrop">Rate Drop</a></li>
 						<li><a href="#premium">Premium Add-Ons</a></li>
+						<li><a href="#combos">Combos</a></li>
 						<li><a href="#custom">Customize</a></li>
+						<li><a href="#services">Services</a></li>
+						<li><a href="#closing">Closing</a></li>
 						<li><a href="#shipping">Shipping</a></li>
 						<li><a href="#publish">Publish</a></li>
 					</ul>
@@ -104,7 +130,12 @@
 					<div data-bind="template: { name: 'rate_drop', data: dat }">Rate Drop Form</div>
 				</section>
 				<section id="premium"><p>Premium Form</p></section>
+				<section id="combos">
+					<div data-bind="template: { name: 'combos_', data: dat }">Combo Select Form</div>
+				</section>
 				<section id="custom"><p>Customize Form</p></section>
+				<section id="services"><p>Services Form</p></section>
+				<section id="closing"><p>Closing Form</p></section>
 				<section id="shipping">
 					<div data-bind="template: { name: 'shipping_', data: dat }">Rate Drop Form</div>
 				</section>
@@ -119,20 +150,6 @@
 			$(function() {
 				var blob = {};
 
-				// KNOCKOUT TEMPLATES
-
-				// initialize a view model
-				function TrashboardVM(blob) {
-					// make blob a thing if it isn't
-					blob = blob || {};
-
-					// declare things that should be visible to templates
-					this.dat = {	blob: blob,
-									countries: ["USA"].concat(["Canada"].sort()), // sort everyone else
-									states: ["AK", "CA", "HI", "TX"].sort() // sort states
-								};
-				}
-
 				// AJAX JSON LOADER
 
 				var result = $.ajax({
@@ -142,12 +159,29 @@
 					success: function() { console.log("loaded json"); }
 				});
 
-				// populate blob with keys and values
+				// populate blob with keys and ko.observable values
 				result.done(function(data) {
 					$.each(data, function(k, v) {
-						blob[k] = v;
+						blob[k] = ko.observable(v);
 					});
 				});
+
+				// KNOCKOUT TEMPLATES
+
+				// initialize a view model
+				function TrashboardVM(blob) {
+					// capture 'this' into this function's closure
+					var self = this;
+
+					// make blob a thing if it isn't
+					var blob = blob || {};
+
+					// declare things that should be visible to templates
+					self.dat = {	blob: blob,
+									countries: ["USA"].concat(["Canada"].sort()), // sort everyone else
+									states: ["AK", "CA", "HI", "TX"].sort(), // sort states
+								};
+				}
 
 				// apply bindings for knockout
 				ko.applyBindings(new TrashboardVM(blob));
@@ -155,8 +189,7 @@
 				// SCROLL SPY
 
 				// scrollspy to activate elements in the navbar when they are visible
-				$('body').scrollspy({target: '#navbar', offset: 60});
-
+				$('body').scrollspy({target: '#navbar', offset: 65});
 
 				// JQUERY DOM MANIPS
 
@@ -175,9 +208,9 @@
 
 				// select the correct credit button
 				var credit_str = "<a class='btn btn-large ";
-				if (blob.approved == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
-				if (blob.approved == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
-				if (blob.approved == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
+				if (blob.approved() == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
+				if (blob.approved() == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
+				if (blob.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
 				$('#credit_btn').empty().append(credit_str);
 			});
 		</script>

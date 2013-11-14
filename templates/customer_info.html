@@ -1,14 +1,15 @@
 		<script type="text/html" id="customer_info">
 			<div class="well">
+				<span class="badge badge-inverse box-rotate tab-pos">Customer Info</span>
 				<form>
 					<fieldset>
 						<div class="controls controls-row">
-							<legend>Customer Info</legend>
+							<!-- <legend>Customer Info</legend> -->
 							<div class="span4">
 								<div class="control-group">
 									<label class="control-label">First Name:</label>
 									<div class="controls">
-										<input type="text" placeholder="First">
+										<input type="text" placeholder="First" data-bind="value: blob.name">
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -19,7 +20,6 @@
 									</div>
 									<span class="help-inline"></span>
 								</div>
-
 								<div class="control-group">
 									<label class="control-label">Last Name:</label>
 									<div class="controls">
@@ -31,37 +31,37 @@
 								<div class="control-group">
 									<label class="control-label">Address:</label>
 									<div class="controls">
-										<input type="text" placeholder="Address">
+										<input type="text" placeholder="Address" data-bind="value: blob.address">
 									</div>
 									<span class="help-inline"></span>
 								</div>								
 								<div class="control-group">
 									<label class="control-label">City:</label>
 									<div class="controls">
-										<input type="text" placeholder="City">
+										<input type="text" placeholder="City" data-bind="value: blob.city">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 							</div>
-							<div class="span4">
+							<div class="span3">
 								<div class="control-group">
 									<label class="control-label">State:</label>
 									<div class="controls">
-										<select data-bind="options: states"></select>
+										<select data-bind="options: states, value: blob.state"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">ZIP:</label>
 									<div class="controls">
-										<input type="text" placeholder="ZIP">
+										<input type="text" placeholder="ZIP" data-bind="value: blob.zip">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Country:</label>
 									<div class="controls">
-										<select data-bind="options: countries"></select>
+										<select data-bind="options: countries, value: blob.country"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -88,7 +88,7 @@
 						</div>
 						<div class="form-actions">
 							<div class="pull-right">
-								<button type="submit" class="btn btn-primary"><i class="icon-check icon-white"></i> Submit</button>
+								<button type="submit" class="btn btn-primary"><i class="icon-check icon-white" id="cinfo_submit"></i> Submit</button>
 								<button class="btn">Clear</button>
 							</div>
 						</div>

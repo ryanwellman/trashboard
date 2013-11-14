@@ -12,59 +12,42 @@ from agreement.models import Agreement
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
-    # XXX: this method and the next one are trash
+    # attempts to get or set a specific agreement
     agreement = None
-    if agreement_id:
-        agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
-    
     blob = {}
+
+    if agreement_id:
+        # user wants a specific agreement
+        agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
+        blob = agreement.serialize()
+    
     if request.method == 'POST':
-        # create a new agreement and use .save()
-        for key in request.POST:
-            blob = loads(key)
+        for key in request.POST:    # request.POST is fucked up when sending JSON
+            incoming = loads(key)
 
-        # debug
-        print blob
+        # does blob exist?
+        if blob:
+            # we are updating an existing one
+            agreement.update_from_dict(incoming)
+        else:
+            # we are creating a new one so obtain json from post
+            blob = incoming
 
-        agreement = Agreement.objects.create(   name=blob['name'],
-                                                address=blob['address'],
-                                                city=blob['city'],
-                                                state=blob['state'],
-                                                zip=blob['zip'],
-                                                approved=blob['approved']   )
-        agreement.save()
-
-        print agreement
+            # create and save it
+            agreement = Agreement.objects.create(**blob)
+            agreement.save()
 
     return SerializeOrRedirect(reverse(draw_test), blob)
 
 
 def serve_json(request):
-    # XXX: this method and the one befoer are trash
+    # returns a random agreement as json
     agreement = Agreement.objects.order_by('?')[0]
+    # this next one will be better as soon as there are any objects in the database
     #agreement = Agreement.objects.raw('SELECT * FROM agreement_agreement ORDER BY RANDOM() LIMIT 1')
 
-    ctx =   {   'name': agreement.name,
-                'address': agreement.address,
-                'city': agreement.city,
-                'state': agreement.state,
-                'zip': agreement.zip,
-                'approved': agreement.approved
-            }
-
+    ctx = agreement.serialize()
     return SerializeOrRedirect(reverse(draw_test), ctx)
-
-    #approval_states = ['approved', 'no hit', 'dcs']
-    #
-    #ctx =   {   'name': "Joe Blow",
-    #            'address': "3490 Jeffro Lane",
-    #            'city': "Austin",
-    #            'state': "Texas",
-    #            'zip': "78728",
-    #            'approved': choice(approval_states)
-    #        }
-    #
-    #return SerializeOrRedirect(reverse(draw_test), ctx)
 
 
 @render_to('templates/container.html')

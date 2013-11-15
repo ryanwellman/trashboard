@@ -274,7 +274,7 @@ class Package(models.Model):
     """
 
     products   =   ManyToManyField(Product, through='PkgProduct', related_name='Products')
-    name       =   CharField(max_length=50)
+    name       =   CharField(max_length=50, primary_key=True)
 
     def __unicode__(self):
         return "<" + self.__class__.__name__ + ":" + ','.join([name]) + ">"

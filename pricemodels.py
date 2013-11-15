@@ -26,6 +26,30 @@ class Product(models.Model):
         ordering = ['code']
 
 
+class PTblProduct(models.Model):
+    """
+    represents membership by a product in a price table
+    through table for PriceTable and Product
+
+    also contains name and description to be shown for each product
+    so that they can vary between groups
+
+    that might need to be moved somewhere else
+    """
+
+    pricetable  =   ForeignKey(PriceTable)
+    product     =   ForeignKey(Product)
+    price       =   DecimalField(default=0)
+    name        =   CharField(max_length=20)
+    description =   CharField(max_length=100)
+
+    def __unicode__(self):
+        return "<" + self.__class__.__name__ + ":" + ','.join([pricetable, product, price]) + ">"
+
+    class Meta:
+        ordering = ['pricetable']
+
+
 class PriceTable(models.Model):
     """
     represents a business entity's unique price table
@@ -33,7 +57,9 @@ class PriceTable(models.Model):
     layered on top of it later
     """
 
-    group = CharField(max_length=10, primary_key=True)
+    group       =   CharField(max_length=10, primary_key=True)
+    products    =   ManyToManyField(Product, through='PTblProduct', related_name='Products')
+
 
     def __unicode__(self):
         return "<" + self.__class__.__name__ + ":" + ','.join([group]) + ">"
@@ -138,6 +164,7 @@ class RateDrop(Product):
 
 class OrgPrice(models.Model):
     """
+    represents membership by a price table in an organization
     through table for Organization and PriceTable
 
     price table overlays occur here for individual organizations
@@ -196,6 +223,7 @@ class Organization(models.Model):
 
 class CmpPrice(models.Model):
     """
+    represents membership by a price table in a campaign
     through table for Campaign and PriceTable
 
     price table overlays occur here for individual campaigns
@@ -235,3 +263,34 @@ class Campaign(models.Model):
 
     class Meta:
         ordering = ['name']
+
+
+class Package(models.Model):
+    """
+    represents a package we sell
+    """
+
+    products   =   ManyToManyField(Product, through='PkgProduct', related_name='Products')
+    name       =   CharField(max_length=50)
+
+    def __unicode__(self):
+        return "<" + self.__class__.__name__ + ":" + ','.join([name]) + ">"
+
+    class Meta:
+        ordering = ['name']
+
+
+class PkgProduct(models.Model):
+    """
+    represents membership by a product in a package
+    through table for Package and Product
+    """
+
+    package    =    ForeignKey(Package)
+    product    =    ForeignKey(Product)
+
+    def __unicode__(self):
+        return "<" + self.__class__.__name__ + ":" + ','.join([package, product]) + ">"
+
+    class Meta:
+        ordering = ['package']

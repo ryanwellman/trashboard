@@ -1,0 +1,248 @@
+        <script type="text/html" id="packages">
+            <div class="well">
+                <span class="label label-inverse box-rotate tab-pos">Packages</span>             <div class="row">
+                    {% for p in packages %}
+                    <div class="select_package" data-package="{{p.name}}">
+                        <div class="{{p.name}} span2">
+                            <a href="#{{p.name}}_tab"><table class="table package">
+                                <th style="color: white">{{p.name}} Package</th>
+                            </table></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div>&nbsp;</div>
+                {% for p in packages %}
+                    <div class="show_package" id="{{p.name}}" hidden="hidden">
+                        <div class="row">
+                            <div class="span1"></div>
+                            <div class="span3">
+                                <h4>{{p.name}} Package - {{p.price}}</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="span1"></div>
+                            <div class="pckg_detail span8" data-detail="{{p.name}}detail" id="{{p.name}}detail">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <th>Part</th>
+                                        <th><center>Part Points</center></th>
+                                        <th><center>Total Points</center></th>
+                                        <th><center>Locked</center></th>
+                                        <th><center>Quantity</center></th>
+                                    </thead>
+                                    <tbody data-jeffry="foreach: {{p.name}}_opts">
+                                        <tr>
+                                            <td data-jeffry="text: part"></td>
+                                            <td data-jeffry="text: points" style="text-align:center;"></td>
+                                            <td></td>
+                                            <td><center><i class="icon-lock"></i></center></td>
+                                            <td data-jeffry="text: qty" style="text-align:center;"></center></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <h4><a class="customize pull-right">Customize</a></h4>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="cust_pckg" hidden="hidden">
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span3">
+                            <h4>Customize Package</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="well span8" style="padding: 3px;">
+                            <h4>
+                                Security Sensors
+                                <a class="expand_equip pull-right" id="expandsecsens" data-equip="secsens">Expand</a>
+                                <a class="hide_equip pull-right" id="hidesecsens" data-equip="secsens" hidden="hidden">Hide</a>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span8" id="secsens" hidden="hidden">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Part</th>
+                                    <th></th>
+                                    <th><center>Locked</center></th>
+                                    <th><center>Quantity</center></th>
+                                    <th><center>Total</center></th>
+                                </thead>
+                                <tbody data-jeffry="foreach: sec_sensors">
+                                    <tr>
+                                        <td data-jeffry="text: part"></td>
+                                        <td data-jeffry="text: points" class="badge badge-mini badge-success" style="text-align:center;"></td>
+                                        <td><center><i class="icon-lock"></i></center></td>
+                                        <td><center><input class="input-mini" data-jeffry="value: qty" style="text-align:center;"></center></td>
+                                        <td data-jeffry="text: total" style="text-align:center;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="well span8" style="padding: 3px;">
+                            <h4>
+                                Accessories
+                                <a class="expand_equip pull-right" id="expandaccessories" data-equip="accessories">Expand</a>
+                                <a class="hide_equip pull-right" id="hideaccessories" data-equip="accessories" hidden="hidden">Hide</a>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span8" id="accessories" hidden="hidden">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Part</th>
+                                    <th></th>
+                                    <th><center>Locked</center></th>
+                                    <th><center>Quantity</center></th>
+                                    <th><center>Total</center></th>
+                                </thead>
+                                <tbody data-jeffry="foreach: accessories">
+                                    <tr>
+                                        <td data-jeffry="text: part"></td>
+                                        <td data-jeffry="text: points" class="badge badge-mini badge-success" style="text-align:center;"></td>
+                                        <td><center><i class="icon-lock"></i></center></td>
+                                        <td><center><input class="input-mini" data-jeffry="value: qty" style="text-align:center;"></center></td>
+                                        <td data-jeffry="text: total" style="text-align:center;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="well span8" style="padding: 3px;">
+                            <h4>
+                                Fire Sensors
+                                <a class="expand_equip pull-right" id="expandfiresens" data-equip="firesens">Expand</a>
+                                <a class="hide_equip pull-right" id="hidefiresens" data-equip="firesens" hidden="hidden">Hide</a>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span8" id="firesens" hidden="hidden">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Part</th>
+                                    <th></th>
+                                    <th><center>Locked</center></th>
+                                    <th><center>Quantity</center></th>
+                                    <th><center>Total</center></th>
+                                </thead>
+                                <tbody data-jeffry="foreach: fire_sensors">
+                                    <tr>
+                                        <td data-jeffry="text: part"></td>
+                                        <td data-jeffry="text: points" class="badge badge-mini badge-success" style="text-align:center;"></td>
+                                        <td><center><i class="icon-lock"></i></center></td>
+                                        <td><center><input class="input-mini" data-jeffry="value: qty" style="text-align:center;"></center></td>
+                                        <td data-jeffry="text: total" style="text-align:center;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="well span8" style="padding: 3px;">
+                            <h4>
+                                Home Automation
+                                <a class="expand_equip pull-right" id="expandhomeauto" data-equip="homeauto">Expand</a>
+                                <a class="hide_equip pull-right" id="hidehomeauto" data-equip="homeauto" hidden="hidden">Hide</a>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span8" id="homeauto" hidden="hidden">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Part</th>
+                                    <th></th>
+                                    <th><center>Locked</center></th>
+                                    <th><center>Quantity</center></th>
+                                    <th><center>Total</center></th>
+                                </thead>
+                                <tbody data-jeffry="foreach: home_automation">
+                                    <tr>
+                                        <td data-jeffry="text: part"></td>
+                                        <td data-jeffry="text: points" class="badge badge-mini badge-success" style="text-align:center;"></td>
+                                        <td><center><i class="icon-lock"></i></center></td>
+                                        <td><center><input class="input-mini" data-jeffry="value: qty" style="text-align:center;"></center></td>
+                                        <td data-jeffry="text: total" style="text-align:center;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="well span8" style="padding: 3px;">
+                            <h4>
+                                Security Panels
+                                <a class="expand_equip pull-right" id="expandsecpanels" data-equip="secpanels">Expand</a>
+                                <a class="hide_equip pull-right" id="hidesecpanels" data-equip="secpanels" hidden="hidden">Hide</a>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span8" id="secpanels" hidden="hidden">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th>Part</th>
+                                    <th></th>
+                                    <th><center>Locked</center></th>
+                                    <th><center>Quantity</center></th>
+                                    <th><center>Total</center></th>
+                                </thead>
+                                <tbody data-jeffry="foreach: security_panels">
+                                    <tr>
+                                        <td data-jeffry="text: part"></td>
+                                        <td data-jeffry="text: points" class="badge badge-mini badge-success" style="text-align:center;"></td>
+                                        <td><center><i class="icon-lock"></i></center></td>
+                                        <td><center><input class="input-mini" data-jeffry="value: qty" style="text-align:center;"></center></td>
+                                        <td data-jeffry="text: total" style="text-align:center;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span1"></div>
+                        <div class="span8">
+                            <h4><a class="cancel_purchase pull-right">Save Customization</a></h4>
+                        </div>
+                    </div>
+                </div>
+                <div>&nbsp;</div>
+
+                <h3>Monitoring</h3>
+                <div class="row">
+                    <div class="span12">
+                        {% for m in monitoring %}
+                        <div class="select_monitoring" data-package="{{p.name}}">
+                            <div class="{{m.type}} span3">
+                                <label class="checkbox inline">
+                                    <input type="checkbox" value="{{m.type}}">{{m.type}} - {{m.rate}}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div>&nbsp;</div>
+        </script>

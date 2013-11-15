@@ -55,7 +55,7 @@ def draw_container(request):
     # uses render_to to draw the template
     premiums    =  [    {'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
                         {'name':'Cellular Service', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
-                        {'name':'Smoke Detectors', 'price':'$99.99', 'description': 'Smoke inhalation kills people every day; be safe with our smoke detectors!'}    ]
+                        {'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]
 
     combos      =  [    {'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!'},
                         {'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!'},
@@ -69,8 +69,14 @@ def draw_container(request):
                         {'name': '$10/mo rate drop', 'description': 'Removes $10 (requires manager approval)'},
                         {'name': 'Free Keychains', 'description': 'Give away some of our famous disposable keychains'},
                         {'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
+
+    packages    =  [    {'name':'Copper', 'price':'$19.99/mo', 'xt':'1', 'dw':'3', 'mot':'1'},
+                        {'name':'Bronze', 'price':'$35.99/mo', 'xt':'1', 'dw':'7', 'mot':'1'},
+                        {'name':'Silver', 'price':'$37.99/mo', 'xt':'1', 'dw':'10', 'mot':'1'},
+                        {'name':'Gold', 'price':'$39.99/mo', 'xt':'1', 'dw':'12', 'mot':'1'},
+                        {'name':'Platinum', 'price':'$42.99/mo', 'xt':'1', 'dw':'15', 'mot':'1'}    ]
     
-    return dict(premiums=premiums, combos=combos, services=services, closers=closers)
+    return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=packages)
 
 
 @render_to('templates/package.html')

@@ -38,6 +38,11 @@
 			#infobar_content > div {
 				display: table-cell;
 			}
+			#infobar_left {
+				border: 1px solid rgb(211,211,211);
+				border-radius: 4px;
+				padding: 2px;
+			}
 			/* shamelessly ripped from css3please.com */
 			/* 	ie's rotate macro thing before ie9 has an unescaped colon in it
 				and it breaks my css */
@@ -76,11 +81,23 @@
             .Platinum {
                 background-color: #E5E4E2;
             }
+            .select_package {
+                cursor: pointer;
+                cursor: hand;
+            }
+            .package_features {
+                border:2px solid;
+                border-color: #B6B6B4;
+            }
+            .purchase_items {
+                border:2px solid;
+                border-color: #B6B6B4;
+            }
 		</style>
 {% include 'templates/customer_info.html' %}
 {% include 'templates/customize.html' %}
 {% include 'templates/combos.html' %}
-{% include 'templates/package_monitoring.html' %}
+{% include 'templates/packages.html' %}
 {% include 'templates/premium_add_ons.html' %}
 {% include 'templates/publish.html' %}
 {% include 'templates/closing.html' %}
@@ -140,7 +157,9 @@
 				<section id="cinfo">
 					<div data-bind="template: { name: 'customer_info', data: dat }">Customer Info Form</div>
 				</section>
-				<section id="pkgsel"><p>Package Select Form</p></section>
+				<section id="pkgsel">
+					<div data-bind="template: { name: 'packages', data: dat }">Package Select Form</div>
+				</section>
 				<section id="premium">
 					<div data-bind="template: { name: 'premiums', data: dat }">Premium Form</div>
 				</section>
@@ -161,7 +180,7 @@
 					<div data-bind="template: { name: 'publish_', data: dat }">Publish Form</div>
 				</section>
 				<section id="scroller">
-					<p>this scroll buffer makes sure package is at the top of the page when the scroll is all the way at the bottom</p>
+					<p>this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom</p>
 				</section>
 			</div>
 		</div>
@@ -226,12 +245,68 @@
 					$(this).toggleClass("icon-white");
 				});
 
+				// JQUERY FORM-SPECIFIC MANIPS
+
+				// customer info
 				// select the correct credit button
 				var credit_str = "<a class='btn btn-large ";
 				if (blob.approved() == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
 				if (blob.approved() == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
 				if (blob.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
 				$('#credit_btn').empty().append(credit_str);
+
+				// packages
+				// bind some click events
+	            $('.select_package').on('click', function(evt) {
+	                evt.preventDefault();
+	                var $this = $(this);
+	                var pack = $this.data('package');
+	                $('.show_package').hide();
+	                $('#' + pack).slideToggle("slow");
+	                package_data["package"] = pack
+	                console.log(package_data);
+	                //CustomizeModel(pack);
+	            });
+
+	            $('.customize').on('click', function(evt) {
+	                evt.preventDefault();
+	                var $this = $(this);
+	                $this.hide();
+	                var detail = $this.data('detail');
+	                $('.pckg_detail').slideToggle("slow");
+	                $('.cust_pckg').slideToggle("slow");
+	            });
+
+	            $('.cancel_purchase').on('click', function(evt) {
+	                $('.purchase').slideToggle("slow");
+	                $('.customize').slideToggle("slow");
+	            });
+
+	            $('.add_purchase').on('click', function(evt) {
+	                $('.cust_pckg').slideToggle("slow");
+	                $('.customize').slideToggle("slow");
+	            });
+
+	            $('.expand_equip').on('click', function(evt) {
+	                var $this = $(this);
+	                var sec = $this.data('equip');
+	                $this.hide();
+	                $('#' + sec).slideToggle("slow");
+	                $('#hide' + sec).slideToggle("slow");
+	            });
+
+	            $('.hide_equip').on('click', function(evt) {
+	                var $this = $(this);
+	                var sec = $this.data('equip');
+	                $this.hide();
+	                $('#' + sec).slideToggle("slow");
+	                $('#expand' + sec).slideToggle("slow");
+	            });
+
+	            $('.checkbox').on('change', function(evt) {
+	                var $this = $(this);
+	            });
+
 			});
 		</script>
 	</body>

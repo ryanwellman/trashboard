@@ -1,18 +1,24 @@
+# import built-ins
+import json
+from json import dumps, loads
+from random import choice
+
+# import 3rd-party modules
 from annoying.decorators import render_to, ajax_request
-from dynamicresponse.response import *
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 from django.views.decorators.csrf import csrf_exempt
-import json
-from json import dumps, loads
-from random import choice
+from dynamicresponse.response import *
+
+# import from self (models)
 from agreement.models import Agreement
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
     # attempts to get or set a specific agreement
+    # this is csrf_exempt so i can test it with curl
     agreement = None
     blob = {}
 
@@ -44,7 +50,7 @@ def serve_json(request):
     # returns a random agreement as json
     agreement = Agreement.objects.order_by('?')[0]
     # this next one will be better as soon as there are any objects in the database
-    #agreement = Agreement.objects.raw('SELECT * FROM agreement_agreement ORDER BY RANDOM() LIMIT 1')
+    # agreement = Agreement.objects.raw('SELECT * FROM agreement_agreement ORDER BY RAND() LIMIT 1')
 
     ctx = agreement.serialize()
     return SerializeOrRedirect(reverse(draw_test), ctx)
@@ -53,6 +59,16 @@ def serve_json(request):
 @render_to('templates/container.html')
 def draw_container(request):
     # uses render_to to draw the template
+
+    # this is a dummy view that will render a dummy form that is simply to demo
+    # the possibilities that come with the new agreement form
+
+    # in reality these values would be coming from the models in pricemodels.py
+    # right now there is no actual Agreement model other than the dummy one in the
+    # agreement app
+
+    # for the following 4 lists of dictionaries:
+    # from PTblProduct: name <-> name, description <-> description, price <-> price
     premiums    =  [    {'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
                         {'name':'Cellular Service', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
                         {'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]
@@ -70,6 +86,7 @@ def draw_container(request):
                         {'name': 'Free Keychains', 'description': 'Give away some of our famous disposable keychains'},
                         {'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
 
+    # this one is going to come from the Package class and will change later
     packages    =  [    {'name':'Copper', 'price':'$19.99/mo', 'xt':'1', 'dw':'3', 'mot':'1'},
                         {'name':'Bronze', 'price':'$35.99/mo', 'xt':'1', 'dw':'7', 'mot':'1'},
                         {'name':'Silver', 'price':'$37.99/mo', 'xt':'1', 'dw':'10', 'mot':'1'},

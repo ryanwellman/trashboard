@@ -1,5 +1,5 @@
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.db import models
 
 """
 new price models draft
@@ -18,6 +18,8 @@ class Product(models.Model):
     code        =   CharField(max_length=20, primary_key=True)
     type        =   CharField(max_length=10)
     category    =   CharField(max_length=20)
+    name        =   CharField(max_length=20)
+    description =   CharField(max_length=100)
 
     def __unicode__(self):
         return "<" + self.__class__.__name__ + ":" + ','.join([code, type, category]) + ">"
@@ -26,22 +28,23 @@ class Product(models.Model):
         ordering = ['code']
 
 
-class PTblProduct(models.Model):
+class ProductPrice(models.Model):
     """
     represents membership by a product in a price table
     through table for PriceTable and Product
 
-    also contains name and description to be shown for each product
-    so that they can vary between groups
-
-    that might need to be moved somewhere else
+    promo is a tiebreaker thing that flattens the last level of the
+    stackable price tables for quick access to one-off promos
     """
 
-    pricetable  =   ForeignKey(PriceTable)
-    product     =   ForeignKey(Product)
-    price       =   DecimalField(default=0)
-    name        =   CharField(max_length=20)
-    description =   CharField(max_length=100)
+    pricetable      =   ForeignKey(PriceTable)
+    product         =   ForeignKey(Product)
+    monthly_price   =   DecimalField(blank=True, null=True)
+    upfront_price   =   DecimalField(blank=True, null=True)
+    fromdate        =   DateTimeField()
+    todate          =   DateTimeField()
+    promo           =   BooleanField(default=False)
+
 
     def __unicode__(self):
         return "<" + self.__class__.__name__ + ":" + ','.join([pricetable, product, price]) + ">"
@@ -58,7 +61,7 @@ class PriceTable(models.Model):
     """
 
     group       =   CharField(max_length=10, primary_key=True)
-    products    =   ManyToManyField(Product, through='PTblProduct', related_name='Products')
+    products    =   ManyToManyField(Product, through='ProductPrice', related_name='Products')
 
 
     def __unicode__(self):

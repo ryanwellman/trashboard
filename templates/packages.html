@@ -226,23 +226,11 @@
                         </div>
                     </div>
                 </div>
-                <div>&nbsp;</div>
-
-                <h3>Monitoring</h3>
-                <div class="row">
-                    <div class="span12">
-                        {% for m in monitoring %}
-                        <div class="select_monitoring" data-package="{{p.name}}">
-                            <div class="{{m.type}} span3">
-                                <label class="checkbox inline">
-                                    <input type="checkbox" value="{{m.type}}">{{m.type}} - {{m.rate}}
-                                </label>
-                            </div>
-                        </div>
-                        {% endfor %}
+                <div class="form-actions">
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-primary"><i class="icon-check icon-white" id="cinfo_submit"></i> Submit</button>
+                        <button class="btn">Clear</button>
                     </div>
                 </div>
             </div>
-
-            <div>&nbsp;</div>
         </script>

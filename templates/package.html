@@ -16,9 +16,6 @@
         .Platinum {
             background-color: #E5E4E2;
         }
-        .package {
-            color: white;
-        }
         .select_package {
             cursor: pointer;
             cursor: hand;
@@ -35,24 +32,97 @@
             background-color: #2B3856;
             color: white;
         }
+        .package_name {
+            color:white;
+            font: 16pt;
+            font-weight: bold;
+            text-align: center;
+        }
+        .currently_chosen {
+            border: 3px dashed green;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h3>Select Package</h3>
-        <div class="row">
-            {% for p in packages %}
-            <div class="select_package" data-package="{{p.name}}">
-                <div class="{{p.name}} span2">
-                    <a><table class="table package">
-                        <th>{{p.name}} Package</th>
-                    </table></a>
-                </div>
+        <div class="row" data-bind="foreach:KOPACKAGES">
+            <div class="select_package span2 " data-bind="css: $parent.select_package_classes($data), click: $parent.select_package">
+                    <div class="package_name row">
+                        <div class="span2">
+                            <span data-bind="text: $data.name"></span>
+                            Package
+                        </div>
+                    </div>
+
+                    <div class="package_contents row">
+                        <div class="span2">
+                            <ul data-bind="foreach: $data.contents">
+                                <li>
+
+                                    <span data-bind="text: $data.part.name"></span>
+                                    x<span data-bind="text: $data.quantity"></span>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
             </div>
-            {% endfor %}
         </div>
-        <div>&nbsp;</div>
+        <div class="row">
+            Customizing: <input type="checkbox" data-bind="checked: customizing" />
+
+            <br />
+            <table class="package_contents table" data-bind="visible: selected_package() && !customizing()">
+                <thead>
+                    <tr>
+                        <th>Part #</th><th>Description</th><th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: selected_package_contents()">
+                        <tr>
+                            <td data-bind="text: $data.code"></td>
+                            <td data-bind="text: $data.part.name"></td>
+                            <td data-bind="text: $data.quantity"></td>
+
+                        </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3">CB Balance: <span data-bind="text: cb_balance()"</span>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+            <table class="package_customization table" data-bind="visible: selected_package && customizing()">
+                <thead>
+                    <tr>
+                        <th>Part #</th><th>Description</th><th>CB</th><th>Minimum Quantity Included</th><th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: customization_lines">
+                    <tr>
+                        <td data-bind="text: $data.code"></td>
+                        <td data-bind="text: $data.part.name"></td>
+                        <td data-bind="text: $data.part.cb"></td>
+                        <td data-bind="text: $data.min_quantity"></td>
+                        <td><input type="text" data-bind="value: $data.quantity" /></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3">CB Balance: <span data-bind="text: cb_balance()"</span>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+
+    </div>
+
+    <!--    <div>&nbsp;</div>
         {% for p in packages %}
         <div class="show_package" id="{{p.name}}" hidden="hidden">
             <div class="row">
@@ -63,9 +133,9 @@
             </div>
         </div>
         {% endfor %}
+-->
 
-
-<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 
 
 <script type="text/javascript">
@@ -82,77 +152,163 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
 <script src="http://underscorejs.org/underscore-min.js"></script>
 <script type="text/javascript">
-    $(function () {
-        var package_data = {}
-            , selected_package
-            , default_parts;
+    var package_data = {}
+        , selected_package
+        , default_parts;
 
-        $('.select_package').on('click', function(evt) {
-            evt.preventDefault();
-            var $this = $(this);
-            selected_package = $this.data('package');
-            console.log(selected_package);
-            default_parts = '';
-            for(pkg in window.KOPACKAGES){
-                if(window.KOPACKAGES[pkg]['pckg'] == selected_package){
-                    default_parts = window.KOPACKAGES[pkg]['parts'];
-                }
-            }
-            $('.show_package').hide();
-            $('#' + selected_package).slideToggle("slow");
-            //package_data["package"] = selected_package
-            //cp.setPackageParts(default_parts)
-            SelectPackage(selected_package);
+
+    window.package_index = _.object(_.pluck(window.KOPACKAGES, 'code'), window.KOPACKAGES);
+    window.part_index = _.object(_.pluck(window.KOPARTS, 'code'), window.KOPARTS);
+    window.category_lists = {};
+    _.each(window.KOPARTS, function(p) { if (! category_lists[p.category]) {
+                                                category_lists[p.category]=[];
+                                                category_lists[p.category].push(p);
+                                            }
+                                        });
+
+    _.each(window.KOPACKAGES, function(package) {
+        _.each(package.contents, function(line) {
+            line.part = window.part_index[line.code];
         });
+    });
 
+    console.log("category_lists", self.category_lists);
+    console.log("package lists", self.package_index);
+    console.log("part index", self.part_index);
+
+    $(function() {
         $('.cancel_custom').on('click', function(evt) {
             $('.cust_pckg').slideToggle("slow");
             $('.pckg_detail').slideToggle("slow");
             $('.customize').slideToggle("slow");
         });
 
-        var SelectPackage = function(selected) {
-            var selected = selected;
+        $('.customize').on('click', function(evt) {
+            evt.preventDefault();
+            var $this = $(this);
+            $this.hide();
+            var pckg = $this.data('package');
+            //PackageOptions(pckg);
+            $('.pckg_detail').slideToggle("slow");
+            $('.cust_pckg').slideToggle("slow");
+            $('.save_custom').slideToggle("slow");
+            $('.cancel_custom').slideToggle("slow");
+        });
 
-            self.package_index = _.object(_.pluck(window.KOPACKAGES, 'code'), window.KOPACKAGES);
-            self.part_index = _.object(_.pluck(window.KOPARTS, 'code'), window.KOPARTS);
-            self.category_lists = {};
-            _.each(window.KOPARTS, function(p) { if (! category_lists[p.category]) {
-                                                        category_lists[p.category]=[];
-                                                        category_lists[p.category].push(p);
-                                                    }
-                                                });
+    });
 
-            console.log("category_lists", self.category_lists);
-            console.log("package lists", self.package_index);
-            console.log("part index", self.part_index);
 
-            if (selected) {
-                selected = selected.toLowerCase();
-                var sel_contents = self.package_index[selected]["contents"]
-                console.log("sel contents", sel_contents)
-                console.log("sel contents length", sel_contents.length)
-                for (var i=0; i<sel_contents.length; i++) {
-                    console.log(sel_contents[i]);
-                    console.log(sel_contents[i]["code"]);
-                    console.log(sel_contents[i]["part"]);
-                    console.log(sel_contents[i]["quantity"]);
-                }
+
+    PackageSettings = function() {
+        var self = this;
+        self.selected_package = ko.observable(null);
+        self.customizing = ko.observable(false);
+        self.custom_quantities = {};
+
+        self.customization_lines = ko.observableArray();
+
+        self.select_package = function(package) {
+
+
+            self.selected_package(package);
+            self.custom_quantities = {};
+
+
+            if(!self.customization_lines().length) {
+                _.map(KOPARTS, function(part) {
+                    var cline= {
+                        code: part.code,
+                        part: part,
+                        quantity: ko.observable(0),
+                        min_quantity: ko.observable(0),
+                    };
+                    cline.quantity.subscribe(self.cust_quantity_changed);
+                    console.log("Pushing new cline ", cline)
+                    self.customization_lines.push(cline);
+
+                    cline.quantity.subscribe(self.cust_quantity_changed);
+                });
             }
 
-            $('.customize').on('click', function(evt) {
-                evt.preventDefault();
-                var $this = $(this);
-                $this.hide();
-                var pckg = $this.data('package');
-                //PackageOptions(pckg);
-                $('.pckg_detail').slideToggle("slow");
-                $('.cust_pckg').slideToggle("slow");
-                $('.save_custom').slideToggle("slow");
-                $('.cancel_custom').slideToggle("slow");
-            });
+
+            if(package) {
+                // For each line of stuff that comes in the package normally,
+                _.each(self.selected_package().contents, function(line) {
+                    // Find the customization line for that product
+                    var cline = _.find(self.customization_lines(), function(cline) {
+                        return cline.code == line.code;
+                    });
+                    // Set that customization line's quantity and min quantity appropriately.
+                    if(cline) {
+                        console.log("Found matching cline, ", line.quantity);
+                        cline.quantity(line.quantity);
+                        //TODO: Set min quantity
+                    } else {
+                        console.log("!Found matching cline", cline);
+                    }
+                });
+            }
         };
-        ko.applyBindings(new SelectPackage())
+
+        self.cust_quantity_changed = function() {
+            alert("potato");
+            self.customization_deltas = [];
+
+            package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);
+            clines_by_part = _.object(_.pluck(self.customization_lines(), 'code'), self.customization_lines());
+
+            _.each(clines_by_part, function(cline,code) {
+                var pline = package_by_part[code];
+                var pq = 0;
+                if (pline) {
+                    pq = pline.quantity;
+                }
+
+                var delta = cline.quantity() - pq;
+                if(delta == 0)
+                    return;
+
+                console.log("I think that the cline fort part ", code, " has ", cline.quantity(), "and the pline has ", pq);
+
+                self.customization_deltas.push({
+                    code: code,
+                    delta: delta,
+                });
+
+            });
+
+        };
+
+        self.selected_package_contents = function() {
+            if(!self.selected_package()) {
+                return [];
+            }
+            return self.selected_package().contents;
+        }
+
+        self.select_package_classes = function(param) {
+            var classes = param.code;
+            if(param === self.selected_package()) {
+                classes += ' currently_chosen';
+            }
+            return classes;
+        };
+
+        self.cb_balance = function() {
+            return '100123908190';
+        };
+
+        self.select_package(null);
+    };
+
+
+
+
+    $(function() {
+
+        VM_select_package = new PackageSettings();
+        ko.applyBindings(VM_select_package);
+
 
     });
     </script>

@@ -185,25 +185,25 @@ def Package(request):
     #                          {'part':'Simon XT', 'points':'25', 'qty':'0'},
     #                          {'part':'Talkover Device', 'points':'10', 'qty':'0'}]}]
 
-    ko_packages = [{'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3', 'part':{'code':'DWSENS', 'category':'Security Sensors', 'name':'Door/Window Sensors', 'points':'5'}},
-                                                                  {'code':'SIMNXT', 'quantity':'1', 'part':{'code':'SIMNXT', 'category':'Security Panels', 'name':'Simon XT', 'points':'25'}},
-                                                                  {'code':'MOTDEC', 'quantity':'2', 'part':{'code':'MOTDEC', 'category':'Security Sensors', 'name':'Motion Detector', 'points':'10'}}
+    ko_packages = [{'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3' },
+                                                                  {'code':'SIMNXT', 'quantity':'1' },
+                                                                  {'code':'MOTDEC', 'quantity':'2' }
                                                               ]},
-                {'code':'bronze', 'name':'Bronze', 'contents':[{'code':'DWSENS', 'quantity':'7', 'part':{'code':'DWSENS', 'category':'Security Sensors', 'name':'Door/Window Sensors', 'points':'5'}},
-                                                               {'code':'SIMNXT', 'quantity':'1', 'part':{'code':'SIMNXT', 'category':'Security Panels', 'name':'Simon XT', 'points':'25'}},
-                                                               {'code':'MOTDEC', 'quantity':'2', 'part':{'code':'MOTDEC', 'category':'Security Sensors', 'name':'Motion Detector', 'points':'10'}}
+                {'code':'bronze', 'name':'Bronze', 'contents':[{'code':'DWSENS', 'quantity':'7' },
+                                                               {'code':'SIMNXT', 'quantity':'1' },
+                                                               {'code':'MOTDEC', 'quantity':'2' }
                                                               ]},
-                {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'3', 'part':{'code':'DWSENS', 'category':'Security Sensors', 'name':'Door/Window Sensors', 'points':'5'}},
-                                                               {'code':'SIMNXT', 'quantity':'1', 'part':{'code':'SIMNXT', 'category':'Security Panels', 'name':'Simon XT', 'points':'25'}},
-                                                               {'code':'MOTDEC', 'quantity':'2', 'part':{'code':'MOTDEC', 'category':'Security Sensors', 'name':'Motion Detector', 'points':'10'}}
+                {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'3' },
+                                                               {'code':'SIMNXT', 'quantity':'1' },
+                                                               {'code':'MOTDEC', 'quantity':'2'  }
                                                               ]},
-                {'code':'gold', 'name':'Gold', 'contents':[{'code':'DWSENS', 'quantity':'12', 'part':{'code':'DWSENS', 'category':'Security Sensors', 'name':'Door/Window Sensors', 'points':'5'}},
-                                                           {'code':'SIMNXT', 'quantity':'1', 'part':{'code':'SIMNXT', 'category':'Security Panels', 'name':'Simon XT', 'points':'25'}},
-                                                           {'code':'MOTDEC', 'quantity':'2', 'part':{'code':'MOTDEC', 'category':'Security Sensors', 'name':'Motion Detector', 'points':'10'}}
+                {'code':'gold', 'name':'Gold', 'contents':[{'code':'DWSENS', 'quantity':'12' },
+                                                           {'code':'SIMNXT', 'quantity':'1' },
+                                                           {'code':'MOTDEC', 'quantity':'2' }
                                                            ]},
-                {'code':'platinum', 'name':'Platinum', 'contents':[{'code':'DWSENS', 'quantity':'15', 'part':{'code':'DWSENS', 'category':'Security Sensors', 'name':'Door/Window Sensors', 'points':'5'}},
-                                                                   {'code':'SIMNXT', 'quantity':'1', 'part':{'code':'SIMNXT', 'category':'Security Panels', 'name':'Simon XT', 'points':'25'}},
-                                                                   {'code':'MOTDEC', 'quantity':'2', 'part':{'code':'MOTDEC', 'category':'Security Sensors', 'name':'Motion Detector', 'points':'10'}}
+                {'code':'platinum', 'name':'Platinum', 'contents':[{'code':'DWSENS', 'quantity':'15' },
+                                                                   {'code':'SIMNXT', 'quantity':'1' },
+                                                                   {'code':'MOTDEC', 'quantity':'2' }
                                                                   ]}]
 
     ko_parts = [{'code':'DWSENS', 'name':'Door/Window Sensors', 'points':'5', 'quantity':'0', 'category':'Security Sensors'},

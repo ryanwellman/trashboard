@@ -71,7 +71,8 @@ def test_json(request):
                 'email':    'al@smif.com',
                 'approved': 'approved',
                 'package':  'copper',
-                'shipping': 'jpost'
+                'shipping': 'jpost',
+                'arrtest':  ['jeff', 'jones', 'legit'],
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)

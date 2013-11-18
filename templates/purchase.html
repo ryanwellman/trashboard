@@ -77,17 +77,14 @@
         var self = this;
         self.purchase_lines = ko.observableArray([new PartLine()]);
 
-        self.part_changed = function() {
-            alert("part is changing");
-        };
-
         self.addLine = function() { self.purchase_lines.push(new PartLine()) };
         self.removeLine = function(line) { self.purchase_lines.remove(line) };
 
         self.save = function() {
             var dataToSave = $.map(self.purchase_lines(), function(line) {
                 return line.selected_part() ? {
-                    part: line.selected_part()
+                    part: line.selected_part(),
+                    total_price: line.total_price(),
                 } : undefined
             });
             alert("Could now send this to server: " + JSON.stringify(dataToSave));

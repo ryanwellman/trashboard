@@ -231,11 +231,15 @@
 
                     // this fn unpacks blob into observable properties
                     // XXX: how does it deal with recursion?
-                    //      blob happens to contain no objects or arrays,
-                    //      but will that always be true?
+                    // XXX: it seems ko really only wants to deal with
+                    //      top-level objects
                     self.load_blob = function(blob) {
                         $.each(blob, function(k, v) {
-                            self[k] = ko.observable(v);
+                            if( v instanceof Array) {
+                                self[k] = ko.observableArray(v);
+                            } else {
+                                self[k] = ko.observable(v);
+                            }
                         });
                     };
 

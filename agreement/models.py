@@ -16,9 +16,8 @@ class Agreement(models.Model):
 	three = models.CharField(max_length=10)
 
 	def __unicode__(self):
-		return u','.join([	self.name, self.address, self.city, self.state,
-							self.zip, self.approved, self.one, self.two, self.three
-						])
+		return "<" + self.__class__.__name__ + ":" + ','.join([self.name, self.address, self.city, self.state,
+							self.zip, self.approved, self.one, self.two, self.three]) + ">"
 
 	def serialize(self):
 		return 	{

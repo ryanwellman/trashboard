@@ -95,7 +95,7 @@
                     </tr>
                 </tfoot>
             </table>
-            <table class="package_customization table" data-bind="visible: selected_package && customizing()">
+            <table class="package_customization table" data-bind="visible: selected_package() && customizing()">
                 <thead>
                     <tr>
                         <th>Part #</th><th>Description</th><th>CB</th><th>Minimum Quantity Included</th><th>Quantity</th>
@@ -223,7 +223,7 @@
                         min_quantity: ko.observable(0),
                     };
                     cline.quantity.subscribe(self.cust_quantity_changed);
-                    console.log("Pushing new cline ", cline)
+                    console.log("Pushing new cline ", cline);
                     self.customization_lines.push(cline);
 
                     cline.quantity.subscribe(self.cust_quantity_changed);
@@ -251,7 +251,6 @@
         };
 
         self.cust_quantity_changed = function() {
-            alert("potato");
             self.customization_deltas = [];
 
             package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);

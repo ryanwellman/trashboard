@@ -10,6 +10,7 @@ class Agreement(models.Model):
 	city = models.CharField(max_length=50)
 	state = models.CharField(max_length=25)
 	zip = models.CharField(max_length=10)
+	country = models.CharField(max_length=10)
 	approved = models.CharField(max_length=10)
 	one = models.CharField(max_length=10)
 	two = models.CharField(max_length=10)
@@ -17,7 +18,7 @@ class Agreement(models.Model):
 
 	def __unicode__(self):
 		return "<" + self.__class__.__name__ + ":" + ','.join([self.name, self.address, self.city, self.state,
-							self.zip, self.approved, self.one, self.two, self.three]) + ">"
+							self.zip, self.country, self.approved, self.one, self.two, self.three]) + ">"
 
 	def serialize(self):
 		return 	{
@@ -26,6 +27,7 @@ class Agreement(models.Model):
 					"city": self.city,
 					"state": self.state,
 					"zip": self.zip,
+					"country": self.country,
 					"approved": self.approved,
 					"one": self.one,
 					"two": self.two,
@@ -38,6 +40,7 @@ class Agreement(models.Model):
 		self.city = incoming.get('city')
 		self.state = incoming.get('state')
 		self.zip = incoming.get('zip')
+		self.country = incoming.get('country')
 		self.approved = incoming.get('approved')
 		self.one = incoming.get('one')
 		self.two = incoming.get('two')

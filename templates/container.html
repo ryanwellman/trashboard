@@ -1,71 +1,72 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Test Form</title>
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
-		<style type="text/css">
-			body {
-				padding-top: 60px;
-				height: 100%;
-			}
-			section {
-				padding-top: 60px;
-				margin-top: -60px;
-			}
-			.content > section > p {
-				background-color: #f5f5f5;
-				height: 570px;
-			}
-			#infobar {
-				display: table;
-				border-spacing: 5px;
-			}
-			.infobar_zero {
-				margin: 0;
-				padding: 2px;
-			}
-			#infobar i {
-				position: absolute;
-				top: 4px;
-				right: 2px;
-			}
-			#infobar_content {
-				display: table-row;
-			}
-			#infobar_content > div {
-				display: table-cell;
-			}
-			#infobar_left {
-				border: 1px solid rgb(227,227,227);
-				border-radius: 4px;
-				padding: 2px;
-			}
-			/* shamelessly ripped from css3please.com */
-			/* 	ie's rotate macro thing before ie9 has an unescaped colon in it
-				and it breaks my css */
-			.box-rotate {
-     			-moz-transform: rotate(-90deg);  /* ff3.5+ */
-       			-o-transform: rotate(-90deg);  /* opera 10.5 */
-  				-webkit-transform: rotate(-90deg);  /* safari 3.1+, chrome */
-  				-ms-transform: rotate(-90deg); /* ie9 */
-  				transform: rotate(-90deg); /* else */
-			}
-			/*	the box-rotate style breaks positioning
-				and this kind of brings it back */
-			.tab-pos {
-				-webkit-transform-origin: 25% 217%; /* this is crazy! */
-				-moz-transform-origin: 25% 217%; /* crazy, i tell you! */
-				-o-transform-origin: 25% 217%;
-				-ms-transform-origin: 25% 217%;
-				transform-origin: 25% 217%;
-				width: 120px;
-				font-size: 12pt;
-				padding: 10px;
-				text-align: center;
-			}
+    <head>
+        <title>Test Form</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
+        <script src="http://underscorejs.org/underscore-min.js"></script>
+        <style type="text/css">
+            body {
+                padding-top: 60px;
+                height: 100%;
+            }
+            section {
+                padding-top: 60px;
+                margin-top: -60px;
+            }
+            .content > section > p {
+                background-color: #f5f5f5;
+                height: 570px;
+            }
+            #infobar {
+                display: table;
+                border-spacing: 5px;
+            }
+            .infobar_zero {
+                margin: 0;
+                padding: 2px;
+            }
+            #infobar i {
+                position: absolute;
+                top: 4px;
+                right: 2px;
+            }
+            #infobar_content {
+                display: table-row;
+            }
+            #infobar_content > div {
+                display: table-cell;
+            }
+            #infobar_left {
+                border: 1px solid rgb(227,227,227);
+                border-radius: 4px;
+                padding: 2px;
+            }
+            /* shamelessly ripped from css3please.com */
+            /*  ie's rotate macro thing before ie9 has an unescaped colon in it
+                and it breaks my css */
+            .box-rotate {
+                -moz-transform: rotate(-90deg);  /* ff3.5+ */
+                -o-transform: rotate(-90deg);  /* opera 10.5 */
+                -webkit-transform: rotate(-90deg);  /* safari 3.1+, chrome */
+                -ms-transform: rotate(-90deg); /* ie9 */
+                transform: rotate(-90deg); /* else */
+            }
+            /*  the box-rotate style breaks positioning
+                and this kind of brings it back */
+            .tab-pos {
+                -webkit-transform-origin: 25% 217%; /* this is crazy! */
+                -moz-transform-origin: 25% 217%; /* crazy, i tell you! */
+                -o-transform-origin: 25% 217%;
+                -ms-transform-origin: 25% 217%;
+                transform-origin: 25% 217%;
+                width: 120px;
+                font-size: 12pt;
+                padding: 10px;
+                text-align: center;
+            }
             .Copper {
                 background-color: #B87333;
             }
@@ -93,7 +94,7 @@
                 border:2px solid;
                 border-color: #B6B6B4;
             }
-		</style>
+        </style>
 {% include 'templates/customer_info.html' %}
 {% include 'templates/customize.html' %}
 {% include 'templates/combos.html' %}
@@ -102,223 +103,301 @@
 {% include 'templates/premium_add_ons.html' %}
 {% include 'templates/publish.html' %}
 {% include 'templates/closing.html' %}
+{% include 'templates/review.html' %}
 {% include 'templates/services.html' %}
 {% include 'templates/shipping.html' %}
-	</head>
-	<body>
-		<div class="affix" style="top:40px;right:0px">
-			<div id="infobar" class="well">
-				<i id="infobar_resize" class="icon-resize-small"></i>
-				<div id="infobar_content">
-					<div id="infobar_left">
-						<span data-bind="text: dat.blob.name"></span><br>
-						<span data-bind="text: dat.blob.address"></span><br>
-						<span data-bind="text: dat.blob.city"></span>,
-						<span data-bind="text: dat.blob.state"></span><br>
-						<span data-bind="text: dat.blob.zip"></span><br>
-					</div>
-					<div id="infobar_middle">
-						<p>
-							<span class="label label-default">$Invoice</span><br>
-							<span class="label label-important">Chargeback</span><br>
-							<span class="label label-info">Combos</span><br>
-							<span class="label label-warning">Promotions</span><br>
-							<span class="label label-success">Rate Drops</span><br>
-						</p>
-					</div>
-					<div id="infobar_right">
-						<p>
-							<span class="label label-default">Agreement ID</span><br>
-							<span class="label label-important">Package</span><br>
-							<span class="label label-info">Monitoring</span><br>
-							<span class="label label-warning">Shipping</span><br>
-							<span class="label label-success">$RMR</span><br>
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="container">
-			<div class="navbar navbar-fixed-top" id="navbar">
-				<div class="navbar-inner">
-					<ul class="nav">
-						<li><a href="#cinfo">Customer Info</a></li>
-						<li><a href="#pkgsel">Package</a></li>
-						<li><a href="#monitor">Monitoring</a></li>
-						<li><a href="#premium">Premium</a></li>
-						<li><a href="#combos">Combos</a></li>
-						<li><a href="#custom">Customize</a></li>
-						<li><a href="#alc">A-La-Carte</a></li>
-						<li><a href="#services">Services</a></li>
-						<li><a href="#closing">Closing</a></li>
-						<li><a href="#shipping">Shipping</a></li>
-						<li><a href="#review">Review</a></li>
-						<li><a href="#publish">Publish</a></li>
-					</ul>
-				</div>
-			</div>
-			<div class="content">
-				<section id="cinfo">
-					<div data-bind="template: { name: 'customer_info', data: dat }">Customer Info Form</div>
-				</section>
-				<section id="pkgsel">
-					<div data-bind="template: { name: 'packages', data: dat }">Package Select Form</div>
-				</section>
-				<section id="monitor"><p>Monitoring Form</p></section>
-				<section id="premium">
-					<div data-bind="template: { name: 'premiums', data: dat }">Premium Form</div>
-				</section>
-				<section id="combos">
-					<div data-bind="template: { name: 'combos_', data: dat }">Combo Select Form</div>
-				</section>
-				<section id="custom"><p>Customize Form</p></section>
-				<section id="alc"><p>A-La-Carte Form</p></section>
-				<section id="services">
-					<div data-bind="template: { name: 'services_', data: dat }">Services Form</div>
-				</section>
-				<section id="closing">
-					<div data-bind="template: { name: 'closing_', data: dat }">Closing Form</p>
-				</section>
-				<section id="shipping">
-					<div data-bind="template: { name: 'shipping_', data: dat }">Rate Drop Form</div>
-				</section>
-				<section id="review"><p>Review Form</p></section>
-				<section id="publish">
-					<div data-bind="template: { name: 'publish_', data: dat }">Publish Form</div>
-				</section>
-				<section id="scroller">
-					<p>this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom</p>
-				</section>
-			</div>
-		</div>
-		<script type="text/javascript">
-			// jquery wrapper to anonymous function
-			$(function() {
-				var blob = {};
+    </head>
+    <body>
+        <!-- z-index on the next line fixes buttons visible over the infobar-->
+        <div class="affix" style="top:40px;right:0px;z-index:1000">
+            <div id="infobar" class="well">
+                <i id="infobar_resize" class="icon-resize-small"></i>
+                <div id="infobar_content">
+                    <div id="infobar_left">
+                        <span data-bind="text: name"></span><br>
+                        <span data-bind="text: address"></span><br>
+                        <span data-bind="text: city"></span>,
+                        <span data-bind="text: state"></span><br>
+                        <span data-bind="text: zip"></span><br>
+                        <span data-bind="text: country"></span><br>
+                    </div>
+                    <div id="infobar_middle">
+                        <p>
+                            <span class="label label-default">$Invoice</span><br>
+                            <span class="label label-important">Chargeback</span><br>
+                            <span class="label label-info">Combos</span><br>
+                            <span class="label label-warning">Promotions</span><br>
+                            <span class="label label-success">Rate Drops</span><br>
+                        </p>
+                    </div>
+                    <div id="infobar_right">
+                        <p>
+                            <span class="label label-default">Agreement ID</span><br>
+                            <span class="label label-important">Package</span><br>
+                            <span class="label label-info">Monitoring</span><br>
+                            <span class="label label-warning">Shipping</span><br>
+                            <span class="label label-success">$RMR</span><br>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="navbar navbar-fixed-top" id="navbar">
+                <div class="navbar-inner">
+                    <ul class="nav">
+                        <li><a href="#cinfo">Customer Info</a></li>
+                        <li><a href="#pkgsel">Package</a></li>
+                        <li><a href="#monitor">Monitoring</a></li>
+                        <li><a href="#premium">Premium</a></li>
+                        <li><a href="#combos">Combos</a></li>
+                        <li><a href="#custom">Customize</a></li>
+                        <li><a href="#alc">A-La-Carte</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#closing">Closing</a></li>
+                        <li><a href="#shipping">Shipping</a></li>
+                        <li><a href="#review">Review</a></li>
+                        <li><a href="#publish">Publish</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="content">
+                <section id="cinfo">
+                    <div data-bind="template: { name: 'customer_info', data: $data }">Customer Info Form</div>
+                </section>
+                <section id="pkgsel">
+                    <div data-bind="template: { name: 'packages', data: $data }">Package Select Form</div>
+                </section>
+                <section id="monitor"><p>Monitoring Form</p></section>
+                <section id="premium">
+                    <div data-bind="template: { name: 'premiums', data: $data }">Premium Form</div>
+                </section>
+                <section id="combos">
+                    <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
+                </section>
+                <section id="custom"><p>Customize Form</p></section>
+                <section id="alc"><p>A-La-Carte Form</p></section>
+                <section id="services">
+                    <div data-bind="template: { name: 'services_', data: $data }">Services Form</div>
+                </section>
+                <section id="closing">
+                    <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
+                </section>
+                <section id="shipping">
+                    <div data-bind="template: { name: 'shipping_', data: $data }">Rate Drop Form</div>
+                </section>
+                <section id="review">
+                    <div data-bind="template: { name: 'review_', data: $data }">Review Form</div>
+                </section>
+                <section id="publish">
+                    <div data-bind="template: { name: 'publish_', data: $data }">Publish Form</div>
+                </section>
+                <section id="scroller">
+                    <p>this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom</p>
+                </section>
+            </div>
+        </div>
+        <script type="text/javascript">
+            // jquery wrapper to anonymous function
+            $(function() {
+                var blob = {};
 
-				// AJAX JSON LOADER
+                // AJAX JSON LOADER
 
-				var result = $.ajax({
-					dataType: "json",
-					url: '/json',
-					async: false, // asynchronous load means empty blob
-					success: function() { console.log("loaded json"); }
-				});
+                var result = $.ajax({
+                    dataType: "json",
+                    url: '/json3',
+                    async: false, // asynchronous load means empty blob
+                    success: function() { console.log("loaded json"); }
+                });
 
-				// populate blob with keys and ko.observable values
-				result.done(function(data) {
-					$.each(data, function(k, v) {
-						blob[k] = ko.observable(v);
-					});
-				});
+                // populate blob with keys and values
+                result.done(function(data) {
+                    $.each(data, function(k, v) {
+                        blob[k] = v;
+                    });
+                });
 
-				// KNOCKOUT TEMPLATES
+                // KNOCKOUT VIEW MODEL
 
-				// initialize a view model
-				function TrashboardVM(blob) {
-					// capture 'this' into this function's closure
-					var self = this;
+                // initialize a view model that can take a blob from the
+                // json loader in its constructor
+                Settings = function(blob) {
+                    // capture 'this' context into Settings' closure
+                    var self = this;
 
-					// make blob a thing if it isn't
-					var blob = blob || {};
+                    // make blob a thing if it isn't
+                    var blob = blob || {};
 
-					// declare things that should be visible to templates
-					self.dat = {	blob: blob,
-									countries: ["USA"].concat(["Canada"].sort()), // sort everyone else
-									states: ["AK", "CA", "HI", "TX"].sort(), // sort states
-								};
-				}
+                    // this fn unpacks blob into observable properties
+                    // XXX: how does it deal with recursion?
+                    //      blob happens to contain no objects or arrays,
+                    //      but will that always be true?
+                    self.load_blob = function(blob) {
+                        $.each(blob, function(k, v) {
+                            self[k] = ko.observable(v);
+                        });
+                    };
 
-				// apply bindings for knockout
-				ko.applyBindings(new TrashboardVM(blob));
+                    // now actually load blob
+                    self.load_blob(blob);
 
-				// SCROLL SPY
+                    // create a computed full name
+                    self.name = ko.computed(function() {
+                        return self.fname() + ' ' + self.initial() + '. ' + self.lname();
+                    });
 
-				// scrollspy to activate elements in the navbar when they are visible
-				$('body').scrollspy({target: '#navbar', offset: 65});
+                    // XXX: insert other fns here
+                    // some suggestions:
+                    //  loader functions that make the correct form parts
+                    //  appear when their preceding form section is complete
+                    //  helper functions that take form data and construct
+                    //  other form data
 
-				// JQUERY DOM MANIPS
+                    self.test_cinfo = function() {
+                        // look for values in these form fields
+                        if( self.fname() &&
+                            self.lname() &&
+                            self.address() &&
+                            self.city() &&
+                            self.state() &&
+                            self.zip() &&
+                            self.country() &&
+                            self.taxid() &&
+                            self.email() &&
+                            self.approved() ) {
+                            // disable form fields
+                            $('#cinfo div input, #cinfo div select, #cinfo div button').prop('disabled', true);
+                            // change label color
+                            $('#cinfo span.tab-pos').toggleClass('label-inverse label-success');
+                        }
+                    };
 
-				// toggle the info bar
-				$('#infobar_resize').click(function(e) {
-					$('#infobar_content').toggle();
-					$('#infobar').toggleClass("infobar_zero");
-					$('#infobar_resize').toggleClass("icon-resize-small icon-resize-full");
-				});
-				// toggle the info bar resize icon on hover
-				$('#infobar_resize').hover(function() {
-					$(this).toggleClass("icon-white");
-				}, function() {
-					$(this).toggleClass("icon-white");
-				});
+                    self.test_pkgsel = function() {
+                        if( self.package() ) {
+                            // disable package selector
+                            $('#pkgsel div button').prop('disabled', true);
+                            // change label color
+                            $('#pkgsel span.tab-pos').toggleClass('label-inverse label-success');
+                        }
+                    };
 
-				// JQUERY FORM-SPECIFIC MANIPS
+                    self.test_shipping = function() {
+                        if( self.shipping() ) {
+                            // disable package selector
+                            $('#shipping div button').prop('disabled', true);
+                            // change label color
+                            $('#shipping span.tab-pos').toggleClass('label-inverse label-success');
+                        }
+                    };
 
-				// customer info
-				// select the correct credit button
-				var credit_str = "<a class='btn btn-large ";
-				if (blob.approved() == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
-				if (blob.approved() == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
-				if (blob.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
-				$('#credit_btn').empty().append(credit_str);
+                    // variables included in this view model not from blob
+                    self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
+                    self.states = ["AK", "CA", "HI", "TX"].sort(); // sort states
 
-				// packages
-				// global package_data here
-				var package_data = {};
+                    // XXX: insert other variables here
+                };
 
-				// bind some click events
-	            $('.select_package').on('click', function(evt) {
-	                evt.preventDefault();
-	                var $this = $(this);
-	                var pack = $this.data('package');
-	                $('.show_package').hide();
-	                $('#' + pack).slideToggle("slow");
-	                package_data["package"] = pack
-	                console.log(package_data);
-	                //CustomizeModel(pack);
-	            });
+                // apply bindings for knockout
+                master_settings = new Settings(blob);
+                ko.applyBindings(master_settings);
 
-	            $('.customize').on('click', function(evt) {
-	                evt.preventDefault();
-	                var $this = $(this);
-	                $this.hide();
-	                var detail = $this.data('detail');
-	                $('.pckg_detail').slideToggle("slow");
-	                $('.cust_pckg').slideToggle("slow");
-	            });
+                // SCROLL SPY
 
-	            $('.cancel_purchase').on('click', function(evt) {
-	                $('.purchase').slideToggle("slow");
-	                $('.customize').slideToggle("slow");
-	            });
+                // scrollspy to activate elements in the navbar when they are visible
+                $('body').scrollspy({target: '#navbar', offset: 65});
 
-	            $('.add_purchase').on('click', function(evt) {
-	                $('.cust_pckg').slideToggle("slow");
-	                $('.customize').slideToggle("slow");
-	            });
+                // JQUERY DOM MANIPS
 
-	            $('.expand_equip').on('click', function(evt) {
-	                var $this = $(this);
-	                var sec = $this.data('equip');
-	                $this.hide();
-	                $('#' + sec).slideToggle("slow");
-	                $('#hide' + sec).slideToggle("slow");
-	            });
+                // toggle the info bar
+                $('#infobar_resize').click(function(e) {
+                    $('#infobar_content').toggle();
+                    $('#infobar').toggleClass("infobar_zero");
+                    $('#infobar_resize').toggleClass("icon-resize-small icon-resize-full");
+                });
 
-	            $('.hide_equip').on('click', function(evt) {
-	                var $this = $(this);
-	                var sec = $this.data('equip');
-	                $this.hide();
-	                $('#' + sec).slideToggle("slow");
-	                $('#expand' + sec).slideToggle("slow");
-	            });
+                // toggle the info bar resize icon on hover
+                $('#infobar_resize').hover(function() {
+                    $(this).toggleClass("icon-white");
+                }, function() {
+                    $(this).toggleClass("icon-white");
+                });
 
-	            $('.checkbox').on('change', function(evt) {
-	                var $this = $(this);
-	            });
+                // JQUERY FORM-SPECIFIC MANIPS
 
-			});
-		</script>
-	</body>
+                // customer info
+                // select the correct credit button
+                var credit_str = "<a class='btn btn-large ";
+                if (master_settings.approved() == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
+                if (master_settings.approved() == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
+                if (master_settings.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
+                $('#credit_btn').empty().append(credit_str);
+
+                // packages
+                // global package_data here
+                var package_data = {};
+
+                // bind some click events
+                $('.select_package').on('click', function(evt) {
+                    evt.preventDefault();
+                    var $this = $(this);
+                    var pack = $this.data('package');
+                    $('.show_package').hide();
+                    $('#' + pack).slideToggle("slow");
+                    package_data["package"] = pack
+                    console.log(package_data);
+                    //CustomizeModel(pack);
+                });
+
+                $('.customize').on('click', function(evt) {
+                    evt.preventDefault();
+                    var $this = $(this);
+                    $this.hide();
+                    var detail = $this.data('detail');
+                    $('.pckg_detail').slideToggle("slow");
+                    $('.cust_pckg').slideToggle("slow");
+                });
+
+                $('.cancel_purchase').on('click', function(evt) {
+                    $('.purchase').slideToggle("slow");
+                    $('.customize').slideToggle("slow");
+                });
+
+                $('.add_purchase').on('click', function(evt) {
+                    $('.cust_pckg').slideToggle("slow");
+                    $('.customize').slideToggle("slow");
+                });
+
+                $('.expand_equip').on('click', function(evt) {
+                    var $this = $(this);
+                    var sec = $this.data('equip');
+                    $this.hide();
+                    $('#' + sec).slideToggle("slow");
+                    $('#hide' + sec).slideToggle("slow");
+                });
+
+                $('.hide_equip').on('click', function(evt) {
+                    var $this = $(this);
+                    var sec = $this.data('equip');
+                    $this.hide();
+                    $('#' + sec).slideToggle("slow");
+                    $('#expand' + sec).slideToggle("slow");
+                });
+
+                $('.checkbox').on('change', function(evt) {
+                    var $this = $(this);
+                });
+
+                // FORM LOGIC
+
+                // fire all the test functions to see which sections
+                // have already been completed as per the input json
+                master_settings.test_cinfo();
+                master_settings.test_pkgsel();
+                master_settings.test_shipping();
+
+                // XXX: more form section handlers...
+            });
+        </script>
+    </body>
 </html>
-.

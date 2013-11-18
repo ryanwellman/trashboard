@@ -56,6 +56,27 @@ def serve_json(request):
     return SerializeOrRedirect(reverse(draw_test), ctx)
 
 
+def test_json(request):
+    # sends json response given in the dictionary below
+    ctx =   {
+                'fname':    'al',
+                'lname':    'smif',
+                'initial':  'h',
+                'address':  '92103 chainsaw place',
+                'city':     'marfa',
+                'state':    'tx'.upper(),
+                'zip':      '12345',
+                'country':  'usa'.upper(),
+                'taxid':    '123-45-6780',
+                'email':    'al@smif.com',
+                'approved': 'approved',
+                'package':  'copper',
+                'shipping': 'jpost'
+            }
+
+    return SerializeOrRedirect(reverse(draw_test), ctx)
+
+
 @render_to('templates/container.html')
 def draw_container(request):
     # uses render_to to draw the template
@@ -68,7 +89,8 @@ def draw_container(request):
     # agreement app
 
     # for the following 4 lists of dictionaries:
-    # from PTblProduct: name <-> name, description <-> description, price <-> price
+    # from Product: name <-> name, description <-> description
+    # from ProductPrice price <-> price
     premiums    =  [    {'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
                         {'name':'Cellular Service', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
                         {'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]

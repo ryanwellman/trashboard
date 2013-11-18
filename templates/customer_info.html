@@ -9,21 +9,21 @@
 								<div class="control-group">
 									<label class="control-label">First Name:</label>
 									<div class="controls">
-										<input type="text" placeholder="First" data-bind="value: blob.name">
+										<input type="text" placeholder="First" data-bind="value: fname">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Middle Initial:</label>
 									<div class="controls">
-										<input type="text" placeholder="M" maxlength="1">
+										<input type="text" placeholder="M" maxlength="1" data-bind="value: initial">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Last Name:</label>
 									<div class="controls">
-										<input type="text" placeholder="Last">
+										<input type="text" placeholder="Last" data-bind="value: lname">
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -31,14 +31,14 @@
 								<div class="control-group">
 									<label class="control-label">Address:</label>
 									<div class="controls">
-										<input type="text" placeholder="Address" data-bind="value: blob.address">
+										<input type="text" placeholder="Address" data-bind="value: address">
 									</div>
 									<span class="help-inline"></span>
 								</div>								
 								<div class="control-group">
 									<label class="control-label">City:</label>
 									<div class="controls">
-										<input type="text" placeholder="City" data-bind="value: blob.city">
+										<input type="text" placeholder="City" data-bind="value: city">
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -47,35 +47,35 @@
 								<div class="control-group">
 									<label class="control-label">State:</label>
 									<div class="controls">
-										<select data-bind="options: states, value: blob.state"></select>
+										<select data-bind="options: states, value: state"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">ZIP:</label>
 									<div class="controls">
-										<input type="text" placeholder="ZIP" data-bind="value: blob.zip">
+										<input type="text" placeholder="ZIP" data-bind="value: zip">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Country:</label>
 									<div class="controls">
-										<select data-bind="options: countries, value: blob.country"></select>
+										<select data-bind="options: countries, value: country"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">SSN or Tax ID:</label>
 									<div class="controls">
-										<input type="text" placeholder="SSN or Tax ID">
+										<input type="text" placeholder="SSN or Tax ID" data-bind="value: taxid">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">E-mail Address:</label>
 									<div class="controls">
-										<input type="text" placeholder="E-mail">
+										<input type="text" placeholder="E-mail" data-bind="value: email">
 									</div>
 									<span class="help-inline"></span>
 								</div>

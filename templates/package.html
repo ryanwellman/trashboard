@@ -118,22 +118,7 @@
                 </tfoot>
             </table>
         </div>
-
-
     </div>
-
-    <!--    <div>&nbsp;</div>
-        {% for p in packages %}
-        <div class="show_package" id="{{p.name}}" hidden="hidden">
-            <div class="row">
-                <div class="span1"></div>
-                <div class="span3">
-                    <h4>{{p.name}} Package - {{p.price}}</h4>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
--->
 
     <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 
@@ -152,10 +137,6 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
 <script src="http://underscorejs.org/underscore-min.js"></script>
 <script type="text/javascript">
-    var package_data = {}
-        , selected_package
-        , default_parts;
-
 
     window.package_index = _.object(_.pluck(window.KOPACKAGES, 'code'), window.KOPACKAGES);
     window.part_index = _.object(_.pluck(window.KOPARTS, 'code'), window.KOPARTS);
@@ -194,10 +175,7 @@
             $('.save_custom').slideToggle("slow");
             $('.cancel_custom').slideToggle("slow");
         });
-
     });
-
-
 
     PackageSettings = function() {
         var self = this;
@@ -209,10 +187,8 @@
 
         self.select_package = function(package) {
 
-
             self.selected_package(package);
             self.custom_quantities = {};
-
 
             if(!self.customization_lines().length) {
                 _.map(KOPARTS, function(part) {
@@ -229,7 +205,6 @@
                     cline.quantity.subscribe(self.cust_quantity_changed);
                 });
             }
-
 
             if(package) {
                 // For each line of stuff that comes in the package normally,
@@ -276,7 +251,7 @@
 
             });
 
-        };
+        };s
 
         self.selected_package_contents = function() {
             if(!self.selected_package()) {

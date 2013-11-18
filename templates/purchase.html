@@ -1,0 +1,104 @@
+<html>
+<head>
+    <style type="text/css">
+        .purchase_items {
+            width: 140px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Purchase Items</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Part</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Line Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: purchase_lines">
+                <tr>
+                    <td>
+                        <select data-bind='options:KOPARTS, optionsText: "name", optionsCaption: "Choose Part...", value: selected_part'></select>
+                    </td>
+                    <td>
+                        <input class="input-mini" data-bind='visible: selected_part, value: quantity, valueUpdate: "afterkeydown", event: { blur: updateQuantity }' style="text-align: center;"/>
+                    </td>
+                    <td data-bind="with: selected_part()">$<span data-bind='visible: price, text: price'></span></td>
+                    <td>$<span data-bind='visible: total_price(), text: formatCurrency(total_price())'></span></td>
+                    <td><a href='#' data-bind='click: $parent.removeLine'>Remove</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-success purchase_items" data-bind='click: addLine'><i class="icon-plus"></i> Add Part</button>
+        <button class="btn btn-primary purchase_items" data-bind='click: save'>Save Purchase</button>
+    </div>
+
+    <div>&nbsp;</div>
+    <pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+
+<script type="text/javascript">
+    {% block javascript_variables_nocompress %}
+        window.KOPARTS = {{json_ko_parts|safe}};
+    {% endblock %}
+</script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
+<script src="http://underscorejs.org/underscore-min.js"></script>
+<script type="text/javascript">
+
+    function formatCurrency(value) {
+        return value.toFixed(2);
+    };
+
+    PartLine = function() {
+        var self = this;
+
+        self.selected_part = ko.observableArray();
+        self.quantity = ko.observable(0);
+        self.total_price = ko.computed(function() {
+            return self.selected_part() ? self.quantity() * self.selected_part().price : 0;
+        });
+        self.updateQuantity = function () {
+            console.log(self.selected_part()['quantity']);
+            self.selected_part()['quantity'] = self.quantity();
+            console.log(self.selected_part().quantity);
+        };
+    };
+
+    PurchaseParts = function() {
+        var self = this;
+        self.purchase_lines = ko.observableArray([new PartLine()]);
+
+        self.part_changed = function() {
+            alert("part is changing");
+        };
+
+        self.addLine = function() { self.purchase_lines.push(new PartLine()) };
+        self.removeLine = function(line) { self.purchase_lines.remove(line) };
+
+        self.save = function() {
+            var dataToSave = $.map(self.purchase_lines(), function(line) {
+                return line.selected_part() ? {
+                    part: line.selected_part()
+                } : undefined
+            });
+            alert("Could now send this to server: " + JSON.stringify(dataToSave));
+        }
+    };
+
+    $(function() {
+        VM_purchase = new PurchaseParts();
+        ko.applyBindings(VM_purchase);
+    });
+</script>
+
+</body>
+</html>

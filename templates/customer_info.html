@@ -1,7 +1,7 @@
 		<script type="text/html" id="customer_info">
 			<div class="well">
 				<span class="label label-inverse box-rotate tab-pos">Customer Info</span>
-				<form>
+				<form id="cinfo_form">
 					<fieldset>
 						<div class="controls controls-row">
 							<!-- <legend>Customer Info</legend> -->
@@ -47,7 +47,7 @@
 								<div class="control-group">
 									<label class="control-label">State:</label>
 									<div class="controls">
-										<select data-bind="options: states, value: state"></select>
+										<select data-bind="options: states, optionsCaption: 'Please select...', value: state"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -61,7 +61,7 @@
 								<div class="control-group">
 									<label class="control-label">Country:</label>
 									<div class="controls">
-										<select data-bind="options: countries, value: country"></select>
+										<select data-bind="options: countries, optionsCaption: 'Please select...', value: country"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -88,8 +88,8 @@
 						</div>
 						<div class="form-actions">
 							<div class="pull-right">
-								<button type="submit" class="btn btn-primary"><i class="icon-check icon-white" id="cinfo_submit"></i> Submit</button>
-								<button class="btn">Clear</button>
+								<button type="submit" class="btn btn-primary" id="cinfo_submit"><i class="icon-check icon-white"></i> Submit</button>
+								<button class="btn" type="reset">Clear</button>
 							</div>
 						</div>
 					</fieldset>

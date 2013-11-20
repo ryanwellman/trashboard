@@ -112,7 +112,7 @@
 {% include 'templates/shipping.html' %}
     </head>
     <body>
-        <!-- z-index on the next line fixes buttons visible over the infobar-->
+        <!-- z-index on the next line fixes buttons visible over the infobar -->
         <div class="affix" style="top:40px;right:0px;z-index:1000">
             <div id="infobar" class="well">
                 <i id="infobar_resize" class="icon-resize-small"></i>
@@ -135,10 +135,10 @@
                     </div>
                     <div id="infobar_right">
                         <p>
-                            <span data-bind="" class="label label-default">Agreement ID</span><br>
-                            <span class="label label-important">Package</span><br>
-                            <span class="label label-info">Monitoring</span><br>
-                            <span class="label label-warning">Shipping</span><br>
+                            <span data-bind="text: agreement_id_nav" class="label label-default">Agreement ID</span><br>
+                            <span data-bind="text: package_nav" class="label label-important">Package</span><br>
+                            <span data-bind="text: monitoring_nav" class="label label-info">Monitoring</span><br>
+                            <span data-bind="text: shipping_nav" class="label label-warning">Shipping</span><br>
                             <span class="label label-success">$RMR</span><br>
                         </p>
                     </div>
@@ -271,14 +271,18 @@
                         result.done(function(data) {
                             // obtain that agreement id from the json response
                             agreement_id = (agreement_id == data.agreement_id) ? agreement_id : data.agreement_id;
+                            self.agreement_id = agreement_id;
                             console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
                         });
                     };
                     
                     // load contents from json before trying to compute observables
+                    // XXX: if this fails the form is kaput
+                    //      perhaps this needs some kind of json error modal
                     self._load();
 
                     // variables computed from json responses
+                    // most of these are sugar for their return values
                     self.name = ko.computed(function() {
                         return self.fname() + (self.initial() ? ' ' + self.initial() + '.' : '') + (self.lname() ? ' ' + self.lname() : '');
                     });
@@ -286,6 +290,25 @@
                     self.citystate = ko.computed(function() {
                         return self.city() + (self.state() ? ', ' + self.state() : '');
                     });
+
+                    // computed variables for the nav bar
+                    self.agreement_id_nav = ko.computed(function() {
+                        return (self.agreement_id()) ? "Agreement ID: " + self.agreement_id() : "No Agreement ID";
+                    });
+
+                    self.package_nav = ko.computed(function() {
+                        return (self.package()) ? "Package: " + self.package() : "No Package";
+                    });
+
+                    self.monitoring_nav = ko.computed(function() {
+                        return (self.monitoring()) ? "Monitoring: " + self.monitoring() : "No Monitoring";
+                    });
+
+                    self.shipping_nav = ko.computed(function() {
+                        return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
+                    });
+
+                    // XXX: add the rest of the variables that make up the nav
 
                     // variables included that are not from json (constants)
                     self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
@@ -400,8 +423,8 @@
                             $('#shipping span.tab-pos').removeClass('label-inverse').addClass('label-success');
                             // show next 2 sections, reveal navs, and scroll
                             // review has no submit button so we want to show
-                            // the publish section as well
-                            $('#review, #nav_review, #publish, #nav_publish').removeClass('hyde');
+                            // the publish and scroller sections as well
+                            $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
                             $(document).scrollTop( $("#review").offset().top );
                         }
                     };

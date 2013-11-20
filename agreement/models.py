@@ -1,9 +1,13 @@
-from django.db import models
 from cPickle import loads, dumps
+from django.core.exceptions import ValidationError
+from django.db import models
 
 class Agreement(models.Model):
 	"""
-	dummy model, contains a dict
+	represents an agreement by a customer to buy our products
+
+	this particular version of Agreement is a shim for the actual Agreement
+	which exists in dashboard and may or may not be compatible with this one
 	"""
 
 	fname = models.CharField(max_length=50)
@@ -35,6 +39,8 @@ class Agreement(models.Model):
 		except EOFError as e:
 			complete = []
 
+		# expand the serialized array and return a json-like dict
+		# for the restful api handler to consume
 		return 	{
 					"agreement_id": self.id, # this one is named differently in the javascript
 					"fname": self.fname,
@@ -55,6 +61,9 @@ class Agreement(models.Model):
 				}
 
 	def update_from_dict(self, incoming):
+		# use this instead of trying to create the object again with the id set
+		# it ignores fields that might be extraneous in the source dict
+
 		self.fname = incoming.get('fname')
 		self.lname = incoming.get('lname')
 		self.initial = incoming.get('initial')

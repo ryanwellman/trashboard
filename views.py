@@ -17,6 +17,9 @@ from agreement.models import Agreement
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
+    """
+    reads or updates an Agreement and returns it to the caller as json
+    """
     # attempts to get or set a specific agreement
     # this is csrf_exempt so i can test it with curl
     agreement = None
@@ -64,6 +67,9 @@ def dyn_json(request, agreement_id=None):
 
 
 def serve_json(request):
+    """
+    gets and returns a random agreement as json (debug)
+    """
     # returns a random agreement as json
     agreement = Agreement.objects.order_by('?')[0]
     # this next one will be better as soon as there are any objects in the database
@@ -74,6 +80,9 @@ def serve_json(request):
 
 
 def test_json(request):
+    """
+    returns a contrived agreement as json (debug)
+    """
     # sends json response given in the dictionary below
     ctx =   {
                 'fname':    'al',
@@ -98,8 +107,9 @@ def test_json(request):
 
 @render_to('templates/container.html')
 def draw_container(request, agreement_id=None):
-    # uses render_to to draw the template
-
+    """
+    renders an agreement form container to the caller along with its parts
+    """
     # fix agreement_id
     if agreement_id is None:
         agreement_id = ''
@@ -147,6 +157,7 @@ def draw_container(request, agreement_id=None):
                         {'name':'Gold', 'price':'$39.99/mo', 'xt':'1', 'dw':'12', 'mot':'1'},
                         {'name':'Platinum', 'price':'$42.99/mo', 'xt':'1', 'dw':'15', 'mot':'1'}    ]
 
+    # uses render_to to draw the template
     return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=packages, agreement_id=agreement_id)
 
 

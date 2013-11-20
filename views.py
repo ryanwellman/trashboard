@@ -17,36 +17,59 @@ from agreement.models import Agreement
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
+    """
+    reads or updates an Agreement and returns it to the caller as json
+    """
     # attempts to get or set a specific agreement
     # this is csrf_exempt so i can test it with curl
     agreement = None
-    blob = {}
+
+    # default response to a new form agreement is this json blob so far
+    response =  {
+                    'agreement_id': '',
+                    'completed':    [],
+                    'fname':        '',
+                    'lname':        '',
+                    'initial':      '',
+                    'address':      '',
+                    'city':         '',
+                    'state':        '',
+                    'zip':          '',
+                    'country':      '',
+                    'taxid':        '',
+                    'email':        '',
+                    'package':      '',
+                    'shipping':     '',
+                    'approved':     '',
+                    'monitoring':   '',
+                }
 
     if agreement_id:
         # user wants a specific agreement
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
-        blob = agreement.serialize()
+        response = agreement.serialize()
 
     if request.method == 'POST':
         for key in request.POST:    # request.POST is fucked up when sending JSON
             incoming = loads(key)
 
-        # does blob exist?
-        if blob:
-            # we are updating an existing one
-            agreement.update_from_dict(incoming)
-        else:
-            # we are creating a new one so obtain json from post
-            blob = incoming
-
-            # create and save it
-            agreement = Agreement.objects.create(**blob)
+        # does agreement exist?
+        if not agreement:
+            # we are creating a new one
+            agreement = Agreement.objects.create(**{})
             agreement.save()
+        
+        # update agreement with values from incoming
+        agreement.update_from_dict(incoming)
+        response = agreement.serialize()
 
-    return SerializeOrRedirect(reverse(draw_test), blob)
+    return SerializeOrRedirect(reverse(draw_test), response)
 
 
 def serve_json(request):
+    """
+    gets and returns a random agreement as json (debug)
+    """
     # returns a random agreement as json
     agreement = Agreement.objects.order_by('?')[0]
     # this next one will be better as soon as there are any objects in the database
@@ -57,6 +80,9 @@ def serve_json(request):
 
 
 def test_json(request):
+    """
+    returns a contrived agreement as json (debug)
+    """
     # sends json response given in the dictionary below
     ctx =   {
                 'fname':    'al',
@@ -67,47 +93,62 @@ def test_json(request):
                 'state':    'tx'.upper(),
                 'zip':      '12345',
                 'country':  'usa'.upper(),
-                'taxid':    '123-45-6780',
+                'taxid':    '123-45-6789',
                 'email':    'al@smif.com',
                 'approved': 'approved',
                 'package':  'copper',
                 'shipping': 'jpost',
-                'arrtest':  ['jeff', 'jones', 'legit'],
+                'monitoring': 'standard',
+                'completed':  ['cinfo', 'pkgsel', 'monitoring', 'shipping'],
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)
 
 
 @render_to('templates/container.html')
-def draw_container(request):
-    # uses render_to to draw the template
+def draw_container(request, agreement_id=None):
+    """
+    renders an agreement form container to the caller along with its parts
+    """
+    # fix agreement_id
+    if agreement_id is None:
+        agreement_id = ''
+
+    # 404 non-existent ones
+    if agreement_id:
+        agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
 
     # this is a dummy view that will render a dummy form that is simply to demo
     # the possibilities that come with the new agreement form
 
     # in reality these values would be coming from the models in pricemodels.py
+    # as collections of ProductPrice objects (?)
+
     # right now there is no actual Agreement model other than the dummy one in the
     # agreement app
 
+    # XXX: what should be coming back from the form json? just codes?
+
     # for the following 4 lists of dictionaries:
-    # from Product: name <-> name, description <-> description
+    # from Product: code <-> code, name <-> name, description <-> description
+    # this next one will actually be two prices per pricemodels.py
     # from ProductPrice price <-> price
-    premiums    =  [    {'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
-                        {'name':'Cellular Service', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
-                        {'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]
+    premiums    =  [    {'code':'CAMERA', 'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
+                        {'code':'CELLSERV', 'name':'Cellular Antenna', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
+                        {'code':'GPS', 'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]
 
-    combos      =  [    {'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!'},
-                        {'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!'},
-                        {'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!'}    ]
+    combos      =  [    {'code':'3KEYS', 'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!'},
+                        {'code':'MANYKEY', 'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!'},
+                        {'code':'SOLAR', 'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!'}    ]
 
-    services    =  [    {'name':'Video Service', 'price':'$19.99/mo', 'reason': 'cameras'},
-                        {'name':'Smoke Service', 'price':'$29.99/mo', 'reason': 'smoke detector(s)'},
-                        {'name':'Alpaca Rental Service', 'price':'$159.99/mo', 'reason': 'alpaca shears'}    ]
+    services    =  [    {'code':'VIDEOSRV', 'name':'Video Service', 'price':'$19.99/mo', 'reason': 'cameras'},
+                        {'code':'SMOKESRV', 'name':'Smoke Service', 'price':'$29.99/mo', 'reason': 'smoke detector(s)'},
+                        {'code':'ALPACASRV', 'name':'Alpaca Rental Service', 'price':'$159.99/mo', 'reason': 'alpaca shears'}    ]
 
-    closers     =  [    {'name': '$5/mo rate drop', 'description': 'Removes $5 from the monthly monitoring rate'},
-                        {'name': '$10/mo rate drop', 'description': 'Removes $10 (requires manager approval)'},
-                        {'name': 'Free Keychains', 'description': 'Give away some of our famous disposable keychains'},
-                        {'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
+    closers     =  [    {'code':'5RTDROP', 'name': '$5/mo rate drop', 'description': 'Removes $5 from the monthly monitoring rate'},
+                        {'code':'10RTDROP', 'name': '$10/mo rate drop', 'description': 'Removes $10 (requires manager approval)'},
+                        {'code':'FREEKEY', 'name': 'Free Keychains', 'description': 'Give away some of our famous disposable keychains'},
+                        {'code':'FREESHIP', 'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
 
     # this one is going to come from the Package class and will change later
     packages    =  [    {'name':'Copper', 'price':'$19.99/mo', 'xt':'1', 'dw':'3', 'mot':'1'},
@@ -116,7 +157,8 @@ def draw_container(request):
                         {'name':'Gold', 'price':'$39.99/mo', 'xt':'1', 'dw':'12', 'mot':'1'},
                         {'name':'Platinum', 'price':'$42.99/mo', 'xt':'1', 'dw':'15', 'mot':'1'}    ]
 
-    return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=packages)
+    # uses render_to to draw the template
+    return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=packages, agreement_id=agreement_id)
 
 
 @render_to('templates/package.html')

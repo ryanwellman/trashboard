@@ -16,6 +16,9 @@
                 padding-top: 60px;
                 margin-top: -60px;
             }
+            .hyde {
+                visibility: hidden;
+            }
             .content > section > p {
                 background-color: #f5f5f5;
                 height: 570px;
@@ -55,7 +58,8 @@
                 transform: rotate(-90deg); /* else */
             }
             /*  the box-rotate style breaks positioning
-                and this kind of brings it back */
+                and this kind of brings it back along with
+                some ancillary styling of vertical elements */
             .tab-pos {
                 -webkit-transform-origin: 25% 217%; /* this is crazy! */
                 -moz-transform-origin: 25% 217%; /* crazy, i tell you! */
@@ -108,16 +112,15 @@
 {% include 'templates/shipping.html' %}
     </head>
     <body>
-        <!-- z-index on the next line fixes buttons visible over the infobar-->
+        <!-- z-index on the next line fixes buttons visible over the infobar -->
         <div class="affix" style="top:40px;right:0px;z-index:1000">
             <div id="infobar" class="well">
                 <i id="infobar_resize" class="icon-resize-small"></i>
                 <div id="infobar_content">
-                    <div id="infobar_left">
+                    <div id="infobar_left" data-bind="visible: name().length > 0">
                         <span data-bind="text: name"></span><br>
                         <span data-bind="text: address"></span><br>
-                        <span data-bind="text: city"></span>,
-                        <span data-bind="text: state"></span><br>
+                        <span data-bind="text: citystate"></span><br>
                         <span data-bind="text: zip"></span><br>
                         <span data-bind="text: country"></span><br>
                     </div>
@@ -132,10 +135,10 @@
                     </div>
                     <div id="infobar_right">
                         <p>
-                            <span class="label label-default">Agreement ID</span><br>
-                            <span class="label label-important">Package</span><br>
-                            <span class="label label-info">Monitoring</span><br>
-                            <span class="label label-warning">Shipping</span><br>
+                            <span data-bind="text: agreement_id_nav" class="label label-default">Agreement ID</span><br>
+                            <span data-bind="text: package_nav" class="label label-important">Package</span><br>
+                            <span data-bind="text: monitoring_nav" class="label label-info">Monitoring</span><br>
+                            <span data-bind="text: shipping_nav" class="label label-warning">Shipping</span><br>
                             <span class="label label-success">$RMR</span><br>
                         </p>
                     </div>
@@ -146,18 +149,18 @@
             <div class="navbar navbar-fixed-top" id="navbar">
                 <div class="navbar-inner">
                     <ul class="nav">
-                        <li><a href="#cinfo">Customer Info</a></li>
-                        <li><a href="#pkgsel">Package</a></li>
-                        <li><a href="#monitor">Monitoring</a></li>
-                        <li><a href="#premium">Premium</a></li>
-                        <li><a href="#combos">Combos</a></li>
-                        <li><a href="#custom">Customize</a></li>
-                        <li><a href="#alc">A-La-Carte</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#closing">Closing</a></li>
-                        <li><a href="#shipping">Shipping</a></li>
-                        <li><a href="#review">Review</a></li>
-                        <li><a href="#publish">Publish</a></li>
+                        <li id="nav_cinfo"><a href="#cinfo">Customer Info</a></li>
+                        <li class="hyde" id="nav_pkgsel"><a href="#pkgsel">Package</a></li>
+                        <li class="hyde" id="nav_monitor"><a href="#monitor">Monitoring</a></li>
+                        <li class="hyde" id="nav_premium"><a href="#premium">Premium</a></li>
+                        <li class="hyde" id="nav_combos"><a href="#combos">Combos</a></li>
+                        <li class="hyde" id="nav_custom"><a href="#custom">Customize</a></li>
+                        <li class="hyde" id="nav_alc"><a href="#alc">A-La-Carte</a></li>
+                        <li class="hyde" id="nav_services"><a href="#services">Services</a></li>
+                        <li class="hyde" id="nav_closing"><a href="#closing">Closing</a></li>
+                        <li class="hyde" id="nav_shipping"><a href="#shipping">Shipping</a></li>
+                        <li class="hyde" id="nav_review"><a href="#review">Review</a></li>
+                        <li class="hyde" id="nav_publish"><a href="#publish">Publish</a></li>
                     </ul>
                 </div>
             </div>
@@ -165,145 +168,272 @@
                 <section id="cinfo">
                     <div data-bind="template: { name: 'customer_info', data: $data }">Customer Info Form</div>
                 </section>
-                <section id="pkgsel">
+                <section id="pkgsel" class="hyde">
                     <div data-bind="template: { name: 'packages', data: $data }">Package Select Form</div>
                 </section>
-                <section id="monitor"><p>Monitoring Form</p></section>
-                <section id="premium">
+                <section id="monitor" class="hyde">
+                    <div data-bind="template: { name: 'monitor_', data: $data }">Monitoring Form</div>
+                </section>
+                <section id="premium" class="hyde">
                     <div data-bind="template: { name: 'premiums', data: $data }">Premium Form</div>
                 </section>
-                <section id="combos">
+                <section id="combos" class="hyde">
                     <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
                 </section>
-                <section id="custom"><p>Customize Form</p></section>
-                <section id="alc"><p>A-La-Carte Form</p></section>
-                <section id="services">
+                <section id="custom" class="hyde"><p>Customize Form</p></section>
+                <section id="alc" class="hyde"><p>A-La-Carte Form</p></section>
+                <section id="services" class="hyde">
                     <div data-bind="template: { name: 'services_', data: $data }">Services Form</div>
                 </section>
-                <section id="closing">
+                <section id="closing" class="hyde">
                     <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
                 </section>
-                <section id="shipping">
+                <section id="shipping" class="hyde">
                     <div data-bind="template: { name: 'shipping_', data: $data }">Rate Drop Form</div>
                 </section>
-                <section id="review">
+                <section id="review" class="hyde">
                     <div data-bind="template: { name: 'review_', data: $data }">Review Form</div>
                 </section>
-                <section id="publish">
+                <section id="publish" class="hyde">
                     <div data-bind="template: { name: 'publish_', data: $data }">Publish Form</div>
                 </section>
-                <section id="scroller">
-                    <p>this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom</p>
+                <section id="scroller" class="hyde">
+                    <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -->
+                    <p>&nbsp;</p>
                 </section>
             </div>
         </div>
         <script type="text/javascript">
-            // jquery wrapper to anonymous function
+            // jquery on ready wrapper to anonymous function
             $(function() {
-                var blob = {};
-
-                // AJAX JSON LOADER
-
-                var result = $.ajax({
-                    dataType: "json",
-                    url: '/json3',
-                    async: false, // asynchronous load means empty blob
-                    success: function() { console.log("loaded json"); }
-                });
-
-                // populate blob with keys and values
-                result.done(function(data) {
-                    $.each(data, function(k, v) {
-                        blob[k] = v;
-                    });
-                });
+                // capture agreement_id from django if it was passed in
+                var agreement_id = '{{agreement_id}}';
 
                 // KNOCKOUT VIEW MODEL
 
-                // initialize a view model that can take a blob from the
-                // json loader in its constructor
-                Settings = function(blob) {
+                // initialize a view model
+                Settings = function() {
                     // capture 'this' context into Settings' closure
                     var self = this;
 
-                    // make blob a thing if it isn't
-                    var blob = blob || {};
-
-                    // this fn unpacks blob into observable properties
-                    // XXX: how does it deal with recursion?
+                    // this fn transmogrifies a json blob into observables
+                    // XXX: how does it deal with recursion? it doesn't!
                     // XXX: it seems ko really only wants to deal with
-                    //      top-level objects
-                    self.load_blob = function(blob) {
-                        $.each(blob, function(k, v) {
-                            if( v instanceof Array) {
-                                self[k] = ko.observableArray(v);
-                            } else {
-                                self[k] = ko.observable(v);
-                            }
+                    //      top-level properties of Settings
+                    self._load = function() {
+                        // obtain blob from ajax
+                        var result = $.ajax({
+                            dataType: "json",
+                            url: '/json2/' + agreement_id,
+                            async: false, // asynchronous load means empty blob
+                        });
+
+                        result.fail(function(xhr, status, error) {
+                            console.log('failed! (' + error + ') ' + status);
+                            console.log(xhr.responseText);
+                        });
+
+                        // create observables from returned data
+                        result.done(function(data) {
+                            console.log("loaded json" + (agreement_id ? " from agreement " + agreement_id : ''));
+                            $.each(data, function(k, v) {
+                                if(v instanceof Array) {
+                                    self[k] = ko.observableArray(v);
+                                } else {
+                                    self[k] = ko.observable(v);
+                                }
+                            });
                         });
                     };
 
-                    // now actually load blob
-                    self.load_blob(blob);
+                    // this fn allegedly saves the contents of the view model
+                    // XXX: needs to be better
+                    self._save = function() {
+                        // remove agreement_id from data payload since it
+                        // does not actually exist in the orm
+                        // not that update_from_dict() would save it anyway
+                        payload = ko.toJSON(self);
+                        delete payload.agreement_id;
 
-                    // create a computed full name
+                        var result = $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: '/json2/' + agreement_id,
+                            async: false, // testing with and without this
+                            data: payload,
+                        });
+
+                        result.fail(function(xhr, status, error) {
+                            console.log('failed! (' + error + ') ' + status);
+                            console.log(xhr.responseText);
+                        });
+
+                        result.done(function(data) {
+                            // obtain that agreement id from the json response
+                            agreement_id = (agreement_id == data.agreement_id) ? agreement_id : data.agreement_id;
+                            self.agreement_id = agreement_id;
+                            console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
+                        });
+                    };
+                    
+                    // load contents from json before trying to compute observables
+                    // XXX: if this fails the form is kaput
+                    //      perhaps this needs some kind of json error modal
+                    self._load();
+
+                    // variables computed from json responses
+                    // most of these are sugar for their return values
                     self.name = ko.computed(function() {
-                        return self.fname() + ' ' + self.initial() + '. ' + self.lname();
+                        return self.fname() + (self.initial() ? ' ' + self.initial() + '.' : '') + (self.lname() ? ' ' + self.lname() : '');
                     });
 
-                    // XXX: insert other fns here
-                    // some suggestions:
+                    self.citystate = ko.computed(function() {
+                        return self.city() + (self.state() ? ', ' + self.state() : '');
+                    });
+
+                    // computed variables for the nav bar
+                    self.agreement_id_nav = ko.computed(function() {
+                        return (self.agreement_id()) ? "Agreement ID: " + self.agreement_id() : "No Agreement ID";
+                    });
+
+                    self.package_nav = ko.computed(function() {
+                        return (self.package()) ? "Package: " + self.package() : "No Package";
+                    });
+
+                    self.monitoring_nav = ko.computed(function() {
+                        return (self.monitoring()) ? "Monitoring: " + self.monitoring() : "No Monitoring";
+                    });
+
+                    self.shipping_nav = ko.computed(function() {
+                        return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
+                    });
+
+                    // XXX: add the rest of the variables that make up the nav
+
+                    // variables included that are not from json (constants)
+                    self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
+                    self.states = ["AK", "CA", "HI", "TX"].sort(); // sort states
+
+                    // XXX: insert other variables here
+
+                    // some ideas for the following functions:
                     //  loader functions that make the correct form parts
                     //  appear when their preceding form section is complete
                     //  helper functions that take form data and construct
                     //  other form data
 
                     self.test_cinfo = function() {
-                        // look for values in these form fields
-                        if( self.fname() &&
-                            self.lname() &&
-                            self.address() &&
-                            self.city() &&
-                            self.state() &&
-                            self.zip() &&
-                            self.country() &&
-                            self.taxid() &&
-                            self.email() &&
-                            self.approved() ) {
+                        // test completeness and set flag
+                        complete =  _.contains(self.completed(), 'cinfo');
+                        if(self.fname() && self.lname() && self.taxid() && self.email() && self.address() && !complete) {
+                            self.completed().push('cinfo');
+                            complete = true;
+                        }
+
+                        // look for values in completed since we might
+                        // want to consider allowing irregular forms
+                        // to be valid in the future with a backend hack
+                        if(complete) {
                             // disable form fields
                             $('#cinfo div input, #cinfo div select, #cinfo div button').prop('disabled', true);
                             // change label color
-                            $('#cinfo span.tab-pos').toggleClass('label-inverse label-success');
+                            $('#cinfo span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                            // show next section, reveal nav, and scroll
+                            $('#pkgsel, #nav_pkgsel').removeClass('hyde');
+                            $(document).scrollTop( $("#pkgsel").offset().top );
                         }
+                    };
+
+                    self.clear_cinfo = function() {
+                        // clear cinfo fields in viewmodel
+                        self.fname('');
+                        self.initial('');
+                        self.lname('');
+                        self.address('');
+                        self.city('');
+                        self.state('');
+                        self.zip('');
+                        self.country('');
+                        self.taxid('');
+                        self.email('');
                     };
 
                     self.test_pkgsel = function() {
-                        if( self.package() ) {
-                            // disable package selector
+                        // test completeness and set flag
+                        complete = _.contains(self.completed(), 'pkgsel');
+                        if(self.package() && !complete ) {
+                            self.completed().push('pkgsel');
+                            complete = true;
+                        }
+
+                        // finish up this section
+                        if(complete) {
+                            // disable submit button
                             $('#pkgsel div button').prop('disabled', true);
                             // change label color
-                            $('#pkgsel span.tab-pos').toggleClass('label-inverse label-success');
+                            $('#pkgsel span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                            // show next section, reveal nav, and scroll
+                            $('#monitor, #nav_monitor').removeClass('hyde');
+                            $(document).scrollTop( $("#monitor").offset().top );
                         }
+                    };
+
+                    self.clear_pkgsel = function() {
+                        // clear package field in viewmodel
+                        self.package('');
+                    };
+
+                    self.test_monitor = function() {
+                        // test completeness and set flag
+                        complete = _.contains(self.completed(), 'monitor');
+                        if(self.monitoring() && !complete ) {
+                            self.completed().push('monitor');
+                            complete = true;
+                        }
+
+                        // finish up this section
+                        if(complete) {
+                            // disable submit button
+                            $('#monitor div button').prop('disabled', true);
+                            // change label color
+                            $('#monitor span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                            // show next section, reveal nav, and scroll
+                            $('#premium, #nav_premium').removeClass('hyde');
+                            $(document).scrollTop( $("#premium").offset().top );
+                        }
+                    };
+
+                    self.clear_monitor = function() {
+                        // clear monitoring field in viewmodel
+                        self.monitoring('');
                     };
 
                     self.test_shipping = function() {
-                        if( self.shipping() ) {
-                            // disable package selector
-                            $('#shipping div button').prop('disabled', true);
+                        // test completeness and set flag
+                        complete = _.contains(self.completed(), 'shipping');
+                        if(self.shipping() && !complete) {
+                            self.completed().push('shipping');
+                            complete = true;
+                        }
+
+                        if(complete) {
+                            // disable form fields
+                            $('#shipping div button, #shipping div input').prop('disabled', true);
                             // change label color
-                            $('#shipping span.tab-pos').toggleClass('label-inverse label-success');
+                            $('#shipping span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                            // show next 2 sections, reveal navs, and scroll
+                            // review has no submit button so we want to show
+                            // the publish and scroller sections as well
+                            $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
+                            $(document).scrollTop( $("#review").offset().top );
                         }
                     };
 
-                    // variables included in this view model not from blob
-                    self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
-                    self.states = ["AK", "CA", "HI", "TX"].sort(); // sort states
-
-                    // XXX: insert other variables here
+                    // XXX: insert other fns here
                 };
 
                 // apply bindings for knockout
-                master_settings = new Settings(blob);
+                master_settings = new Settings();
                 ko.applyBindings(master_settings);
 
                 // SCROLL SPY
@@ -332,10 +462,12 @@
                 // customer info
                 // select the correct credit button
                 var credit_str = "<a class='btn btn-large ";
-                if (master_settings.approved() == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
-                if (master_settings.approved() == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
-                if (master_settings.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
-                $('#credit_btn').empty().append(credit_str);
+                if (master_settings.approved()) {
+                    if (master_settings.approved() == 'approved') { credit_str += "btn-success'><i class='icon-ok icon-white'></i> Approved</a>"; };
+                    if (master_settings.approved() == 'dcs') { credit_str += "btn-danger'><i class='icon-remove icon-white'></i> Approved DCS</a>"; };
+                    if (master_settings.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
+                    $('#credit_btn').empty().append(credit_str);
+                }
 
                 // packages
                 // global package_data here
@@ -396,11 +528,60 @@
 
                 // fire all the test functions to see which sections
                 // have already been completed as per the input json
+                // these test functions should show the next section
+                // and perhaps disable form input (need guidance here)
+                // if all of their properties are present in the json
+                // received from the server
                 master_settings.test_cinfo();
                 master_settings.test_pkgsel();
+                master_settings.test_monitor();
                 master_settings.test_shipping();
 
                 // XXX: more form section handlers...
+
+                // customer info
+                $('#cinfo_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+
+                    // fire test and save the viewmodel contents
+                    master_settings.test_cinfo();
+                    master_settings._save();
+                });
+                $('#cinfo_form').on('reset', function(evt) {
+                    // knockout does not refresh observables on a reset
+                    // so old values stay in the viewmodel but the fields
+                    // are all blank
+                    master_settings.clear_cinfo();
+                });
+                
+                // package select
+                $('#pkgsel_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.test_pkgsel()
+                    master_settings._save();
+                });
+                $('#pkgsel_form').on('reset', function(evt) {
+                    // blank out package selection
+                    master_settings.clear_pkgsel();
+                });
+
+                // monitoring
+                $('#monitor_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.test_monitor()
+                    master_settings._save();
+                });
+                $('#monitor_form').on('reset', function(evt) {
+                    // blank out monitoring selection
+                    master_settings.clear_monitor();
+                });
             });
         </script>
     </body>

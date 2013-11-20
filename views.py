@@ -129,7 +129,7 @@ def Package(request):
                                                                {'code':'SIMNXT', 'quantity':'1' },
                                                                {'code':'MOTDEC', 'quantity':'2' }
                                                               ]},
-                {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'3' },
+                {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'10' },
                                                                {'code':'SIMNXT', 'quantity':'1' },
                                                                {'code':'MOTDEC', 'quantity':'2'  }
                                                               ]},

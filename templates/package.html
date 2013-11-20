@@ -71,8 +71,7 @@
             </div>
         </div>
         <div class="row">
-            Customizing: <input type="checkbox" data-bind="checked: customizing" />
-
+            <label class="checkbox"><h4>Customize <input type="checkbox" data-bind="checked: customizing" /></h4></label>
             <br />
             <table class="package_contents table" data-bind="visible: selected_package() && !customizing()">
                 <thead>
@@ -90,32 +89,43 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="3">CB Balance: <span data-bind="text: cb_balance()"</span>
-                        </th>
+                        <th colspan="3">CB Balance: <span data-bind="text: cb_balance()"></span></th>
                     </tr>
                 </tfoot>
             </table>
+            <div class="row" data-bind="visible: selected_package() && customizing()">
+                <div class="span2">
+                    <!-- ko if: cb_balance() >= 0 -->
+                        <font color="green"><h4>CB Balance: <span data-bind="text: cb_balance()"></span></h4></font>
+                    <!-- /ko -->
+                    <!-- ko if: cb_balance() < 0 -->
+                        <font color="red"><h4>CB Balance: <span data-bind="text: cb_balance()"></span></h4></font>
+                    <!-- /ko -->
+                </div>
+            </div>
             <table class="package_customization table" data-bind="visible: selected_package() && customizing()">
                 <thead>
                     <tr>
-                        <th>Part #</th><th>Description</th><th>CB</th><th>Minimum Quantity Included</th><th>Quantity</th>
+                        <th>Part #</th><th>Description</th><th><center>CB</center></th><th><center>Minimum Quantity Included</center></th><th>Quantity</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: customization_lines">
                     <tr>
                         <td data-bind="text: $data.code"></td>
                         <td data-bind="text: $data.part.name"></td>
-                        <td data-bind="text: $data.part.cb"></td>
-                        <td data-bind="text: $data.min_quantity"></td>
-                        <td><input type="text" data-bind="value: $data.quantity" /></td>
+                        <td><center><span data-bind="text: $data.part.points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
+                        <td data-bind="text: $data.min_quantity" style="text-align:center;"></td>
+                        <td><input class="input-mini" type="text" data-bind="value: $data.quantity" style="text-align:center;" /></td>
                     </tr>
                 </tbody>
+                <!--
                 <tfoot>
                     <tr>
-                        <th colspan="3">CB Balance: <span data-bind="text: cb_balance()"</span>
+                        <th colspan="3">CB Balance: <span data-bind="text: cb_balance()"></span>
                         </th>
                     </tr>
                 </tfoot>
+                -->
             </table>
         </div>
     </div>
@@ -182,6 +192,7 @@
         self.selected_package = ko.observable(null);
         self.customizing = ko.observable(false);
         self.custom_quantities = {};
+        self.cb_balance = ko.observable(0);
 
         self.customization_lines = ko.observableArray();
 
@@ -189,6 +200,7 @@
 
             self.selected_package(package);
             self.custom_quantities = {};
+            //self.cb_balance(package);
 
             if(!self.customization_lines().length) {
                 _.map(KOPARTS, function(part) {
@@ -227,6 +239,7 @@
 
         self.cust_quantity_changed = function() {
             self.customization_deltas = [];
+            var balance = 0;
 
             package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);
             clines_by_part = _.object(_.pluck(self.customization_lines(), 'code'), self.customization_lines());
@@ -242,16 +255,19 @@
                 if(delta == 0)
                     return;
 
-                console.log("I think that the cline fort part ", code, " has ", cline.quantity(), "and the pline has ", pq);
+                console.log("I think that the cline for part ", code, " has ", cline.quantity(), "and the pline has ", pq);
 
                 self.customization_deltas.push({
                     code: code,
                     delta: delta,
                 });
-
             });
 
-        };s
+            for (var i=0; i<self.customization_deltas.length; i++) {
+                balance += -1 * (self.customization_deltas[i].delta * clines_by_part[self.customization_deltas[i].code].part.points);
+            }
+            self.cb_balance(balance);
+        };
 
         self.selected_package_contents = function() {
             if(!self.selected_package()) {
@@ -268,9 +284,23 @@
             return classes;
         };
 
-        self.cb_balance = function() {
-            return '100123908190';
+        /*
+        self.cb_balance = function(package) {
+            console.log("called cb balance");
+            console.log("the package is", package);
+            var initial = 0;
+            var points = 0;
+            if(package) {
+                console.log("true");
+                for (var i=0; i<package.contents.length; i++) {
+                    points = package.contents[i].part.points * package.contents[i].quantity;
+                    initial += points;
+                }
+            }
+            console.log("the initial balance is: ", initial);
+            return initial;
         };
+        */
 
         self.select_package(null);
     };

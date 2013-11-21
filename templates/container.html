@@ -291,7 +291,7 @@
                         return self.city() + (self.state() ? ', ' + self.state() : '');
                     });
 
-                    // computed variables for the nav bar
+                    // computed variables for the nav bar & review section
                     self.agreement_id_nav = ko.computed(function() {
                         return (self.agreement_id()) ? "Agreement ID: " + self.agreement_id() : "No Agreement ID";
                     });
@@ -308,11 +308,11 @@
                         return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
                     });
 
-                    // XXX: add the rest of the variables that make up the nav
+                    // XXX: add the rest of the variables that need to be pretty
 
                     // variables included that are not from json (constants)
                     self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
-                    self.states = ["AK", "CA", "HI", "TX"].sort(); // sort states
+                    self.states = ["AL","AK","AS","AZ","AR","CA","CO","CT","DE","DC","FM","FL","GA","GU","HI","ID","IL","IN","IA","S","KY","LA","ME","MH","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","MP","OH","OK","OR","PW","PA","PR","RI","SC","SD","TN","TX","UT","VT","VI","VA","WA","WV","WI","WY"].concat(["AB","BC","MB","NB","NL","NT","NS","NU","ON","PE","QC","SK","YT"]); // sort states
 
                     // XXX: insert other variables here
 

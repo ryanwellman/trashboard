@@ -1,5 +1,6 @@
 		<script type="text/html" id="review_">
 			<div class="well">
+<<<<<<< HEAD
                 <span class="label label-inverse box-rotate tab-pos">Review</span>
                 <div class="row">
                     <div class="span1"></div>
@@ -38,6 +39,7 @@
                 </div>
 
 				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
+=======
 				<span class="label label-inverse box-rotate tab-pos">Review</span>
 				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
 				<!--
@@ -45,6 +47,7 @@
 					<p data-bind="text: agreement_id_nav"></p>
 				</div>
 				-->
+>>>>>>> 526a69df2a01f7c470e9f830f9651d413488f2bd
 			</div>
             </form>
 		</script>

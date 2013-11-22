@@ -58,7 +58,7 @@ def dyn_json(request, agreement_id=None):
             # we are creating a new one
             agreement = Agreement.objects.create(**{})
             agreement.save()
-        
+
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)
         response = agreement.serialize()

@@ -1,11 +1,43 @@
 		<script type="text/html" id="review_">
 			<div class="well">
-				<span class="label label-inverse box-rotate tab-pos">Review</span>
+                <span class="label label-inverse box-rotate tab-pos">Review</span>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Customer Name: </div>
+                    <div class="span4"><span data-bind="text: fname"></span> <span data-bind="text:lname"></span></div>
+                </div>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Address: </div>
+                    <div class="span4"><span data-bind="text: address"></span>, <span data-bind="text:citystate"></span> <span data-bind="text:zip"></span></div>
+                </div>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Email: </div>
+                    <div class="span4"><span data-bind="text: email"></span></div>
+                </div>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Approval Status: </div>
+                    <div class="span4"><span data-bind="text: approved"></span></div>
+                </div>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Package: </div>
+                    <div class="span4"><span data-bind="text: package_nav"></span></div>
+                </div>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Monitoring: </div>
+                    <div class="span4"><span data-bind="text: monitoring_nav"></span></div>
+                </div>
+                <div class="row">
+                    <div class="span1"></div>
+                    <div class="span2">Shipping: </div>
+                    <div class="span4"><span data-bind="text: shipping_nav"></span></div>
+                </div>
+
 				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
-
-				<div class="well">
-					<p data-bind="text: agreement_id_nav"></p>
-				</div>
-
 			</div>
+            </form>
 		</script>

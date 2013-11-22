@@ -61,7 +61,7 @@
     PartLine = function() {
         var self = this;
 
-        self.selected_part = ko.observableArray();
+        self.selected_part = ko.observable();
         self.quantity = ko.observable(0);
         self.total_price = ko.computed(function() {
             return self.selected_part() ? self.quantity() * self.selected_part().price : 0;

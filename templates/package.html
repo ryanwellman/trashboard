@@ -103,7 +103,7 @@
             </div>
         </div>
         <!-- Table to display when the package is customized -->
-        <div class="row" data-bind="visible: changed_contents()">
+        <div class="row" data-bind="visible: changed_contents() && !customizing()">
             <br />
             <button class="btn btn-success" data-bind="click: customize">Customize</button>
             <button class="btn btn-primary" data-bind="click: save_package">Save Package</button>
@@ -206,13 +206,14 @@
         self.customization_lines = ko.observableArray();
 
         self.select_package = function(package) {
-
+            console.log("select customizing", self.customizing());
             self.selected_package(package);
             self.custom_quantities = {};
             self.customization_lines.removeAll();
             // clear out any updated contents when selected package changes
             self.updated_contents([]);
             self.changed_contents(false);
+            self.customizing(false);
 
             if(!self.customization_lines().length) {
                 _.map(KOPARTS, function(part) {
@@ -259,7 +260,7 @@
 
             package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);
             clines_by_part = _.object(_.pluck(self.customization_lines(), 'code'), self.customization_lines());
-            console.log(clines_by_part);
+            //console.log(clines_by_part);
 
             _.each(clines_by_part, function(cline,code) {
                 var pline = package_by_part[code];
@@ -279,11 +280,11 @@
                     delta: delta,
                 });
             });
-            console.log("deltas", self.customization_deltas);
+            //console.log("deltas", self.customization_deltas);
 
             self.data_to_send['package'] = self.selected_package().code;
             self.data_to_send['customizations'] = self.customization_deltas;
-            console.log("data", self.data_to_send);
+            //console.log("data", self.data_to_send);
 
             for (var i=0; i<self.customization_deltas.length; i++) {
                 balance += -1 * (self.customization_deltas[i].delta * clines_by_part[self.customization_deltas[i].code].part.points);
@@ -311,6 +312,8 @@
         };
 
         self.save_customization = function () {
+            //clear any previous updated contents
+            self.updated_contents([]);
             self.customized_parts = [];
             for (var i=0; i<self.customization_lines().length; i++) {
                 if (self.customization_lines()[i].quantity() > 0) {
@@ -319,8 +322,6 @@
                     self.c_parts['quantity'] = self.customization_lines()[i].quantity();
                     self.c_parts['part'] = self.customization_lines()[i].part;
                     self.customized_parts.push(self.c_parts);
-                    //self.selected_package.subscribe();
-                    //self.selected_package().contents.push(self.c_parts);
                     self.updated_contents.push(self.c_parts);
                 }
             }

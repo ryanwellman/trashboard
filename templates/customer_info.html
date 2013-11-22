@@ -9,21 +9,21 @@
 								<div class="control-group">
 									<label class="control-label">First Name:</label>
 									<div class="controls">
-										<input type="text" placeholder="First" data-bind="value: fname">
+										<input type="text" placeholder="First" data-bind="value: applicant.fname">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Middle Initial:</label>
 									<div class="controls">
-										<input type="text" placeholder="M" maxlength="1" data-bind="value: initial">
+										<input type="text" placeholder="M" maxlength="1" data-bind="value: applicant.initial">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Last Name:</label>
 									<div class="controls">
-										<input type="text" placeholder="Last" data-bind="value: lname">
+										<input type="text" placeholder="Last" data-bind="value: applicant.lname">
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -31,14 +31,14 @@
 								<div class="control-group">
 									<label class="control-label">Address:</label>
 									<div class="controls">
-										<input type="text" placeholder="Address" data-bind="value: address">
+										<input type="text" placeholder="Address" data-bind="value: billing_address.address">
 									</div>
 									<span class="help-inline"></span>
 								</div>								
 								<div class="control-group">
 									<label class="control-label">City:</label>
 									<div class="controls">
-										<input type="text" placeholder="City" data-bind="value: city">
+										<input type="text" placeholder="City" data-bind="value: billing_address.city">
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -47,28 +47,28 @@
 								<div class="control-group">
 									<label class="control-label">State:</label>
 									<div class="controls">
-										<select data-bind="options: states, optionsCaption: 'Please select...', value: state"></select>
+										<select data-bind="options: states, optionsCaption: 'Please select...', value: billing_address.state"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">ZIP:</label>
 									<div class="controls">
-										<input type="text" placeholder="ZIP" data-bind="value: zip">
+										<input type="text" placeholder="ZIP" data-bind="value: billing_address.zip">
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">Country:</label>
 									<div class="controls">
-										<select data-bind="options: countries, optionsCaption: 'Please select...', value: country"></select>
+										<select data-bind="options: countries, optionsCaption: 'Please select...', value: billing_address.country"></select>
 									</div>
 									<span class="help-inline"></span>
 								</div>
 								<div class="control-group">
 									<label class="control-label">SSN or Tax ID:</label>
 									<div class="controls">
-										<input type="text" placeholder="SSN or Tax ID" data-bind="value: taxid">
+										<input type="text" placeholder="SSN or Tax ID">
 									</div>
 									<span class="help-inline"></span>
 								</div>

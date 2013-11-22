@@ -58,35 +58,87 @@
         return value.toFixed(2);
     };
 
-    PartLine = function() {
-        var self = this;
+    UpdatableAndSerializable = function() {
+        // do not capture this into closure as self
+        // this mixin uses 'parasitic' inheritance since the vm
+        // constructors all start from a new UAS
 
+        // this fn updates the view model from a blob
+        // not as good as the python version
+        this._update_from_dict = function(blob) {
+            _.each(blob, function(v, k) {
+                console.log(blob);
+                console.log(this.fields);
+                console.log(this);
+                if(this.fields[k] === ko.observable) {
+                    // use observables as functions
+                    this[k](blob[k]);
+                } else if(this.fields[k] === ko.observableArray) {
+                    // painful
+                    if(blob[k] instanceof Array) {
+                        this[k](blob[k])
+                    } else {
+                        this[k]([blob[k]])
+                    }
+                } else {
+                    // recursive viewmodel updates
+                    this[k]._update_from_dict(blob[k]);
+                }
+            });
+        };
+
+        // this fn returns a json-like blob from a view model
+        // better than the python version by far
+        this._serialize = function() {
+            return ko.toJSON(this);
+        };
+
+        return this;
+    };
+
+    PartLine = function(blob) {
+        var self = new UpdatableAndSerializable();
+
+        var fields = {
+            "selected_part": ko.observable,
+            "quantity": ko.observable,
+        };
+
+        _.each(fields, function(v, k) {
+            self[k] = v(blob[k]);
+        });
+
+<<<<<<< Updated upstream
         self.selected_part = ko.observable();
         self.quantity = ko.observable(0);
+=======
+>>>>>>> Stashed changes
         self.total_price = ko.computed(function() {
-            return self.selected_part() ? self.quantity() * self.selected_part().price : 0;
+            return self.selected_part() ? self.quantity() * self.selected_part().price : 0.00;
         });
+
         self.updateQuantity = function () {
             console.log(self.selected_part()['quantity']);
             self.selected_part()['quantity'] = self.quantity();
             console.log(self.selected_part().quantity);
         };
+
+        self._serialize = function() {
+            return { 'code': self.selected_part().code, 'quantity': self.selected_part().quantity };
+        };
+
+        return self;
     };
 
     PurchaseParts = function() {
         var self = this;
-        self.purchase_lines = ko.observableArray([new PartLine()]);
+        self.purchase_lines = ko.observableArray([new PartLine({'selected_part': null, 'quantity': 0})]);
 
-        self.addLine = function() { self.purchase_lines.push(new PartLine()) };
+        self.addLine = function() { self.purchase_lines.push(new PartLine({'selected_part': null, 'quantity': 0})) };
         self.removeLine = function(line) { self.purchase_lines.remove(line) };
 
         self.save = function() {
-            var dataToSave = $.map(self.purchase_lines(), function(line) {
-                return line.selected_part() ? {
-                    part: line.selected_part().code,
-                    quantity: line.selected_part().quantity
-                } : undefined
-            });
+            var dataToSave = $.map(self.purchase_lines(), function(val) { return val._serialize(); });
             alert("Could now send this to server: " + JSON.stringify(dataToSave));
         }
     };

@@ -83,8 +83,8 @@
         self.save = function() {
             var dataToSave = $.map(self.purchase_lines(), function(line) {
                 return line.selected_part() ? {
-                    part: line.selected_part(),
-                    total_price: line.total_price(),
+                    part: line.selected_part().code,
+                    quantity: line.selected_part().quantity
                 } : undefined
             });
             alert("Could now send this to server: " + JSON.stringify(dataToSave));

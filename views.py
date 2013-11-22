@@ -37,7 +37,7 @@ def dyn_json(request, agreement_id=None):
     if request.method == 'POST':
         for key in request.POST:    # request.POST is fucked up when sending JSON
             incoming = loads(key)
-        
+
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)
 

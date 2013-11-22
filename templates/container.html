@@ -119,10 +119,10 @@
                 <div id="infobar_content">
                     <div id="infobar_left" data-bind="visible: name().length > 0">
                         <span data-bind="text: name"></span><br>
-                        <span data-bind="text: address"></span><br>
+                        <span data-bind="text: billing_address.address"></span><br>
                         <span data-bind="text: citystate"></span><br>
-                        <span data-bind="text: zip"></span><br>
-                        <span data-bind="text: country"></span><br>
+                        <span data-bind="text: billing_address.zip"></span><br>
+                        <span data-bind="text: billing_address.country"></span><br>
                     </div>
                     <div id="infobar_middle">
                         <p>
@@ -207,20 +207,54 @@
             // jquery on ready wrapper to anonymous function
             $(function() {
                 // capture agreement_id from django if it was passed in
+                // this should be passed in as json since the js will be broken out
+                // into a new file
                 var agreement_id = '{{agreement_id}}';
 
-                // KNOCKOUT VIEW MODEL
+                // KNOCKOUT VIEW MODELS
 
-                // initialize a view model
-                Settings = function() {
-                    // capture 'this' context into Settings' closure
+                // first some utility objects
+
+                UpdatableAndSerializable = function() {
+                    // do not capture this into closure as self
+                    // this mixin uses 'parasitic' inheritance since the vm
+                    // constructors all start from a new UAS
+
+                    // this fn updates the view model from a blob
+                    // not as good as the python version
+                    this._update_from_dict = function(blob) {
+                        _.each(blob, function(v, k) {
+                            if(this.fields[k] === ko.observable) {
+                                // use observables as functions
+                                this[k](blob[k]);
+                            } else {
+                                // recursive viewmodel updates
+                                this[k]._update_from_dict(blob[k]);
+                            }
+                        });
+                    };
+
+                    // this fn returns a json-like blob from a view model
+                    // better than the python version by far
+                    this._serialize = function() {
+                        return ko.toJSON(this);
+                    };
+
+                    return this;
+                };
+
+                JSONHandler = function() {
+                    // this thing handles loading and saving json-like things to the
+                    // restful interface
+
+                    // capture this into JSONHandler's closure
                     var self = this;
 
-                    // this fn transmogrifies a json blob into observables
-                    // XXX: how does it deal with recursion? it doesn't!
-                    // XXX: it seems ko really only wants to deal with
-                    //      top-level properties of Settings
+                    // this fn obtains a json blob from the restful(?) interface
                     self._load = function() {
+                        // obtain a payload
+                        payload = {};
+
                         // obtain blob from ajax
                         var result = $.ajax({
                             dataType: "json",
@@ -228,32 +262,26 @@
                             async: false, // asynchronous load means empty blob
                         });
 
+                        // log failure
                         result.fail(function(xhr, status, error) {
                             console.log('failed! (' + error + ') ' + status);
                             console.log(xhr.responseText);
                         });
 
-                        // create observables from returned data
+                        // log success
                         result.done(function(data) {
+                            payload = data;
                             console.log("loaded json" + (agreement_id ? " from agreement " + agreement_id : ''));
-                            $.each(data, function(k, v) {
-                                if(v instanceof Array) {
-                                    self[k] = ko.observableArray(v);
-                                } else {
-                                    self[k] = ko.observable(v);
-                                }
-                            });
                         });
+
+                        return payload;
                     };
 
                     // this fn allegedly saves the contents of the view model
                     // XXX: needs to be better
                     self._save = function() {
-                        // remove agreement_id from data payload since it
-                        // does not actually exist in the orm
-                        // not that update_from_dict() would save it anyway
+                        // obtain a payload
                         payload = ko.toJSON(self);
-                        delete payload.agreement_id;
 
                         var result = $.ajax({
                             type: "POST",
@@ -270,30 +298,98 @@
 
                         result.done(function(data) {
                             // obtain that agreement id from the json response
-                            agreement_id = (agreement_id == data.agreement_id) ? agreement_id : data.agreement_id;
-                            self.agreement_id = agreement_id;
                             console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
                         });
                     };
-                    
-                    // load contents from json before trying to compute observables
-                    // XXX: if this fails the form is kaput
-                    //      perhaps this needs some kind of json error modal
-                    self._load();
+                };
+
+                // refer to the comments in MasterVM to understand the next two objects
+                ApplicantVM = function(blob) {
+                    var self = new UpdatableAndSerializable();
+                    blob = blob || {};
+
+                    var fields = {
+                        'fname': ko.observable,
+                        'lname': ko.observable,
+                        'initial': ko.observable,
+                        'phone': ko.observable,
+                    };
+
+                    _.each(fields, function(v, k) {
+                        if(blob[k] != undefined) {
+                            self[k] = v(blob[k]);
+                        }
+                    });
+
+                    return self;
+                };
+
+                AddressVM = function(blob) {
+                    var self = new UpdatableAndSerializable();
+                    blob = blob || {};
+
+                    var fields = {
+                        'address': ko.observable,
+                        'city': ko.observable,
+                        'state': ko.observable,
+                        'country': ko.observable,
+                        'zip': ko.observable,
+                    };
+
+                    _.each(fields, function(v, k) {
+                        if(blob[k] != undefined) {
+                            self[k] = v(blob[k]);
+                        }
+                    });
+
+                    return self;
+                };
+
+                // initialize a view model from a blob
+                MasterVM = function(blob) {
+                    // capture a new copy of UAS into MasterVM's closure
+                    var self = new UpdatableAndSerializable();
+
+                    // make blob a thing if it isn't one
+                    blob = blob || {};
+
+                    // field types
+                    var fields = {
+                        'id': ko.observable,
+                        'applicant': ApplicantVM,
+                        'coapplicant': ApplicantVM,
+                        'billing_address': AddressVM,
+                        'system_address': AddressVM,
+                        'pricetable_date': ko.observable,
+                        'email': ko.observable,
+                        'approved': ko.observable,
+                        'package': ko.observable,
+                        'shipping': ko.observable,
+                        'monitoring': ko.observable,
+                    };
+
+                    // try to assign things from blob to fields if they exist
+                    _.each(fields, function(v, k) {
+                        if(blob[k] != undefined) {
+                            self[k] = v(blob[k]);
+                        } else {
+                            ;
+                        }
+                    });
 
                     // variables computed from json responses
                     // most of these are sugar for their return values
                     self.name = ko.computed(function() {
-                        return self.fname() + (self.initial() ? ' ' + self.initial() + '.' : '') + (self.lname() ? ' ' + self.lname() : '');
+                        return self.applicant.fname() + (self.applicant.initial && self.applicant.initial() ? ' ' + self.applicant.initial() + '.' : '') + (self.applicant.lname() ? ' ' + self.applicant.lname() : '');
                     });
 
                     self.citystate = ko.computed(function() {
-                        return self.city() + (self.state() ? ', ' + self.state() : '');
+                        return self.billing_address.city() + (self.billing_address.state() ? ', ' + self.billing_address.state() : '');
                     });
 
                     // computed variables for the nav bar & review section
                     self.agreement_id_nav = ko.computed(function() {
-                        return (self.agreement_id()) ? "Agreement ID: " + self.agreement_id() : "No Agreement ID";
+                        return (self.id && self.id() ? "Agreement ID: " + self.id() : "No Agreement ID");
                     });
 
                     self.package_nav = ko.computed(function() {
@@ -346,15 +442,14 @@
 
                     self.clear_cinfo = function() {
                         // clear cinfo fields in viewmodel
-                        self.fname('');
-                        self.initial('');
-                        self.lname('');
-                        self.address('');
-                        self.city('');
-                        self.state('');
-                        self.zip('');
-                        self.country('');
-                        self.taxid('');
+                        self.applicant.fname('');
+                        self.applicant.initial('');
+                        self.applicant.lname('');
+                        self.billing_address.address('');
+                        self.billing_address.city('');
+                        self.billing_address.state('');
+                        self.billing_address.zip('');
+                        self.billing_address.country('');
                         self.email('');
                     };
 
@@ -429,11 +524,16 @@
                         }
                     };
 
-                    // XXX: insert other fns here
+                    // XXX: insert other fns above this line
+                    return self;
                 };
 
+                // create an object that knockout can use to bind
+                json_handler = new JSONHandler();
+                master_blob = json_handler._load();
+                master_settings = new MasterVM(master_blob);
+
                 // apply bindings for knockout
-                master_settings = new Settings();
                 ko.applyBindings(master_settings);
 
                 // SCROLL SPY

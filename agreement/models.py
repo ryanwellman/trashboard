@@ -10,49 +10,78 @@ class UpdatableAndSerializable(models.Model):
 
     def __iter__(self):
         # iterate through the field names in the django model meta and pluck the next one out
+        # this returns a tuple (fieldname, value) ripe for a generator expression
         fields = [field.name for field in self._meta.fields]
         for i in fields:
             yield (i, getattr(self, i))
 
     def update_from_dict(self, incoming, fields=[]):
-        # allows you to update the fields of a model from an incoming dictionary
-        # optionally specifying a list of fields to update instead
+        """
+        allows you to update the fields of a model from an incoming dictionary
+        optionally specifying a list of fields to update instead
+        """        
         assert type(incoming) is dict
         assert type(fields) is list
 
-        # throw out any field in fields that isn't in incoming
+        # throw out any field in fields that isn't in incoming or are id fields
         # but still only update fields you ask to update if fields is set
         # assign iterator to incoming if there are no fields
         if fields:
-            iterator = [field for field in fields if field in incoming]
+            iterator = [field for field in fields if field in incoming and field is not 'id']
         else:
-            iterator = incoming
+            iterator = [field for field in iterator if field is not 'id']
 
-        # save only fields that exist in the model
+        # find this model's foreign keyed model types and instances thereof
+        # XXX: make this support m2m relationships
+        fktypes = dict((f.name, f.rel.to) for f in self._meta.fields if f.get_internal_type() == 'ForeignKey')
+        fkinstances = dict((f, getattr(self, f)) for f in fktypes)
+
+        # save only fields that exist in the model and aren't id fields
         for k in iterator:
             if hasattr(self, k):
-                setattr(self, k, incoming.get(k))
+                if k is 'id':
+                    continue
+                # check to see if this requires recursion
+                if k in fkinstances:
+                    # now check to see if this thing is None
+                    if fkinstances[k] is None:
+                        # if it is, then we create one of the right type
+                        new_field = fktypes[k]()                        
+                    else:
+                        # if isn't then we need to use that one
+                        new_field = fkinstances[k]
+
+                    # update and add it to the original object
+                    new_field.update_from_dict(incoming.get(k))
+                    setattr(self, k, new_field)
+                else:
+                    setattr(self, k, incoming.get(k))
 
         # now save it for it to persist
         self.save()
 
     def serialize(self, ignore=[]):
+        """
+        convert this model into a dictionary that is easily json-able
+        along with all of its other foreign keyed models
+        """
         # __dict__ of a django model contains all the plain properties of a model along with
-        # the foreign keys and state of the object itself
-        # however, it does keep a cache of these fk objects available to serialize into a json-like
+        # cached copies of foreign keyed objects and state of the object itself
+        # this method serializes from the cache
         assert type(ignore) is list
 
         # let's make the first one without ignored, the private leading _ stuff or foreign keys
         # these values are all strings as far as json is concerned
-        lego = dict((k, str(v)) for k, v in self.__dict__.iteritems() if v is not None and k not in ignore and not k.startswith('_') and not k.endswith('_id'))
+        plain = dict((k, str(v)) for k, v in self.__dict__.iteritems() if v is not None and k not in ignore and not k.startswith('_') and not k.endswith('_id'))
 
         # now let's get the cached objects
-        # we know that the real names we need are ones with no leading _ or trailing _cache
-        eggo = dict((k[1:-6], v.serialize()) for k, v in self.__dict__.iteritems() if v is not None and k.endswith('_cache'))
+        # we know that the real names we need are ones with no leading _ and trailing _cache
+        # still ignore properties by their original names though
+        fancy = dict((k[1:-6], v.serialize()) for k, v in self.__dict__.iteritems() if v is not None and k[1:-6] not in ignore and k.endswith('_cache'))
 
         # hax: fastest way to concatenate these
         # XXX: ignore id fields?
-        return dict(lego, **eggo)
+        return dict(plain, **fancy)
 
     class Meta:
         abstract = True
@@ -67,7 +96,7 @@ class Applicant(UpdatableAndSerializable):
 
     fname = models.CharField(max_length=50)
     lname = models.CharField(max_length=50)
-    initial = models.CharField(max_length=1, blank=True, null=True)
+    initial = models.CharField(max_length=1)
     phone = models.CharField(max_length=15)
 
     def __unicode__(self):
@@ -121,9 +150,9 @@ class Agreement(UpdatableAndSerializable):
         shipping: who gets paid to transport the package
         monitoring: who gets paid to watch this system
     
-    XXX:  fields that depend on things in pricemodels.py are in but commented out
-          since we are still adding fields to this as the form takes shape
-          needs a harness to inject test data - making that soon
+    XXX: fields that depend on things in pricemodels.py are in but commented out
+         since we are still adding fields to this as the form takes shape
+    XXX: needs a harness to inject test data - making that soon
     """
 
     # campaign = models.ForeignKey(Campaign)

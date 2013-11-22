@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from dynamicresponse.response import *
 
 # import from self (models)
-from agreement.models import Agreement
+from agreement.models import *
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
@@ -24,45 +24,31 @@ def dyn_json(request, agreement_id=None):
     # this is csrf_exempt so i can test it with curl
     agreement = None
 
-    # default response to a new form agreement is this json blob so far
-    response =  {
-                    'agreement_id': '',
-                    'completed':    [],
-                    'fname':        '',
-                    'lname':        '',
-                    'initial':      '',
-                    'address':      '',
-                    'city':         '',
-                    'state':        '',
-                    'zip':          '',
-                    'country':      '',
-                    'taxid':        '',
-                    'email':        '',
-                    'package':      '',
-                    'shipping':     '',
-                    'approved':     '',
-                    'monitoring':   '',
-                }
-
     if agreement_id:
         # user wants a specific agreement
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
-        response = agreement.serialize()
+    else:
+        # make a new agreement with non-optional blank child models included
+        agreement = Agreement(applicant=Applicant(), billing_address=Address(), system_address=Address())
+
+    if request.method == 'GET':
+        pass
 
     if request.method == 'POST':
         for key in request.POST:    # request.POST is fucked up when sending JSON
             incoming = loads(key)
-
-        # does agreement exist?
-        if not agreement:
-            # we are creating a new one
-            agreement = Agreement.objects.create(**{})
-            agreement.save()
         
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)
-        response = agreement.serialize()
 
+    if request.method == 'PUT':
+        pass
+
+    if request.method == 'DELETE':
+        pass
+
+    # serialize the agreement we made
+    response = agreement.serialize()
     return SerializeOrRedirect(reverse(draw_test), response)
 
 

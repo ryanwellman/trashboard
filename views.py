@@ -37,6 +37,7 @@ def dyn_json(request, agreement_id=None):
     if request.method == 'POST':
         for key in request.POST:    # request.POST is fucked up when sending JSON
             incoming = loads(key)
+            print incoming
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)
@@ -137,14 +138,37 @@ def draw_container(request, agreement_id=None):
                         {'code':'FREESHIP', 'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
 
     # this one is going to come from the Package class and will change later
-    packages    =  [    {'name':'Copper', 'price':'$19.99/mo', 'xt':'1', 'dw':'3', 'mot':'1'},
-                        {'name':'Bronze', 'price':'$35.99/mo', 'xt':'1', 'dw':'7', 'mot':'1'},
-                        {'name':'Silver', 'price':'$37.99/mo', 'xt':'1', 'dw':'10', 'mot':'1'},
-                        {'name':'Gold', 'price':'$39.99/mo', 'xt':'1', 'dw':'12', 'mot':'1'},
-                        {'name':'Platinum', 'price':'$42.99/mo', 'xt':'1', 'dw':'15', 'mot':'1'}    ]
+    packages    =  [    {'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]},
+                        {'code':'bronze', 'name':'Bronze', 'contents':[{'code':'DWSENS', 'quantity':'7' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]},
+                        {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'10' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2'  }]},
+                        {'code':'gold', 'name':'Gold', 'contents':[{'code':'DWSENS', 'quantity':'12' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]},
+                        {'code':'platinum', 'name':'Platinum', 'contents':[{'code':'DWSENS', 'quantity':'15' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]}  ]
+
+    parts       =  [    {'code':'DWSENS', 'name':'Door/Window Sensors', 'points':'5', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
+                        {'code':'GBSENS', 'name':'Glass Break Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
+                        {'code':'LTSENS', 'name':'Low Temperature Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
+                        {'code':'MOTDEC', 'name':'Motion Detector', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
+                        {'code':'FLSENS', 'name':'Flood Sensor', 'points':'12', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
+                        {'code':'GDSENS', 'name':'Garage Door Sensor', 'points':'8', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
+                        {'code':'KEYCRC', 'name':'Keychain Remote Control', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'49.50'},
+                        {'code':'MEDPNB', 'name':'Medical Panic Bracelet', 'points':'10', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
+                        {'code':'MEDPEN', 'name':'Medical Panic Pendant', 'points':'12', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
+                        {'code':'MINPNP', 'name':'Mini Pinpad', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'30.00'},
+                        {'code':'SOLLGT', 'name':'Solar Light', 'points':'3', 'quantity':'0', 'category':'Accessories', 'price':'19.95'},
+                        {'code':'TLKKYP', 'name':'Talking Keypad', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'99.00'},
+                        {'code':'TLKTSC', 'name':'XT Talking Touchscreen', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'115.00'},
+                        {'code':'SMKDET', 'name':'Smoke Detector', 'points':'15', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
+                        {'code':'CRBMDT', 'name':'Carbon Monoxide Detector', 'points':'10', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
+                        {'code':'XTNSIR', 'name':'XT Siren', 'points':'10', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
+                        {'code':'XTSRCK', 'name':'X10 Socket Rocket', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
+                        {'code':'XTNAPM', 'name':'X10 Appliance Module', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
+                        {'code':'SIMTHR', 'name':'Simon 3', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
+                        {'code':'SIMNXT', 'name':'Simon XT', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
+                        {'code':'TLKDEV', 'name':'Talkover Device', 'points':'10', 'quantity':'0', 'category':'Security Panels', 'price':'199.00'}  ]
+
 
     # uses render_to to draw the template
-    return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=packages, agreement_id=agreement_id)
+    return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=agreement_id)
 
 
 @render_to('templates/package.html')

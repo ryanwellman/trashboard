@@ -23,13 +23,13 @@
             <tbody data-bind="foreach: purchase_lines">
                 <tr>
                     <td>
-                        <select data-bind='options:KOPARTS, optionsText: "name", optionsCaption: "Choose Part...", value: selected_part'></select>
+                        <select data-bind='options:PARTS, optionsText: "name", optionsCaption: "Choose Part...", value: selected_part'></select>
                     </td>
                     <td>
-                        <input class="input-mini" data-bind='visible: selected_part, value: quantity, valueUpdate: "afterkeydown", event: { blur: updateQuantity }' style="text-align: center;"/>
+                        <input class="input-mini" data-bind='visible: selected_part, value: quantity, valueUpdate: "afterkeydown"' style="text-align: center;"/>
                     </td>
-                    <td data-bind="with: selected_part()">$<span data-bind='visible: price, text: price'></span></td>
-                    <td>$<span data-bind='visible: total_price(), text: formatCurrency(total_price())'></span></td>
+                    <td data-bind="with: selected_part">$<span data-bind='visible: price, text: price'></span></td>
+                    <td>$<span data-bind='visible: total_price, text: formatCurrency(total_price())'></span></td>
                     <td><a href='#' data-bind='click: $parent.removeLine'>Remove</td>
                 </tr>
             </tbody>
@@ -52,6 +52,7 @@
 <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
 <script src="http://underscorejs.org/underscore-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
 <script type="text/javascript">
 
     function formatCurrency(value) {
@@ -65,24 +66,28 @@
 
         // this fn updates the view model from a blob
         // not as good as the python version
-        this._update_from_dict = function(blob) {
+        this._update_from_dict = function(blob, obj) {
+            // can only copy vms composed of other UAS-derived objects
+            //  that are observable, vanilla variables, or arrays 
             _.each(blob, function(v, k) {
-                console.log(blob);
-                console.log(this.fields);
-                console.log(this);
-                if(this.fields[k] === ko.observable) {
-                    // use observables as functions
-                    this[k](blob[k]);
-                } else if(this.fields[k] === ko.observableArray) {
-                    // painful
-                    if(blob[k] instanceof Array) {
-                        this[k](blob[k])
-                    } else {
-                        this[k]([blob[k]])
-                    }
+                console.log(ko.toJSON(blob));
+                console.log(obj.returnFields());
+                console.log(ko.toJSON(obj));
+                console.log('setting ' + obj[k] + ' to ' + blob[k] + ' using ' + obj.returnFields()[k]);
+                if(obj.returnFields()[k] === ko.observable) {
+                    // copy observables
+                    console.log('found observable ' + k + ':' + ko.toJSON(obj[k]()));
+                    console.log('found target value ' + ko.toJSON(blob[k]));
+                    // use observable to copy value
+                    obj[k](blob[k]);
+                } else if(obj.returnFields()[k] === ko.observableArray) {
+                    // painful array cast
+                    obj[k]().length = 0;
+                    obj[k](blob[k]);
                 } else {
                     // recursive viewmodel updates
-                    this[k]._update_from_dict(blob[k]);
+                    obj[k]()._update_from_dict(blob[k], obj[k]());
+                    obj[k].valueHasMutated();
                 }
             });
         };
@@ -96,55 +101,102 @@
         return this;
     };
 
-    PartLine = function(blob) {
+    PartVM = function(blob) {
         var self = new UpdatableAndSerializable();
+        blob = blob || {};
 
         var fields = {
-            "selected_part": ko.observable,
+            "category": ko.observable,
+            "code": ko.observable,
+            "name": ko.observable,
+            "price": ko.observable,
+            "points": ko.observable,
+        }
+
+        _.each(fields, function(v, k) {
+            self[k] = v(blob[k]);
+        });
+
+        self.returnFields = function() {
+            return fields;
+        };
+
+        return self;
+    };
+
+    PartLine = function(blob) {
+        var self = new UpdatableAndSerializable();
+        blob = blob || {};
+
+        var fields = {
+            "selected_part": PartVM,
             "quantity": ko.observable,
+        };
+
+        _.each(fields, function(v, k) {
+            // cheating
+            self[k] = ko.observable(blob[k])
+            //self[k] = v(blob[k]);
+        });
+
+        self.total_price = ko.computed(function() {
+            return (self.selected_part() && self.selected_part().price) ? self.quantity() * self.selected_part().price() : 0.00;
+        });
+
+        self.returnFields = function() {
+            return fields;
+        };
+
+        self._serialize = function() {
+            return ko.toJSON({ 'code': self.selected_part().code(), 'quantity': self.quantity() });
+        };
+
+        return self;
+    };
+
+    PurchaseParts = function(blob) {
+        var self = new UpdatableAndSerializable();
+        blob = blob || {};
+
+        var fields = {
+            "purchase_lines": ko.observableArray,
         };
 
         _.each(fields, function(v, k) {
             self[k] = v(blob[k]);
         });
 
-<<<<<<< Updated upstream
-        self.selected_part = ko.observable();
-        self.quantity = ko.observable(0);
-=======
->>>>>>> Stashed changes
-        self.total_price = ko.computed(function() {
-            return self.selected_part() ? self.quantity() * self.selected_part().price : 0.00;
-        });
-
-        self.updateQuantity = function () {
-            console.log(self.selected_part()['quantity']);
-            self.selected_part()['quantity'] = self.quantity();
-            console.log(self.selected_part().quantity);
+        self.returnFields = function() {
+            return fields;
         };
 
-        self._serialize = function() {
-            return { 'code': self.selected_part().code, 'quantity': self.selected_part().quantity };
+        self.addLine = function() {
+            self.purchase_lines().push(new PartLine({'selected_part': {}, 'quantity': 0}));
+            self.purchase_lines.valueHasMutated();
+            console.log(ko.toJSON(self.purchase_lines()));
         };
+
+        self.removeLine = function(line) { self.purchase_lines.remove(line) };
+
+        self.save = function() {
+            alert('{'+$.map(self.purchase_lines(), function(val) { return val._serialize(); }) + '}');
+        }
 
         return self;
     };
 
-    PurchaseParts = function() {
-        var self = this;
-        self.purchase_lines = ko.observableArray([new PartLine({'selected_part': null, 'quantity': 0})]);
-
-        self.addLine = function() { self.purchase_lines.push(new PartLine({'selected_part': null, 'quantity': 0})) };
-        self.removeLine = function(line) { self.purchase_lines.remove(line) };
-
-        self.save = function() {
-            var dataToSave = $.map(self.purchase_lines(), function(val) { return val._serialize(); });
-            alert("Could now send this to server: " + JSON.stringify(dataToSave));
-        }
-    };
-
     $(function() {
-        VM_purchase = new PurchaseParts();
+
+        // XXX: speed upgrade by having django send stuff that's already partvms
+        window.PARTS = [];
+        for(var idx in window.KOPARTS) {
+            // turn these object literals into models so they have ufd
+            window.PARTS.push(new PartVM(window.KOPARTS[idx]));
+        }
+
+        VM_purchase = new PurchaseParts({'purchase_lines': []});
+        VM_purchase.addLine();
+        console.log(ko.toJSON(VM_purchase));
         ko.applyBindings(VM_purchase);
     });
 </script>

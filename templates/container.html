@@ -7,6 +7,12 @@
         <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
         <script src="http://underscorejs.org/underscore-min.js"></script>
+        <script type="text/javascript">
+            {% block javascript_variables_nocompress %}
+                window.PACKAGES = {{packages|safe}};
+                window.PARTS = {{parts|safe}};
+            {% endblock %}
+        </script>
         <style type="text/css">
             body {
                 padding-top: 60px;
@@ -117,12 +123,12 @@
             <div id="infobar" class="well">
                 <i id="infobar_resize" class="icon-resize-small"></i>
                 <div id="infobar_content">
-                    <div id="infobar_left" data-bind="visible: name().length > 0">
-                        <span data-bind="text: name"></span><br>
-                        <span data-bind="text: billing_address.address"></span><br>
-                        <span data-bind="text: citystate"></span><br>
-                        <span data-bind="text: billing_address.zip"></span><br>
-                        <span data-bind="text: billing_address.country"></span><br>
+                    <div id="infobar_left">
+                        <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First M. Last'"></span><br>
+                        <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
+                        <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span><br>
+                        <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span><br>
+                        <span data-bind="css: {muted: countrysafe().length == 0}, text: billing_address.country() ? billing_address.country : 'Country'"></span><br>
                     </div>
                     <div id="infobar_middle">
                         <p>
@@ -272,16 +278,17 @@
                         result.done(function(data) {
                             payload = data;
                             console.log("loaded json" + (agreement_id ? " from agreement " + agreement_id : ''));
+                            console.log(ko.toJSON(data))
                         });
 
                         return payload;
                     };
 
-                    // this fn allegedly saves the contents of the view model
+                    // this fn allegedly saves the contents of obj
                     // XXX: needs to be better
-                    self._save = function() {
+                    self._save = function(obj) {
                         // obtain a payload
-                        payload = ko.toJSON(self);
+                        payload = ko.toJSON(obj);
 
                         var result = $.ajax({
                             type: "POST",
@@ -298,6 +305,8 @@
 
                         result.done(function(data) {
                             // obtain that agreement id from the json response
+                            obj.id = data.id;
+                            console.log(data);
                             console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
                         });
                     };
@@ -345,6 +354,160 @@
                     return self;
                 };
 
+                // this is ryan's vm for packages translated to the new style
+                // new PackageVM({'selected_package': null, 'customizing': false, 'cb_balance': 0, 'updated_contents': [], 'changed_contents': false, 'customization_lines': []})
+                PackageVM = function(blob) {
+                    var self = new UpdatableAndSerializable();
+                    blob = blob || {};
+
+                    var fields = {
+                        'selected_package': ko.observable,
+                        'customizing': ko.observable,
+                        'custom_quantities': Object,
+                        'cb_balance': ko.observable,
+                        'updated_contents': ko.observableArray,
+                        'changed_contents': ko.observable,
+                        'customization_lines': ko.observableArray,
+                    };
+
+                    _.each(fields, function(v, k) {
+                        if(blob[k] != undefined) {
+                            self[k] = v(blob[k]);
+                        }
+                    });
+
+                    self.select_package = function(package) {
+                        console.log("select customizing", self.customizing());
+                        self.selected_package(package);
+                        self.custom_quantities = {};
+                        self.customization_lines.removeAll();
+                        // clear out any updated contents when selected package changes
+                        self.updated_contents([]);
+                        self.changed_contents(false);
+                        self.customizing(false);
+
+                        if(!self.customization_lines().length) {
+                            _.map(KOPARTS, function(part) {
+                                var cline= {
+                                    code: part.code,
+                                    part: part,
+                                    quantity: ko.observable(0),
+                                    min_quantity: ko.observable(0),
+                                };
+                                cline.quantity.subscribe(self.cust_quantity_changed);
+                                //console.log("Pushing new cline ", cline);
+                                self.customization_lines.push(cline);
+
+                                cline.quantity.subscribe(self.cust_quantity_changed);
+                            });
+                        }
+
+                        if(package) {
+                            // For each line of stuff that comes in the package normally,
+                            _.each(self.selected_package().contents, function(line) {
+                                // Find the customization line for that product
+                                var cline = _.find(self.customization_lines(), function(cline) {
+                                    return cline.code == line.code;
+                                });
+                                // Set that customization line's quantity and min quantity appropriately.
+                                if(cline) {
+                                    //console.log("Found matching cline, ", line.quantity);
+                                    cline.quantity(line.quantity);
+                                    //TODO: Set min quantity
+                                } else {
+                                    //console.log("!Found matching cline", cline);
+                                }
+                            });
+                        }
+                    };
+
+                    self.customize = function () {
+                        self.customizing(true);
+                    };
+
+                    self.cust_quantity_changed = function() {
+                        self.customization_deltas = [];
+                        var balance = 0;
+
+                        package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);
+                        clines_by_part = _.object(_.pluck(self.customization_lines(), 'code'), self.customization_lines());
+                        //console.log(clines_by_part);
+
+                        _.each(clines_by_part, function(cline,code) {
+                            var pline = package_by_part[code];
+                            var pq = 0;
+                            if (pline) {
+                                pq = pline.quantity;
+                            }
+
+                            var delta = cline.quantity() - pq;
+                            if(delta == 0)
+                                return;
+
+                            //console.log("I think that the cline for part ", code, " has ", cline.quantity(), "and the pline has ", pq);
+
+                            self.customization_deltas.push({
+                                code: code,
+                                delta: delta,
+                            });
+                        });
+                        //console.log("deltas", self.customization_deltas);
+
+                        self.data_to_send['package'] = self.selected_package().code;
+                        self.data_to_send['customizations'] = self.customization_deltas;
+                        //console.log("data", self.data_to_send);
+
+                        for (var i=0; i<self.customization_deltas.length; i++) {
+                            balance += -1 * (self.customization_deltas[i].delta * clines_by_part[self.customization_deltas[i].code].part.points);
+                        }
+                        self.cb_balance(balance);
+                    };
+
+                    self.selected_package_contents = function() {
+                        if(!self.selected_package()) {
+                            return [];
+                        }
+                        return self.selected_package().contents;
+                    }
+
+                    self.select_package_classes = function(param) {
+                        var classes = param.code;
+                        if(param === self.selected_package()) {
+                            classes += ' currently_chosen';
+                        }
+                        return classes;
+                    };
+
+                    self.save_package = function() {
+                        alert("Could now send this to server: " + JSON.stringify(self.data_to_send));
+                    };
+
+                    self.save_customization = function () {
+                        //clear any previous updated contents
+                        self.updated_contents([]);
+                        self.customized_parts = [];
+                        for (var i=0; i<self.customization_lines().length; i++) {
+                            if (self.customization_lines()[i].quantity() > 0) {
+                                self.c_parts = {};
+                                self.c_parts['code'] = self.customization_lines()[i].code;
+                                self.c_parts['quantity'] = self.customization_lines()[i].quantity();
+                                self.c_parts['part'] = self.customization_lines()[i].part;
+                                self.customized_parts.push(self.c_parts);
+                                self.updated_contents.push(self.c_parts);
+                            }
+                        }
+                        self.changed_contents(true);
+                        self.customizing(false);
+                    };
+
+                    self.cancel_customization = function() {
+                        self.customizing(false);
+                    };
+
+                    self.select_package(null);
+                    return self;
+                };
+
                 // initialize a view model from a blob
                 MasterVM = function(blob) {
                     // capture a new copy of UAS into MasterVM's closure
@@ -363,9 +526,10 @@
                         'pricetable_date': ko.observable,
                         'email': ko.observable,
                         'approved': ko.observable,
-                        'package': ko.observable,
+                        'package': PackageVM,
                         'shipping': ko.observable,
                         'monitoring': ko.observable,
+                        'email': ko.observable,
                     };
 
                     // try to assign things from blob to fields if they exist
@@ -385,6 +549,10 @@
 
                     self.citystate = ko.computed(function() {
                         return self.billing_address.city() + (self.billing_address.state() ? ', ' + self.billing_address.state() : '');
+                    });
+
+                    self.countrysafe = ko.computed(function() {
+                        return self.billing_address.country() ? self.billing_address.country() : '';
                     });
 
                     // computed variables for the nav bar & review section
@@ -420,16 +588,7 @@
 
                     self.test_cinfo = function() {
                         // test completeness and set flag
-                        complete =  _.contains(self.completed(), 'cinfo');
-                        if(self.fname() && self.lname() && self.taxid() && self.email() && self.address() && !complete) {
-                            self.completed().push('cinfo');
-                            complete = true;
-                        }
-
-                        // look for values in completed since we might
-                        // want to consider allowing irregular forms
-                        // to be valid in the future with a backend hack
-                        if(complete) {
+                        if(self.applicant.fname() && self.applicant.lname() && self.billing_address.address() && self.email()) {
                             // disable form fields
                             $('#cinfo div input, #cinfo div select, #cinfo div button').prop('disabled', true);
                             // change label color
@@ -455,14 +614,7 @@
 
                     self.test_pkgsel = function() {
                         // test completeness and set flag
-                        complete = _.contains(self.completed(), 'pkgsel');
-                        if(self.package() && !complete ) {
-                            self.completed().push('pkgsel');
-                            complete = true;
-                        }
-
-                        // finish up this section
-                        if(complete) {
+                        if(self.package()) {
                             // disable submit button
                             $('#pkgsel div button').prop('disabled', true);
                             // change label color
@@ -480,14 +632,7 @@
 
                     self.test_monitor = function() {
                         // test completeness and set flag
-                        complete = _.contains(self.completed(), 'monitor');
-                        if(self.monitoring() && !complete ) {
-                            self.completed().push('monitor');
-                            complete = true;
-                        }
-
-                        // finish up this section
-                        if(complete) {
+                        if(self.monitoring()) {
                             // disable submit button
                             $('#monitor div button').prop('disabled', true);
                             // change label color
@@ -505,13 +650,7 @@
 
                     self.test_shipping = function() {
                         // test completeness and set flag
-                        complete = _.contains(self.completed(), 'shipping');
-                        if(self.shipping() && !complete) {
-                            self.completed().push('shipping');
-                            complete = true;
-                        }
-
-                        if(complete) {
+                        if(self.shipping()) {
                             // disable form fields
                             $('#shipping div button, #shipping div input').prop('disabled', true);
                             // change label color
@@ -646,7 +785,7 @@
 
                     // fire test and save the viewmodel contents
                     master_settings.test_cinfo();
-                    master_settings._save();
+                    json_handler._save(master_settings);
                 });
                 $('#cinfo_form').on('reset', function(evt) {
                     // knockout does not refresh observables on a reset
@@ -662,7 +801,7 @@
                     
                     // save contents of viewmodel as json blob and fire test
                     master_settings.test_pkgsel()
-                    master_settings._save();
+                    json_handler._save(master_settings);
                 });
                 $('#pkgsel_form').on('reset', function(evt) {
                     // blank out package selection
@@ -676,7 +815,7 @@
                     
                     // save contents of viewmodel as json blob and fire test
                     master_settings.test_monitor()
-                    master_settings._save();
+                    json_handler._save(master_settings);
                 });
                 $('#monitor_form').on('reset', function(evt) {
                     // blank out monitoring selection

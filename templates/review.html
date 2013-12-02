@@ -4,17 +4,12 @@
                 <div class="row">
                     <div class="span1"></div>
                     <div class="span2">Customer Name: </div>
-                    <div class="span4"><span data-bind="text: fname"></span> <span data-bind="text:lname"></span></div>
+                    <div class="span4"><span data-bind="text: applicant.fname"></span> <span data-bind="text: applicant.lname"></span></div>
                 </div>
                 <div class="row">
                     <div class="span1"></div>
                     <div class="span2">Address: </div>
-                    <div class="span4"><span data-bind="text: address"></span>, <span data-bind="text:citystate"></span> <span data-bind="text:zip"></span></div>
-                </div>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Email: </div>
-                    <div class="span4"><span data-bind="text: email"></span></div>
+                    <div class="span4"><span data-bind="text: billing_address.address"></span>, <span data-bind="text:citystate"></span> <span data-bind="text:billing_address.zip"></span></div>
                 </div>
                 <div class="row">
                     <div class="span1"></div>

@@ -72,21 +72,23 @@ def test_json(request):
     """
     # sends json response given in the dictionary below
     ctx =   {
-                'fname':    'al',
-                'lname':    'smif',
-                'initial':  'h',
-                'address':  '92103 chainsaw place',
-                'city':     'marfa',
-                'state':    'tx'.upper(),
-                'zip':      '12345',
-                'country':  'usa'.upper(),
-                'taxid':    '123-45-6789',
+                'applicant': {
+                    'fname':    'al',
+                    'lname':    'smif',
+                    'initial':  'h',
+                }
+                'billing_address': {
+                    'address':  '92103 chainsaw place',
+                    'city':     'marfa',
+                    'state':    'tx'.upper(),
+                    'zip':      '12345',
+                    'country':  'usa'.upper(),
+                }
                 'email':    'al@smif.com',
                 'approved': 'approved',
                 'package':  'copper',
                 'shipping': 'jpost',
                 'monitoring': 'standard',
-                'completed':  ['cinfo', 'pkgsel', 'monitoring', 'shipping'],
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)

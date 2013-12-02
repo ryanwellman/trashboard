@@ -264,7 +264,7 @@
                         // obtain blob from ajax
                         var result = $.ajax({
                             dataType: "json",
-                            url: '/json2/' + agreement_id,
+                            url: '/json3/' + agreement_id,
                             async: false, // asynchronous load means empty blob
                         });
 
@@ -293,7 +293,7 @@
                         var result = $.ajax({
                             type: "POST",
                             dataType: "json",
-                            url: '/json2/' + agreement_id,
+                            url: '/json3/' + agreement_id,
                             async: false, // testing with and without this
                             data: payload,
                         });

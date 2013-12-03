@@ -87,7 +87,9 @@ def test_json(request):
                 'email':    'al@smif.com',
                 'approved': 'approved',
                 'package':  {
-                    'selected_package': 'Copper',
+                    'selected_package': {
+                        'code': 'copper',
+                    },
                     'customizing': 'False',
                     'cb_balance': '0',
                     'updated_contents': [],
@@ -96,7 +98,9 @@ def test_json(request):
                 },
                 'shipping': 'jpost',
                 'monitoring': 'standard',
-
+                'premium': {
+                    'selected_codes': [],
+                },
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)
@@ -134,9 +138,9 @@ def draw_container(request, agreement_id=None):
                         {'code':'CELLSERV', 'name':'Cellular Antenna', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
                         {'code':'GPS', 'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]
 
-    combos      =  [    {'code':'3KEYS', 'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!'},
-                        {'code':'MANYKEY', 'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!'},
-                        {'code':'SOLAR', 'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!'}    ]
+    combos      =  [    {'code':'3KEYS', 'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!', 'contents': [{'code':'SIMNXT', 'quantity':'1',},], },
+                        {'code':'MANYKEY', 'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!', 'contents': [{'code':'MOTDEC', 'quantity':'1',},], },
+                        {'code':'SOLAR', 'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!', 'contents': [{'code':'DWSENS', 'quantity':'5',},], },    ]
 
     services    =  [    {'code':'VIDEOSRV', 'name':'Video Service', 'price':'$19.99/mo', 'reason': 'cameras'},
                         {'code':'SMOKESRV', 'name':'Smoke Service', 'price':'$29.99/mo', 'reason': 'smoke detector(s)'},
@@ -178,7 +182,7 @@ def draw_container(request, agreement_id=None):
 
 
     # uses render_to to draw the template
-    return dict(premiums=premiums, combos=combos, services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=agreement_id)
+    return dict(premiums=dumps(premiums), combos=combos, services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=agreement_id)
 
 
 @render_to('templates/package.html')

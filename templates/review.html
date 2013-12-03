@@ -19,27 +19,20 @@
                 <div class="row">
                     <div class="span1"></div>
                     <div class="span2">Package: </div>
-                    <div class="span4"><span data-bind="text: package_nav"></span></div>
+                    <div class="span4"><span data-bind="text: package_nav().split(': ')[1]"></span></div>
                 </div>
                 <div class="row">
                     <div class="span1"></div>
                     <div class="span2">Monitoring: </div>
-                    <div class="span4"><span data-bind="text: monitoring_nav"></span></div>
+                    <div class="span4"><span data-bind="text: monitoring_nav().split(': ')[1]"></span></div>
                 </div>
                 <div class="row">
                     <div class="span1"></div>
                     <div class="span2">Shipping: </div>
-                    <div class="span4"><span data-bind="text: shipping_nav"></span></div>
+                    <div class="span4"><span data-bind="text: shipping_nav().split(': ')[1]"></span></div>
                 </div>
 
 				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
-				<span class="label label-inverse box-rotate tab-pos">Review</span>
-				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
-				<!--
-				<div class="well">
-					<p data-bind="text: agreement_id_nav"></p>
-				</div>
-				-->
 			</div>
             </form>
 		</script>

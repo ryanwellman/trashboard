@@ -1,125 +1,118 @@
         <script type="text/html" id="packages">
             <div class="well">
                 <span class="label label-inverse box-rotate tab-pos">Packages</span>
-                <div class="row">
-                        <h3>Select Package</h3>
-                        <div class="row" data-bind="foreach:PACKAGES">
-                            <div class="select_package span2 " data-bind="css: $parent.package.select_package_classes($data), click: $parent.package.select_package">
-                                    <div class="package_name row">
-                                        <div class="span2">
-                                            <span data-bind="text: $data.name"></span>
-                                            Package
-                                        </div>
-                                    </div>
-
-                                    <div class="package_contents row">
-                                        <div class="span2">
-                                            <ul data-bind="foreach: $data.contents">
-                                                <li>
-
-                                                    <span data-bind="text: $data.part.name"></span>
-                                                    x<span data-bind="text: $data.quantity"></span>
-                                                </li>
-                                            </ul>
-
-                                        </div>
-                                    </div>
+                <div class="row" data-bind="foreach:PACKAGES">
+                    <div class="select_package span2 " data-bind="css: $parent.package.select_package_classes($data), click: $parent.package.select_package">
+                        <div class="package_name row">
+                            <div class="span2">
+                                <span data-bind="text: $data.name"></span>
+                                Package
                             </div>
                         </div>
-                        <!-- Table to display the original contents of the package -->
-                        <div class="row" data-bind="visible: package.selected_package() && !package.customizing() && !package.changed_contents()">
-                            <br />
-                            <button class="btn btn-success" data-bind="click: package.customize">Customize</button>
-                            <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>
-                            <br />
-                            <table class="table" id="package_contents">
-                                <thead>
-                                    <tr>
-                                        <th>Part #</th><th>Description</th><th>Quantity</th>
-                                    </tr>
-                                </thead>
-                                <tbody data-bind="foreach: package.selected_package_contents()">
-                                        <tr>
-                                            <td data-bind="text: $data.code"></td>
-                                            <td data-bind="text: $data.part.name"></td>
-                                            <td data-bind="text: $data.quantity"></td>
-
-                                        </tr>
-                                </tbody>
-                            </table>
-                            <div class="row">
-                                <div class="span2" data-bind="visible: package.selected_package()">
-                                    <!-- ko if: package.cb_balance() >= 0 -->
-                                        <font color="green"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
-                                    <!-- /ko -->
-                                    <!-- ko if: package.cb_balance() < 0 -->
-                                        <font color="red"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
-                                    <!-- /ko -->
-                                </div>
+                        <div class="package_contents row">
+                            <div class="span2">
+                                <ul data-bind="foreach: $data.contents">
+                                    <li>
+                                        <span data-bind="text: $data.part.name"></span>
+                                        x<span data-bind="text: $data.quantity"></span>
+                                    </li>
+                                </ul>
                             </div>
-                        </div>
-                        <!-- Table to display when the package is customized -->
-                        <div class="row" data-bind="visible: package.changed_contents() && !package.customizing()">
-                            <br />
-                            <button class="btn btn-success" data-bind="click: package.customize">Customize</button>
-                            <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>
-                            <br />
-                            <table class="table" id="package_contents">
-                                <thead>
-                                    <tr>
-                                        <th>Part #</th><th>Description</th><th>Quantity</th>
-                                    </tr>
-                                </thead>
-                                <tbody data-bind="foreach: package.updated_contents">
-                                        <tr>
-                                            <td data-bind="text: code"></td>
-                                            <td data-bind="text: part.name"></td>
-                                            <td data-bind="text: quantity"></td>
-                                        </tr>
-                                </tbody>
-                            </table>
-                            <div class="row">
-                                <div class="span2" data-bind="visible: package.changed_contents()">
-                                    <!-- ko if: package.cb_balance() >= 0 -->
-                                        <font color="green"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
-                                    <!-- /ko -->
-                                    <!-- ko if: package.cb_balance() < 0 -->
-                                        <font color="red"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
-                                    <!-- /ko -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row"  data-bind="visible: package.selected_package() && package.customizing()">
-                            <div class="row">
-                                <div class="span2" data-bind="visible: package.selected_package()">
-                                    <!-- ko if: package.cb_balance() >= 0 -->
-                                        <font color="green"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
-                                    <!-- /ko -->
-                                    <!-- ko if: package.cb_balance() < 0 -->
-                                        <font color="red"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
-                                    <!-- /ko -->
-                                </div>
-                            </div>
-                            <table class="package_customization table">
-                                <thead>
-                                    <tr>
-                                        <th>Part #</th><th>Description</th><th><center>CB</center></th><th><center>Minimum Quantity Included</center></th><th>Quantity</th>
-                                    </tr>
-                                </thead>
-                                <tbody data-bind="foreach: package.customization_lines">
-                                    <tr>
-                                        <td data-bind="text: $data.code"></td>
-                                        <td data-bind="text: $data.part.name"></td>
-                                        <td><center><span data-bind="text: $data.part.points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
-                                        <td data-bind="text: $data.min_quantity" style="text-align:center;"></td>
-                                        <td><input class="input-mini" type="text" data-bind="value: $data.quantity" style="text-align:center;" /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <button class="btn btn-primary" data-bind="click:package.save_customization">Save Customization</button>
-                            <button class="btn" data-bind="click:package.cancel_customization">Cancel Customization</button>
                         </div>
                     </div>
+                </div>
+                <!-- Table to display the original contents of the package -->
+                <div class="row" data-bind="visible: package.selected_package() && !package.customizing() && !package.changed_contents()">
+                    <br />
+                    <button class="btn btn-success" data-bind="click: package.customize">Customize</button>
+                    <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>
+                    <br />
+                    <table class="table" id="package_contents">
+                        <thead>
+                            <tr>
+                                <th>Part #</th><th>Description</th><th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: package.selected_package_contents()">
+                            <tr>
+                                <td data-bind="text: $data.code"></td>
+                                <td data-bind="text: $data.part.name"></td>
+                                <td data-bind="text: $data.quantity"></td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="span2" data-bind="visible: package.selected_package()">
+                            <!-- ko if: package.cb_balance() >= 0 -->
+                                <font color="green"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
+                            <!-- /ko -->
+                            <!-- ko if: package.cb_balance() < 0 -->
+                                <font color="red"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Table to display when the package is customized -->
+                <div class="row" data-bind="visible: package.changed_contents() && !package.customizing()">
+                    <br />
+                    <button class="btn btn-success" data-bind="click: package.customize">Customize</button>
+                    <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>
+                    <br />
+                    <table class="table" id="package_contents">
+                        <thead>
+                            <tr>
+                                <th>Part #</th><th>Description</th><th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: package.updated_contents">
+                                <tr>
+                                    <td data-bind="text: code"></td>
+                                    <td data-bind="text: part.name"></td>
+                                    <td data-bind="text: quantity"></td>
+                                </tr>
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="span2" data-bind="visible: package.changed_contents()">
+                            <!-- ko if: package.cb_balance() >= 0 -->
+                                <font color="green"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
+                            <!-- /ko -->
+                            <!-- ko if: package.cb_balance() < 0 -->
+                                <font color="red"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row"  data-bind="visible: package.selected_package() && package.customizing()">
+                    <div class="row">
+                        <div class="span2" data-bind="visible: package.selected_package()">
+                            <!-- ko if: package.cb_balance() >= 0 -->
+                                <font color="green"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
+                            <!-- /ko -->
+                            <!-- ko if: package.cb_balance() < 0 -->
+                                <font color="red"><h4>CB Balance: <span data-bind="text: package.cb_balance()"></span></h4></font>
+                            <!-- /ko -->
+                        </div>
+                    </div>
+                    <table class="package_customization table">
+                        <thead>
+                            <tr>
+                                <th>Part #</th><th>Description</th><th><center>CB</center></th><th><center>Minimum Quantity Included</center></th><th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: package.customization_lines">
+                            <tr>
+                                <td data-bind="text: $data.code"></td>
+                                <td data-bind="text: $data.part.name"></td>
+                                <td><center><span data-bind="text: $data.part.points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
+                                <td data-bind="text: $data.min_quantity" style="text-align:center;"></td>
+                                <td><input class="input-mini" type="text" data-bind="value: $data.quantity" style="text-align:center;" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" data-bind="click:package.save_customization">Save Customization</button>
+                    <button class="btn" data-bind="click:package.cancel_customization">Cancel Customization</button>
                 </div>
                 <form id="pkgsel_form">
                     <fieldset>

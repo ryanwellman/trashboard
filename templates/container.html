@@ -11,6 +11,7 @@
             {% block javascript_variables_nocompress %}
                 window.PACKAGES = {{packages|safe}};
                 window.PARTS = {{parts|safe}};
+                window.PREMIUM = {{combos|safe}};
             {% endblock %}
         </script>
         <style type="text/css">
@@ -77,32 +78,45 @@
                 padding: 10px;
                 text-align: center;
             }
-            .Copper {
+            .copper {
                 background-color: #B87333;
             }
-            .Bronze {
+            .bronze {
                 background-color: #CD7F32;
             }
-            .Silver {
+            .silver {
                 background-color: #C0C0C0;
             }
-            .Gold {
+            .gold {
                 background-color: #D4A017;
             }
-            .Platinum {
+            .platinum {
                 background-color: #E5E4E2;
             }
             .select_package {
                 cursor: pointer;
                 cursor: hand;
             }
-            .package_features {
-                border:2px solid;
-                border-color: #B6B6B4;
+            .customize {
+                cursor: pointer;
+                cursor: hand;
             }
-            .purchase_items {
-                border:2px solid;
-                border-color: #B6B6B4;
+            .cancel_custom {
+                cursor: pointer;
+                cursor: hand;
+            }
+            .part_section {
+                background-color: #2B3856;
+                color: white;
+            }
+            .package_name {
+                color:white;
+                font: 16pt;
+                font-weight: bold;
+                text-align: center;
+            }
+            .currently_chosen {
+                border: 5px dashed green;
             }
         </style>
 {% include 'templates/customer_info.html' %}
@@ -195,7 +209,7 @@
                     <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
                 </section>
                 <section id="shipping" class="hyde">
-                    <div data-bind="template: { name: 'shipping_', data: $data }">Rate Drop Form</div>
+                    <div data-bind="template: { name: 'shipping_', data: $data }">Shipping Form</div>
                 </section>
                 <section id="review" class="hyde">
                     <div data-bind="template: { name: 'review_', data: $data }">Review Form</div>
@@ -210,470 +224,499 @@
             </div>
         </div>
         <script type="text/javascript">
-            // jquery on ready wrapper to anonymous function
-            $(function() {
-                // capture agreement_id from django if it was passed in
-                // this should be passed in as json since the js will be broken out
-                // into a new file
-                var agreement_id = '{{agreement_id}}';
+            // capture agreement_id from django if it was passed in
+            // this should be passed in as json since the js will be broken out
+            // into a new file
+            var agreement_id = '{{agreement_id}}';
 
-                // KNOCKOUT VIEW MODELS
+            // KNOCKOUT VIEW MODELS
 
-                // first some utility objects
+            // first some utility objects
 
-                UpdatableAndSerializable = function() {
-                    // do not capture this into closure as self
-                    // this mixin uses 'parasitic' inheritance since the vm
-                    // constructors all start from a new UAS
+            UpdatableAndSerializable = function() {
+                // do not capture this into closure as self
+                // this mixin uses 'parasitic' inheritance since the vm
+                // constructors all start from a new UAS
 
-                    // this fn updates the view model from a blob
-                    // not as good as the python version
-                    this._update_from_dict = function(blob) {
-                        _.each(blob, function(v, k) {
-                            if(this.fields[k] === ko.observable) {
-                                // use observables as functions
-                                this[k](blob[k]);
-                            } else {
-                                // recursive viewmodel updates
-                                this[k]._update_from_dict(blob[k]);
-                            }
-                        });
-                    };
-
-                    // this fn returns a json-like blob from a view model
-                    // better than the python version by far
-                    this._serialize = function() {
-                        return ko.toJSON(this);
-                    };
-
-                    return this;
-                };
-
-                JSONHandler = function() {
-                    // this thing handles loading and saving json-like things to the
-                    // restful interface
-
-                    // capture this into JSONHandler's closure
-                    var self = this;
-
-                    // this fn obtains a json blob from the restful(?) interface
-                    self._load = function() {
-                        // obtain a payload
-                        payload = {};
-
-                        // obtain blob from ajax
-                        var result = $.ajax({
-                            dataType: "json",
-                            url: '/json3/' + agreement_id,
-                            async: false, // asynchronous load means empty blob
-                        });
-
-                        // log failure
-                        result.fail(function(xhr, status, error) {
-                            console.log('failed! (' + error + ') ' + status);
-                            console.log(xhr.responseText);
-                        });
-
-                        // log success
-                        result.done(function(data) {
-                            payload = data;
-                            console.log("loaded json" + (agreement_id ? " from agreement " + agreement_id : ''));
-                            console.log(ko.toJSON(data))
-                        });
-
-                        return payload;
-                    };
-
-                    // this fn allegedly saves the contents of obj
-                    // XXX: needs to be better
-                    self._save = function(obj) {
-                        // obtain a payload
-                        payload = ko.toJSON(obj);
-
-                        var result = $.ajax({
-                            type: "POST",
-                            dataType: "json",
-                            url: '/json3/' + agreement_id,
-                            async: false, // testing with and without this
-                            data: payload,
-                        });
-
-                        result.fail(function(xhr, status, error) {
-                            console.log('failed! (' + error + ') ' + status);
-                            console.log(xhr.responseText);
-                        });
-
-                        result.done(function(data) {
-                            // obtain that agreement id from the json response
-                            obj.id = data.id;
-                            console.log(data);
-                            console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
-                        });
-                    };
-                };
-
-                // refer to the comments in MasterVM to understand the next two objects
-                ApplicantVM = function(blob) {
-                    var self = new UpdatableAndSerializable();
-                    blob = blob || {};
-
-                    var fields = {
-                        'fname': ko.observable,
-                        'lname': ko.observable,
-                        'initial': ko.observable,
-                        'phone': ko.observable,
-                    };
-
-                    _.each(fields, function(v, k) {
-                        if(blob[k] != undefined) {
-                            self[k] = v(blob[k]);
+                // this fn updates the view model from a blob
+                // not as good as the python version
+                this._update_from_dict = function(blob) {
+                    _.each(blob, function(v, k) {
+                        if(this.fields[k] === ko.observable) {
+                            // use observables as functions
+                            this[k](blob[k]);
+                        } else {
+                            // recursive viewmodel updates
+                            this[k]._update_from_dict(blob[k]);
                         }
                     });
-
-                    return self;
                 };
 
-                AddressVM = function(blob) {
-                    var self = new UpdatableAndSerializable();
-                    blob = blob || {};
-
-                    var fields = {
-                        'address': ko.observable,
-                        'city': ko.observable,
-                        'state': ko.observable,
-                        'country': ko.observable,
-                        'zip': ko.observable,
-                    };
-
-                    _.each(fields, function(v, k) {
-                        if(blob[k] != undefined) {
-                            self[k] = v(blob[k]);
-                        }
-                    });
-
-                    return self;
+                // this fn returns a json-like blob from a view model
+                // better than the python version by far
+                this._serialize = function() {
+                    return ko.toJSON(this);
                 };
 
-                // this is ryan's vm for packages translated to the new style
-                // new PackageVM({'selected_package': null, 'customizing': false, 'cb_balance': 0, 'updated_contents': [], 'changed_contents': false, 'customization_lines': []})
+                return this;
+            };
 
-                // fix the window level vars for this to work
-                window.package_index = _.object(_.pluck(window.PACKAGES, 'code'), window.PACKAGES);
-                window.part_index = _.object(_.pluck(window.PARTS, 'code'), window.PARTS);
+            JSONHandler = function() {
+                // this thing handles loading and saving json-like things to the
+                // restful interface
 
-                _.each(window.PACKAGES, function(package) {
-                    _.each(package.contents, function(line) {
-                        line.part = window.part_index[line.code];
+                // capture this into JSONHandler's closure
+                var self = this;
+
+                // this fn obtains a json blob from the restful(?) interface
+                self._load = function() {
+                    // obtain a payload
+                    payload = {};
+
+                    // obtain blob from ajax
+                    var result = $.ajax({
+                        dataType: "json",
+                        url: '/json3/' + agreement_id,
+                        async: false, // asynchronous load means empty blob
                     });
+
+                    // log failure
+                    result.fail(function(xhr, status, error) {
+                        console.log('failed! (' + error + ') ' + status);
+                        console.log(xhr.responseText);
+                    });
+
+                    // log success
+                    result.done(function(data) {
+                        payload = data;
+                        console.log("loaded json" + (agreement_id ? " from agreement " + agreement_id : ''));
+                        console.log(ko.toJSON(data))
+                    });
+
+                    return payload;
+                };
+
+                // this fn allegedly saves the contents of obj
+                // XXX: needs to be better
+                self._save = function(obj) {
+                    // obtain a payload
+                    payload = ko.toJSON(obj);
+
+                    var result = $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        url: '/json3/' + agreement_id,
+                        async: false, // testing with and without this
+                        data: payload,
+                    });
+
+                    result.fail(function(xhr, status, error) {
+                        console.log('failed! (' + error + ') ' + status);
+                        console.log(xhr.responseText);
+                    });
+
+                    result.done(function(data) {
+                        // obtain that agreement id from the json response
+                        obj.id = data.id;
+                        console.log(data);
+                        console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
+                    });
+                };
+            };
+
+            // refer to the comments in MasterVM to understand the next two objects
+            ApplicantVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    'fname': ko.observable,
+                    'lname': ko.observable,
+                    'initial': ko.observable,
+                    'phone': ko.observable,
+                };
+
+                _.each(fields, function(v, k) {
+                    if(blob[k] != undefined) {
+                        self[k] = v(blob[k]);
+                    }
                 });
 
-                PackageVM = function(blob) {
-                    var self = new UpdatableAndSerializable();
-                    blob = blob || {};
+                return self;
+            };
 
-                    var fields = {
-                        'selected_package': ko.observable,
-                        'customizing': ko.observable,
-                        'custom_quantities': Object,
-                        'cb_balance': ko.observable,
-                        'updated_contents': ko.observableArray,
-                        'changed_contents': ko.observable,
-                        'customization_lines': ko.observableArray,
-                    };
+            AddressVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
 
-                    _.each(fields, function(v, k) {
-                        if(blob[k] != undefined) {
-                            self[k] = v(blob[k]);
-                        }
-                    });
+                var fields = {
+                    'address': ko.observable,
+                    'city': ko.observable,
+                    'state': ko.observable,
+                    'country': ko.observable,
+                    'zip': ko.observable,
+                };
 
-                    self.select_package = function(package) {
-                        console.log("select customizing", self.customizing());
-                        self.selected_package(package);
-                        self.custom_quantities = {};
-                        self.customization_lines.removeAll();
-                        // clear out any updated contents when selected package changes
-                        self.updated_contents([]);
-                        self.changed_contents(false);
-                        self.customizing(false);
+                _.each(fields, function(v, k) {
+                    if(blob[k] != undefined) {
+                        self[k] = v(blob[k]);
+                    }
+                });
 
-                        if(!self.customization_lines().length) {
-                            _.map(window.PARTS, function(part) {
-                                var cline= {
-                                    code: part.code,
-                                    part: part,
-                                    quantity: ko.observable(0),
-                                    min_quantity: ko.observable(0),
-                                };
-                                cline.quantity.subscribe(self.cust_quantity_changed);
-                                //console.log("Pushing new cline ", cline);
-                                self.customization_lines.push(cline);
+                return self;
+            };
 
-                                cline.quantity.subscribe(self.cust_quantity_changed);
-                            });
-                        }
+            // this is ryan's vm for packages translated to the new style
+            // new PackageVM({'selected_package': null, 'customizing': false, 'cb_balance': 0, 'updated_contents': [], 'changed_contents': false, 'customization_lines': []})
 
-                        if(package) {
-                            // For each line of stuff that comes in the package normally,
-                            _.each(self.selected_package().contents, function(line) {
-                                // Find the customization line for that product
-                                var cline = _.find(self.customization_lines(), function(cline) {
-                                    return cline.code == line.code;
-                                });
-                                // Set that customization line's quantity and min quantity appropriately.
-                                if(cline) {
-                                    //console.log("Found matching cline, ", line.quantity);
-                                    cline.quantity(line.quantity);
-                                    //TODO: Set min quantity
-                                } else {
-                                    //console.log("!Found matching cline", cline);
-                                }
-                            });
-                        }
-                    };
+            // fix the window level vars for this to work
+            window.package_index = _.object(_.pluck(window.PACKAGES, 'code'), window.PACKAGES);
+            window.part_index = _.object(_.pluck(window.PARTS, 'code'), window.PARTS);
 
-                    self.customize = function () {
-                        self.customizing(true);
-                    };
+            _.each(window.PACKAGES, function(package) {
+                _.each(package.contents, function(line) {
+                    line.part = window.part_index[line.code];
+                });
+            });
 
-                    self.cust_quantity_changed = function() {
-                        self.customization_deltas = [];
-                        var balance = 0;
+            PackageVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
 
-                        package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);
-                        clines_by_part = _.object(_.pluck(self.customization_lines(), 'code'), self.customization_lines());
-                        //console.log(clines_by_part);
+                var fields = {
+                    'selected_package': ko.observable,
+                    'customizing': ko.observable,
+                    'custom_quantities': Object,
+                    'cb_balance': ko.observable,
+                    'updated_contents': ko.observableArray,
+                    'changed_contents': ko.observable,
+                    'customization_lines': ko.observableArray,
+                };
 
-                        _.each(clines_by_part, function(cline,code) {
-                            var pline = package_by_part[code];
-                            var pq = 0;
-                            if (pline) {
-                                pq = pline.quantity;
-                            }
+                _.each(fields, function(v, k) {
+                    if(blob[k] != undefined) {
+                        self[k] = v(blob[k]);
+                    }
+                });
 
-                            var delta = cline.quantity() - pq;
-                            if(delta == 0)
-                                return;
+                self.select_package = function(package) {
+                    console.log("select customizing", self.customizing());
+                    self.selected_package(package);
+                    self.custom_quantities = {};
+                    self.customization_lines.removeAll();
+                    // clear out any updated contents when selected package changes
+                    self.updated_contents([]);
+                    self.changed_contents(false);
+                    self.customizing(false);
 
-                            //console.log("I think that the cline for part ", code, " has ", cline.quantity(), "and the pline has ", pq);
+                    if(!self.customization_lines().length) {
+                        _.map(window.PARTS, function(part) {
+                            var cline= {
+                                code: part.code,
+                                part: part,
+                                quantity: ko.observable(0),
+                                min_quantity: ko.observable(0),
+                            };
+                            cline.quantity.subscribe(self.cust_quantity_changed);
+                            //console.log("Pushing new cline ", cline);
+                            self.customization_lines.push(cline);
 
-                            self.customization_deltas.push({
-                                code: code,
-                                delta: delta,
-                            });
+                            cline.quantity.subscribe(self.cust_quantity_changed);
                         });
-                        //console.log("deltas", self.customization_deltas);
-                        //console.log("data", self.data_to_send);
-
-                        for (var i=0; i<self.customization_deltas.length; i++) {
-                            balance += -1 * (self.customization_deltas[i].delta * clines_by_part[self.customization_deltas[i].code].part.points);
-                        }
-                        self.cb_balance(balance);
-                    };
-
-                    self.selected_package_contents = function() {
-                        if(!self.selected_package()) {
-                            return [];
-                        }
-                        return self.selected_package().contents;
                     }
 
-                    self.select_package_classes = function(param) {
-                        var classes = param.code;
-                        if(param === self.selected_package()) {
-                            classes += ' currently_chosen';
-                        }
-                        return classes;
-                    };
-
-                    self.save_package = function() {
-                        alert("Could now send this to server: " + JSON.stringify(self.data_to_send));
-                    };
-
-                    self.save_customization = function () {
-                        //clear any previous updated contents
-                        self.updated_contents([]);
-                        self.customized_parts = [];
-                        for (var i=0; i<self.customization_lines().length; i++) {
-                            if (self.customization_lines()[i].quantity() > 0) {
-                                self.c_parts = {};
-                                self.c_parts['code'] = self.customization_lines()[i].code;
-                                self.c_parts['quantity'] = self.customization_lines()[i].quantity();
-                                self.c_parts['part'] = self.customization_lines()[i].part;
-                                self.customized_parts.push(self.c_parts);
-                                self.updated_contents.push(self.c_parts);
+                    if(package) {
+                        // For each line of stuff that comes in the package normally,
+                        _.each(self.selected_package().contents, function(line) {
+                            // Find the customization line for that product
+                            var cline = _.find(self.customization_lines(), function(cline) {
+                                return cline.code == line.code;
+                            });
+                            // Set that customization line's quantity and min quantity appropriately.
+                            if(cline) {
+                                //console.log("Found matching cline, ", line.quantity);
+                                cline.quantity(line.quantity);
+                                //TODO: Set min quantity
+                            } else {
+                                //console.log("!Found matching cline", cline);
                             }
-                        }
-                        self.changed_contents(true);
-                        self.customizing(false);
-                    };
-
-                    self.cancel_customization = function() {
-                        self.customizing(false);
-                    };
-
-                    self.select_package(self.selected_package());
-                    return self;
+                        });
+                    }
                 };
 
-                // initialize a view model from a blob
-                MasterVM = function(blob) {
-                    // capture a new copy of UAS into MasterVM's closure
-                    var self = new UpdatableAndSerializable();
-
-                    // make blob a thing if it isn't one
-                    blob = blob || {};
-
-                    // field types
-                    var fields = {
-                        'id': ko.observable,
-                        'applicant': ApplicantVM,
-                        'coapplicant': ApplicantVM,
-                        'billing_address': AddressVM,
-                        'system_address': AddressVM,
-                        'pricetable_date': ko.observable,
-                        'email': ko.observable,
-                        'approved': ko.observable,
-                        'package': PackageVM,
-                        'shipping': ko.observable,
-                        'monitoring': ko.observable,
-                        'email': ko.observable,
-                    };
-
-                    // try to assign things from blob to fields if they exist
-                    _.each(fields, function(v, k) {
-                        if(blob[k] != undefined) {
-                            self[k] = v(blob[k]);
-                        } else {
-                            ;
-                        }
-                    });
-
-                    // variables computed from json responses
-                    // most of these are sugar for their return values
-                    self.name = ko.computed(function() {
-                        return self.applicant.fname() + (self.applicant.initial && self.applicant.initial() ? ' ' + self.applicant.initial() + '.' : '') + (self.applicant.lname() ? ' ' + self.applicant.lname() : '');
-                    });
-
-                    self.citystate = ko.computed(function() {
-                        return self.billing_address.city() + (self.billing_address.state() ? ', ' + self.billing_address.state() : '');
-                    });
-
-                    self.countrysafe = ko.computed(function() {
-                        return self.billing_address.country() ? self.billing_address.country() : '';
-                    });
-
-                    // computed variables for the nav bar & review section
-                    self.agreement_id_nav = ko.computed(function() {
-                        return (self.id && self.id() ? "Agreement ID: " + self.id() : "No Agreement ID");
-                    });
-
-                    self.package_nav = ko.computed(function() {
-                        return (self.package.selected_package()) ? "Package: " + self.package.selected_package() : "No Package";
-                    });
-
-                    self.monitoring_nav = ko.computed(function() {
-                        return (self.monitoring()) ? "Monitoring: " + self.monitoring() : "No Monitoring";
-                    });
-
-                    self.shipping_nav = ko.computed(function() {
-                        return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
-                    });
-
-                    // XXX: add the rest of the variables that need to be pretty
-
-                    // variables included that are not from json (constants)
-                    self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
-                    self.states = ["AL","AK","AS","AZ","AR","CA","CO","CT","DE","DC","FM","FL","GA","GU","HI","ID","IL","IN","IA","S","KY","LA","ME","MH","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","MP","OH","OK","OR","PW","PA","PR","RI","SC","SD","TN","TX","UT","VT","VI","VA","WA","WV","WI","WY"].concat(["AB","BC","MB","NB","NL","NT","NS","NU","ON","PE","QC","SK","YT"]); // sort states
-
-                    // XXX: insert other variables here
-
-                    // some ideas for the following functions:
-                    //  loader functions that make the correct form parts
-                    //  appear when their preceding form section is complete
-                    //  helper functions that take form data and construct
-                    //  other form data
-
-                    self.test_cinfo = function() {
-                        // test completeness and set flag
-                        if(self.applicant.fname() && self.applicant.lname() && self.billing_address.address() && self.email()) {
-                            // disable form fields
-                            $('#cinfo div input, #cinfo div select, #cinfo div button').prop('disabled', true);
-                            // change label color
-                            $('#cinfo span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                            // show next section, reveal nav, and scroll
-                            $('#pkgsel, #nav_pkgsel').removeClass('hyde');
-                            $(document).scrollTop( $("#pkgsel").offset().top );
-                        }
-                    };
-
-                    self.clear_cinfo = function() {
-                        // clear cinfo fields in viewmodel
-                        self.applicant.fname('');
-                        self.applicant.initial('');
-                        self.applicant.lname('');
-                        self.billing_address.address('');
-                        self.billing_address.city('');
-                        self.billing_address.state('');
-                        self.billing_address.zip('');
-                        self.billing_address.country('');
-                        self.email('');
-                    };
-
-                    self.test_pkgsel = function() {
-                        // test completeness and set flag
-                        if(self.package.selected_package()) {
-                            // disable submit button
-                            $('#pkgsel div button').prop('disabled', true);
-                            // change label color
-                            $('#pkgsel span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                            // show next section, reveal nav, and scroll
-                            $('#monitor, #nav_monitor').removeClass('hyde');
-                            $(document).scrollTop( $("#monitor").offset().top );
-                        }
-                    };
-
-                    self.clear_pkgsel = function() {
-                        // clear package field in viewmodel
-                        self.package.selected_package('');
-                    };
-
-                    self.test_monitor = function() {
-                        // test completeness and set flag
-                        if(self.monitoring()) {
-                            // disable submit button
-                            $('#monitor div button').prop('disabled', true);
-                            // change label color
-                            $('#monitor span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                            // show next section, reveal nav, and scroll
-                            $('#premium, #nav_premium').removeClass('hyde');
-                            $(document).scrollTop( $("#premium").offset().top );
-                        }
-                    };
-
-                    self.clear_monitor = function() {
-                        // clear monitoring field in viewmodel
-                        self.monitoring('');
-                    };
-
-                    self.test_shipping = function() {
-                        // test completeness and set flag
-                        if(self.shipping()) {
-                            // disable form fields
-                            $('#shipping div button, #shipping div input').prop('disabled', true);
-                            // change label color
-                            $('#shipping span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                            // show next 2 sections, reveal navs, and scroll
-                            // review has no submit button so we want to show
-                            // the publish and scroller sections as well
-                            $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
-                            $(document).scrollTop( $("#review").offset().top );
-                        }
-                    };
-
-                    // XXX: insert other fns above this line
-                    return self;
+                self.customize = function () {
+                    self.customizing(true);
                 };
+
+                self.cust_quantity_changed = function() {
+                    self.customization_deltas = [];
+                    var balance = 0;
+
+                    package_by_part = _.object(_.pluck(self.selected_package().contents, 'code'), self.selected_package().contents);
+                    clines_by_part = _.object(_.pluck(self.customization_lines(), 'code'), self.customization_lines());
+                    //console.log(clines_by_part);
+
+                    _.each(clines_by_part, function(cline,code) {
+                        var pline = package_by_part[code];
+                        var pq = 0;
+                        if (pline) {
+                            pq = pline.quantity;
+                        }
+
+                        var delta = cline.quantity() - pq;
+                        if(delta == 0)
+                            return;
+
+                        //console.log("I think that the cline for part ", code, " has ", cline.quantity(), "and the pline has ", pq);
+
+                        self.customization_deltas.push({
+                            code: code,
+                            delta: delta,
+                        });
+                    });
+                    //console.log("deltas", self.customization_deltas);
+                    //console.log("data", self.data_to_send);
+
+                    for (var i=0; i<self.customization_deltas.length; i++) {
+                        balance += -1 * (self.customization_deltas[i].delta * clines_by_part[self.customization_deltas[i].code].part.points);
+                    }
+                    self.cb_balance(balance);
+                };
+
+                self.selected_package_contents = function() {
+                    if(!self.selected_package()) {
+                        return [];
+                    }
+                    return self.selected_package().contents;
+                }
+
+                self.select_package_classes = function(param) {
+                    var classes = param.code;
+                    if(param === self.selected_package()) {
+                        classes += ' currently_chosen';
+                    }
+                    return classes;
+                };
+
+                self.save_package = function() {
+                    alert("Could now send this to server: " + self._serialize());
+                };
+
+                self.save_customization = function () {
+                    //clear any previous updated contents
+                    self.updated_contents([]);
+                    self.customized_parts = [];
+                    for (var i=0; i<self.customization_lines().length; i++) {
+                        if (self.customization_lines()[i].quantity() > 0) {
+                            self.c_parts = {};
+                            self.c_parts['code'] = self.customization_lines()[i].code;
+                            self.c_parts['quantity'] = self.customization_lines()[i].quantity();
+                            self.c_parts['part'] = self.customization_lines()[i].part;
+                            self.customized_parts.push(self.c_parts);
+                            self.updated_contents.push(self.c_parts);
+                        }
+                    }
+                    self.changed_contents(true);
+                    self.customizing(false);
+                };
+
+                self.cancel_customization = function() {
+                    self.customizing(false);
+                };
+
+                self._serialize = function() {
+                    ret = {
+                        'customizations': self.customization_deltas,
+                        'package': self.selected_package().code,
+                    };
+                    return JSON.stringify(ret);
+                };
+
+                self.select_package(package_index[self.selected_package().code]);
+                return self;
+            };
+
+            PremiumVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    'selected_codes': ko.observableArray,
+                    'contents': ko.observableArray,
+                };
+
+                self.global_contents = function() {
+                    for(var i = 0; i < self.selected_codes().length; i++) {
+                        self.selected_codes()[i]
+                        self.contents.push();
+                    }
+                };
+
+                return self;
+            };
+
+            // initialize a view model from a blob
+            MasterVM = function(blob) {
+                // capture a new copy of UAS into MasterVM's closure
+                var self = new UpdatableAndSerializable();
+
+                // make blob a thing if it isn't one
+                blob = blob || {};
+
+                // field types
+                var fields = {
+                    'id': ko.observable,
+                    'applicant': ApplicantVM,
+                    'coapplicant': ApplicantVM,
+                    'billing_address': AddressVM,
+                    'system_address': AddressVM,
+                    'pricetable_date': ko.observable,
+                    'email': ko.observable,
+                    'approved': ko.observable,
+                    'package': PackageVM,
+                    'shipping': ko.observable,
+                    'monitoring': ko.observable,
+                    'email': ko.observable,
+                    'premium': PremiumVM,
+                };
+
+                // try to assign things from blob to fields if they exist
+                _.each(fields, function(v, k) {
+                    if(blob[k] != undefined) {
+                        self[k] = v(blob[k]);
+                    } else {
+                        ;
+                    }
+                });
+
+                // variables computed from json responses
+                // most of these are sugar for their return values
+                self.name = ko.computed(function() {
+                    return self.applicant.fname() + (self.applicant.initial && self.applicant.initial() ? ' ' + self.applicant.initial() + '.' : '') + (self.applicant.lname() ? ' ' + self.applicant.lname() : '');
+                });
+
+                self.citystate = ko.computed(function() {
+                    return self.billing_address.city() + (self.billing_address.state() ? ', ' + self.billing_address.state() : '');
+                });
+
+                self.countrysafe = ko.computed(function() {
+                    return self.billing_address.country() ? self.billing_address.country() : '';
+                });
+
+                // computed variables for the nav bar & review section
+                self.agreement_id_nav = ko.computed(function() {
+                    return (self.id && self.id() ? "Agreement ID: " + self.id() : "No Agreement ID");
+                });
+
+                self.package_nav = ko.computed(function() {
+                    return (self.package.selected_package().name) ? "Package: " + self.package.selected_package().name : "No Package";
+                });
+
+                self.monitoring_nav = ko.computed(function() {
+                    return (self.monitoring()) ? "Monitoring: " + self.monitoring() : "No Monitoring";
+                });
+
+                self.shipping_nav = ko.computed(function() {
+                    return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
+                });
+
+                // XXX: add the rest of the variables that need to be pretty
+
+                // variables included that are not from json (constants)
+                self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
+                self.states = ["AL","AK","AS","AZ","AR","CA","CO","CT","DE","DC","FM","FL","GA","GU","HI","ID","IL","IN","IA","S","KY","LA","ME","MH","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","MP","OH","OK","OR","PW","PA","PR","RI","SC","SD","TN","TX","UT","VT","VI","VA","WA","WV","WI","WY"].concat(["AB","BC","MB","NB","NL","NT","NS","NU","ON","PE","QC","SK","YT"]); // sort states
+
+                // XXX: insert other variables here
+
+                // some ideas for the following functions:
+                //  loader functions that make the correct form parts
+                //  appear when their preceding form section is complete
+                //  helper functions that take form data and construct
+                //  other form data
+
+                self.test_cinfo = function() {
+                    // test completeness and set flag
+                    if(self.applicant.fname() && self.applicant.lname() && self.billing_address.address() && self.email()) {
+                        // disable form fields
+                        $('#cinfo div input, #cinfo div select, #cinfo div button').prop('disabled', true);
+                        // change label color
+                        $('#cinfo span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next section, reveal nav, and scroll
+                        $('#pkgsel, #nav_pkgsel').removeClass('hyde');
+                        $(document).scrollTop( $("#pkgsel").offset().top );
+                    }
+                };
+
+                self.clear_cinfo = function() {
+                    // clear cinfo fields in viewmodel
+                    self.applicant.fname('');
+                    self.applicant.initial('');
+                    self.applicant.lname('');
+                    self.billing_address.address('');
+                    self.billing_address.city('');
+                    self.billing_address.state('');
+                    self.billing_address.zip('');
+                    self.billing_address.country('');
+                    self.email('');
+                };
+
+                self.test_pkgsel = function() {
+                    // test completeness and set flag
+                    if(self.package.selected_package().code) {
+                        // disable submit button
+                        $('#pkgsel div button').prop('disabled', true);
+                        // change label color
+                        $('#pkgsel span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next section, reveal nav, and scroll
+                        $('#monitor, #nav_monitor').removeClass('hyde');
+                        $(document).scrollTop( $("#monitor").offset().top );
+                    }
+                };
+
+                self.clear_pkgsel = function() {
+                    // clear package field in viewmodel
+                    self.package.selected_package('');
+                };
+
+                self.test_monitor = function() {
+                    // test completeness and set flag
+                    if(self.monitoring()) {
+                        // disable submit button
+                        $('#monitor div button').prop('disabled', true);
+                        // change label color
+                        $('#monitor span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next section, reveal nav, and scroll
+                        $('#premium, #nav_premium').removeClass('hyde');
+                        $(document).scrollTop( $("#premium").offset().top );
+                    }
+                };
+
+                self.clear_monitor = function() {
+                    // clear monitoring field in viewmodel
+                    self.monitoring('');
+                };
+
+                self.test_shipping = function() {
+                    // test completeness and set flag
+                    if(self.shipping()) {
+                        // disable form fields
+                        $('#shipping div button, #shipping div input').prop('disabled', true);
+                        // change label color
+                        $('#shipping span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next 2 sections, reveal navs, and scroll
+                        // review has no submit button so we want to show
+                        // the publish and scroller sections as well
+                        $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
+                        $(document).scrollTop( $("#review").offset().top );
+                    }
+                };
+
+                // XXX: insert other fns above this line
+                return self;
+            };
+
+            // jquery on ready wrapper to anonymous function
+            $(function() {
 
                 // create an object that knockout can use to bind
                 json_handler = new JSONHandler();

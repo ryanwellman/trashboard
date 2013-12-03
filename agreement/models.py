@@ -1,16 +1,16 @@
 import datetime
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from agreement.uas import UpdatableAndSerializable
+from agreement.uas import Updatable, Serializable
 
-class Product(UpdatableAndSerializable):
+class Product(Serializable):
     """
     conceptually represents a sort-of upc for anything we sell
     
     products are separated into a set of bins by type
     """
 
-    # ptypes = ['shipping', 'incentives', 'equipment', 'combos', 'ratedrop',
+    # ptypes = ['shipping', 'incentives', 'equipment', 'combo', 'closer',
     #          'part', 'service', 'monitoring']
 
     code        =   models.CharField(max_length=20, primary_key=True)
@@ -26,7 +26,7 @@ class Product(UpdatableAndSerializable):
         ordering = ['code']
 
 
-class PriceTable(UpdatableAndSerializable):
+class PriceTable(Serializable):
     """
     represents a business entity's unique price table
     each business entity can have a price table which then has others
@@ -43,7 +43,7 @@ class PriceTable(UpdatableAndSerializable):
         ordering = ['group']
 
 
-class ProductPrice(UpdatableAndSerializable):
+class ProductPrice(Serializable):
     """
     represents membership by a product in a price table
     through table for PriceTable and Product
@@ -69,11 +69,12 @@ class ProductPrice(UpdatableAndSerializable):
         ordering = ['pricetable']
 
 
-class Applicant(UpdatableAndSerializable):
+class Applicant(Updatable):
     """
     represents a customer signing an agreement
 
     might need more fields
+    this field is updatable from a json-like blob
     """
 
     fname = models.CharField(max_length=50)
@@ -92,9 +93,10 @@ class Applicant(UpdatableAndSerializable):
         verbose_name = "Applicant"
 
 
-class Address(UpdatableAndSerializable):
+class Address(Updatable):
     """
     represents a physical location as blessed by a major postal service
+    this field is updatable from a json-like blob
     """
 
     address = models.CharField(max_length=80)
@@ -113,10 +115,9 @@ class Address(UpdatableAndSerializable):
         verbose_name_plural = "Addresses"
 
 
-class Package(UpdatableAndSerializable):
+class Package(Serializable):
     """
     represents a package we sell
-    potentially also represents a customized package via PkgProduct's quantity field
     """
 
     products   =   models.ManyToManyField(Product, through='PkgProduct', related_name='PkgProducts')
@@ -130,7 +131,7 @@ class Package(UpdatableAndSerializable):
         ordering = ['name']
 
 
-class PkgProduct(UpdatableAndSerializable):
+class PkgProduct(Serializable):
     """
     represents membership by a product in a package
     through table for Package and Product
@@ -141,13 +142,20 @@ class PkgProduct(UpdatableAndSerializable):
     quantity   =    models.IntegerField(default=0)
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.package, self.product, self.quantity]])
+        fields = []
+        try:
+            fields.append(self.package)
+            fields.append(self.product)
+        except ObjectDoesNotExist:
+            pass
+
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         ordering = ['package']
 
 
-class Campaign(UpdatableAndSerializable):
+class Campaign(Serializable):
     """
     represents a campaign within an organization.
 
@@ -167,7 +175,7 @@ class Campaign(UpdatableAndSerializable):
         ordering = ['campaign_id']
 
 
-class CmpPrice(UpdatableAndSerializable):
+class CmpPrice(Serializable):
     """
     represents membership by a price table in a campaign
     through table for Campaign and PriceTable
@@ -184,14 +192,20 @@ class CmpPrice(UpdatableAndSerializable):
     zorder          =   models.IntegerField(default=0)                 # 'importance'
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.campaign, self.pricetable, self.zorder]])
+        fields = [self.zorder]
+        try:
+            fields.append(self.campaign)
+            fields.append(self.pricetable)
+        except ObjectDoesNotExist:
+            pass
 
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         ordering = ['campaign']
 
 
-class Agreement(UpdatableAndSerializable):
+class Agreement(Updatable):
     """
     represents an agreement by a customer to buy our products
 
@@ -203,16 +217,13 @@ class Agreement(UpdatableAndSerializable):
         applicants: whose credit is going to be run
         addresses: where to bill and where the alarm is
         pricetable_date: what day's prices should be used
-        invoice_lines: what did we sell them and how much did we say it cost
         email: how to contact the applicants about this agreement
         approved: what was their credit score like
         package: what box do we use
         shipping: who gets paid to transport the package
         monitoring: who gets paid to watch this system
-    
-    XXX: fields that depend on things in pricemodels.py are in but commented out
-         since we are still adding fields to this as the form takes shape
-    XXX: needs a harness to inject test data - making that soon
+
+    this field is updatable from a json-like blob
     """
 
     campaign = models.ForeignKey(Campaign)
@@ -239,11 +250,13 @@ class Agreement(UpdatableAndSerializable):
         verbose_name_plural = u'Customer Agreements'
 
 
-class InvoiceLine(UpdatableAndSerializable):
+class InvoiceLine(Updatable):
     """
     crystallizes line items of an Agreement (invoice)
+    this is what makes custom packages possible
 
     it is possible for all 6 price fields to be set to None (NULL)!
+    this field is updatable from a json-like blob
     """
 
     import locale
@@ -273,10 +286,24 @@ class InvoiceLine(UpdatableAndSerializable):
         return self.monthly_strike if self.monthly_strike is not None else self.monthly_total
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.agreement, self.parent, self.note, self.pricedate]])
+        fields = [self.note, self.pricedate]
+        try:
+            fields.append(self.agreement)
+            fields.append(self.parent)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         ordering = ['agreement']
+
+
+class Service(Product):
+    """
+    represents a service as a product
+    """
+
+    pass
 
 
 class Combo(Product):
@@ -303,25 +330,31 @@ class RateDrop(Product):
     pass
 
 
-class ComboLine(UpdatableAndSerializable):
+class ComboLine(Serializable):
     """
     represents one piece of a combo package
     """
 
     parent          =   models.ForeignKey(Combo, related_name="ParentCombo") # a product of type combo
     product         =   models.ForeignKey(Product)
-    qty             =   models.PositiveIntegerField(default=0)
+    quantity        =   models.PositiveIntegerField(default=0)
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.parent, self.product]])
+        fields = [self.quantity, self.upfront_strike, self.monthly_strike]
+        try:
+            fields.append(self.parent)
+            fields.append(self.product)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         ordering = ['parent']
 
 
-class Organization(UpdatableAndSerializable):
+class Organization(Serializable):
     """
     represents an overarching business entity that may
     or may not have multiple 'campaigns' which usually means
@@ -344,7 +377,7 @@ class Organization(UpdatableAndSerializable):
         ordering = ['name']
 
 
-class OrgPrice(UpdatableAndSerializable):
+class OrgPrice(Serializable):
     """
     represents membership by a price table in an organization
     through table for Organization and PriceTable
@@ -375,13 +408,19 @@ class OrgPrice(UpdatableAndSerializable):
     zorder          =   models.IntegerField(default=0)                 # 'priority'
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.organization, self.pricetable, self.zorder]])
+        fields = [self.zorder]
+        try:
+            fields.append(self.organization)
+            fields.append(self.pricetable)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         ordering = ['organization']
 
 
-class OrgCampaign(UpdatableAndSerializable):
+class OrgCampaign(Serializable):
     """
     represents membership by a campaign in an organization
     through table for Organization and Campaign
@@ -392,7 +431,13 @@ class OrgCampaign(UpdatableAndSerializable):
     date_updated    =   models.DateTimeField()
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.organization, self.pricetable, self.zorder]])
+        fields = [self.zorder]
+        try:
+            fields.append(self.organization)
+            fields.append(self.pricetable)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         ordering = ['organization']

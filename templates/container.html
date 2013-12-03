@@ -356,6 +356,17 @@
 
                 // this is ryan's vm for packages translated to the new style
                 // new PackageVM({'selected_package': null, 'customizing': false, 'cb_balance': 0, 'updated_contents': [], 'changed_contents': false, 'customization_lines': []})
+
+                // fix the window level vars for this to work
+                window.package_index = _.object(_.pluck(window.PACKAGES, 'code'), window.PACKAGES);
+                window.part_index = _.object(_.pluck(window.PARTS, 'code'), window.PARTS);
+
+                _.each(window.PACKAGES, function(package) {
+                    _.each(package.contents, function(line) {
+                        line.part = window.part_index[line.code];
+                    });
+                });
+
                 PackageVM = function(blob) {
                     var self = new UpdatableAndSerializable();
                     blob = blob || {};
@@ -387,7 +398,7 @@
                         self.customizing(false);
 
                         if(!self.customization_lines().length) {
-                            _.map(KOPARTS, function(part) {
+                            _.map(window.PARTS, function(part) {
                                 var cline= {
                                     code: part.code,
                                     part: part,
@@ -452,9 +463,6 @@
                             });
                         });
                         //console.log("deltas", self.customization_deltas);
-
-                        self.data_to_send['package'] = self.selected_package().code;
-                        self.data_to_send['customizations'] = self.customization_deltas;
                         //console.log("data", self.data_to_send);
 
                         for (var i=0; i<self.customization_deltas.length; i++) {
@@ -504,7 +512,7 @@
                         self.customizing(false);
                     };
 
-                    self.select_package(null);
+                    self.select_package(self.selected_package());
                     return self;
                 };
 
@@ -561,7 +569,7 @@
                     });
 
                     self.package_nav = ko.computed(function() {
-                        return (self.package()) ? "Package: " + self.package() : "No Package";
+                        return (self.package.selected_package()) ? "Package: " + self.package.selected_package() : "No Package";
                     });
 
                     self.monitoring_nav = ko.computed(function() {
@@ -614,7 +622,7 @@
 
                     self.test_pkgsel = function() {
                         // test completeness and set flag
-                        if(self.package()) {
+                        if(self.package.selected_package()) {
                             // disable submit button
                             $('#pkgsel div button').prop('disabled', true);
                             // change label color
@@ -627,7 +635,7 @@
 
                     self.clear_pkgsel = function() {
                         // clear package field in viewmodel
-                        self.package('');
+                        self.package.selected_package('');
                     };
 
                     self.test_monitor = function() {

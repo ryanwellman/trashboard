@@ -76,19 +76,27 @@ def test_json(request):
                     'fname':    'al',
                     'lname':    'smif',
                     'initial':  'h',
-                }
+                },
                 'billing_address': {
                     'address':  '92103 chainsaw place',
                     'city':     'marfa',
                     'state':    'tx'.upper(),
                     'zip':      '12345',
                     'country':  'usa'.upper(),
-                }
+                },
                 'email':    'al@smif.com',
                 'approved': 'approved',
-                'package':  'copper',
+                'package':  {
+                    'selected_package': 'Copper',
+                    'customizing': 'False',
+                    'cb_balance': '0',
+                    'updated_contents': [],
+                    'changed_contents': 'False',
+                    'customization_lines': [],
+                },
                 'shipping': 'jpost',
                 'monitoring': 'standard',
+
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)

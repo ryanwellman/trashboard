@@ -11,7 +11,9 @@
             {% block javascript_variables_nocompress %}
                 window.PACKAGES = {{packages|safe}};
                 window.PARTS = {{parts|safe}};
-                window.PREMIUM = {{combos|safe}};
+                window.PREMIUM = {{premiums|safe}};
+                window.COMBOS = {{combos|safe}};
+                window.AID = {{agreement_id|safe}};
             {% endblock %}
         </script>
         <style type="text/css">
@@ -118,6 +120,9 @@
             .currently_chosen {
                 border: 5px dashed green;
             }
+            .purchase_items {
+                width: 140px;
+            }
         </style>
 {% include 'templates/customer_info.html' %}
 {% include 'templates/customize.html' %}
@@ -127,6 +132,7 @@
 {% include 'templates/premium_add_ons.html' %}
 {% include 'templates/publish.html' %}
 {% include 'templates/closing.html' %}
+{% include 'templates/promos.html' %}
 {% include 'templates/review.html' %}
 {% include 'templates/services.html' %}
 {% include 'templates/shipping.html' %}
@@ -175,10 +181,10 @@
                         <li class="hyde" id="nav_premium"><a href="#premium">Premium</a></li>
                         <li class="hyde" id="nav_combos"><a href="#combos">Combos</a></li>
                         <li class="hyde" id="nav_custom"><a href="#custom">Customize</a></li>
-                        <li class="hyde" id="nav_alc"><a href="#alc">A-La-Carte</a></li>
                         <li class="hyde" id="nav_services"><a href="#services">Services</a></li>
-                        <li class="hyde" id="nav_closing"><a href="#closing">Closing</a></li>
+                        <li class="hyde" id="nav_promos"><a href="#promos">Promos</a></li>
                         <li class="hyde" id="nav_shipping"><a href="#shipping">Shipping</a></li>
+                        <li class="hyde" id="nav_closing"><a href="#closing">Closing</a></li>
                         <li class="hyde" id="nav_review"><a href="#review">Review</a></li>
                         <li class="hyde" id="nav_publish"><a href="#publish">Publish</a></li>
                     </ul>
@@ -200,16 +206,20 @@
                 <section id="combos" class="hyde">
                     <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
                 </section>
-                <section id="custom" class="hyde"><p>Customize Form</p></section>
-                <section id="alc" class="hyde"><p>A-La-Carte Form</p></section>
+                <section id="custom" class="hyde">
+                    <div data-bind="template: { name: 'customize_', data: $data }">Customize Form</div>
+                    </section>
                 <section id="services" class="hyde">
                     <div data-bind="template: { name: 'services_', data: $data }">Services Form</div>
                 </section>
-                <section id="closing" class="hyde">
-                    <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
+                <section id="promos" class="hyde">
+                    <div data-bind="template: { name: 'promos_', data: $data }">Promo Form</p>
                 </section>
                 <section id="shipping" class="hyde">
                     <div data-bind="template: { name: 'shipping_', data: $data }">Shipping Form</div>
+                </section>
+                <section id="closing" class="hyde">
+                    <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
                 </section>
                 <section id="review" class="hyde">
                     <div data-bind="template: { name: 'review_', data: $data }">Review Form</div>
@@ -225,9 +235,12 @@
         </div>
         <script type="text/javascript">
             // capture agreement_id from django if it was passed in
-            // this should be passed in as json since the js will be broken out
-            // into a new file
-            var agreement_id = '{{agreement_id}}';
+            var agreement_id = window.AID.agreement_id;
+
+            // money formatting function
+            function formatCurrency(value) {
+                return value.toFixed(2);
+            };
 
             // KNOCKOUT VIEW MODELS
 
@@ -391,6 +404,7 @@
                     'updated_contents': ko.observableArray,
                     'changed_contents': ko.observable,
                     'customization_lines': ko.observableArray,
+                    'done': ko.observable,
                 };
 
                 _.each(fields, function(v, k) {
@@ -400,6 +414,10 @@
                 });
 
                 self.select_package = function(package) {
+                    if(self.done()) {
+                        return;
+                    }
+
                     console.log("select customizing", self.customizing());
                     self.selected_package(package);
                     self.custom_quantities = {};
@@ -532,7 +550,11 @@
                     return JSON.stringify(ret);
                 };
 
+                // hax: don't be done until a package is selected for the first time
+                var flag = self.done();
+                self.done(false);
                 self.select_package(package_index[self.selected_package().code]);
+                self.done(flag);
                 return self;
             };
 
@@ -543,14 +565,177 @@
                 var fields = {
                     'selected_codes': ko.observableArray,
                     'contents': ko.observableArray,
+                    'done': ko.observable,
                 };
 
-                self.global_contents = function() {
-                    for(var i = 0; i < self.selected_codes().length; i++) {
-                        self.selected_codes()[i]
-                        self.contents.push();
+                _.each(fields, function(v, k) {
+                    if(blob[k] != undefined) {
+                        self[k] = v(blob[k]);
                     }
+                });
+
+                self.select_item = function() {
+                    self.contents.removeAll();
+                    for(var i = 0; i < self.selected_codes().length; i++) {
+                        console.log(self.selected_codes()[i].contents);
+                        for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
+                            var ret = {
+                                'code': self.selected_codes()[i].contents[j].code,
+                                'quantity': self.selected_codes()[i].contents[j].quantity,
+                            };
+
+                            self.contents.push(ret);                            
+                        }
+                    }
+
+                    // required for ko to allow checkbox to click
+                    return true;
                 };
+
+                return self;
+            };
+
+            ComboVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    'selected_codes': ko.observableArray,
+                    'contents': ko.observableArray,
+                    'done': ko.observable,
+                };
+
+                _.each(fields, function(v, k) {
+                    if(blob[k] != undefined) {
+                        self[k] = v(blob[k]);
+                    }
+                });
+
+                self.select_item = function() {
+                    self.contents.removeAll();
+                    for(var i = 0; i < self.selected_codes().length; i++) {
+                        console.log(self.selected_codes()[i].contents);
+                        for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
+                            var ret = {
+                                'code': self.selected_codes()[i].contents[j].code,
+                                'quantity': self.selected_codes()[i].contents[j].quantity,
+                            };
+
+                            self.contents.push(ret);                            
+                        }
+                    }
+
+                    // required for ko to allow checkbox to click
+                    return true;
+                };
+
+                return self;
+            };
+
+            // next two view models are for customize
+            PartVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    "category": ko.observable,
+                    "code": ko.observable,
+                    "name": ko.observable,
+                    "price": ko.observable,
+                    "points": ko.observable,
+                }
+
+                _.each(fields, function(v, k) {
+                    self[k] = v(blob[k]);
+                });
+
+                self.returnFields = function() {
+                    return fields;
+                };
+
+                return self;
+            };
+
+            PartLineVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    "selected_part": PartVM,
+                    "quantity": ko.observable,
+                };
+
+                _.each(fields, function(v, k) {
+                    // cheating
+                    self[k] = ko.observable(blob[k])
+                    //self[k] = v(blob[k]);
+                });
+
+                self.total_price = ko.computed(function() {
+                    return (self.selected_part() && self.selected_part().price) ? self.quantity() * self.selected_part().price() : 0.00;
+                });
+
+                self.returnFields = function() {
+                    return fields;
+                };
+
+                self._serialize = function() {
+                    return ko.toJSON({ 'code': self.selected_part().code(), 'quantity': self.quantity() });
+                };
+
+                return self;
+            };
+
+            // customvm needs this in window
+            window.CPARTS = [];
+            for(var idx in window.PARTS) {
+                // turn these object literals into models so they have ufd
+                window.CPARTS.push(new PartVM(window.PARTS[idx]));
+            }
+
+            CustomVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    "purchase_lines": ko.observableArray,
+                    "done": ko.observable,
+                };
+
+                _.each(fields, function(v, k) {
+                    self[k] = v(blob[k]);
+                });
+
+                self.returnFields = function() {
+                    return fields;
+                };
+
+                self.addLine = function() {
+                    self.purchase_lines().push(new PartLineVM({'selected_part': {}, 'quantity': 0}));
+                    self.purchase_lines.valueHasMutated();
+                    console.log(ko.toJSON(self.purchase_lines()));
+                };
+
+                self.removeLine = function(line) { self.purchase_lines.remove(line) };
+
+                self.save = function() {
+                    alert('{'+$.map(self.purchase_lines(), function(val) { return val._serialize(); }) + '}');
+                }
+
+                return self;
+            };
+
+            ClosingVM = function(blob) {
+                var self = new UpdatableAndSerializable();
+                blob = blob || {};
+
+                var fields = {
+                    "done": ko.observable,
+                };
+
+                _.each(fields, function(v, k) {
+                    self[k] = v(blob[k]);
+                });
 
                 return self;
             };
@@ -578,6 +763,9 @@
                     'monitoring': ko.observable,
                     'email': ko.observable,
                     'premium': PremiumVM,
+                    'combo': ComboVM,
+                    'customize': CustomVM,
+                    'closing': ClosingVM,
                 };
 
                 // try to assign things from blob to fields if they exist
@@ -609,7 +797,11 @@
                 });
 
                 self.package_nav = ko.computed(function() {
-                    return (self.package.selected_package().name) ? "Package: " + self.package.selected_package().name : "No Package";
+                    if(self.package.selected_package()) {
+                        return (self.package.selected_package().name) ? "Package: " + self.package.selected_package().name : "No Package";
+                    } else {
+                        return "No Package";
+                    }
                 });
 
                 self.monitoring_nav = ko.computed(function() {
@@ -643,7 +835,9 @@
                         $('#cinfo span.tab-pos').removeClass('label-inverse').addClass('label-success');
                         // show next section, reveal nav, and scroll
                         $('#pkgsel, #nav_pkgsel').removeClass('hyde');
-                        $(document).scrollTop( $("#pkgsel").offset().top );
+                        $('body').animate({
+                            scrollTop: $('#pkgsel').offset().top,
+                        }, 1000);
                     }
                 };
 
@@ -662,14 +856,18 @@
 
                 self.test_pkgsel = function() {
                     // test completeness and set flag
-                    if(self.package.selected_package().code) {
-                        // disable submit button
-                        $('#pkgsel div button').prop('disabled', true);
-                        // change label color
-                        $('#pkgsel span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                        // show next section, reveal nav, and scroll
-                        $('#monitor, #nav_monitor').removeClass('hyde');
-                        $(document).scrollTop( $("#monitor").offset().top );
+                    if(self.package.selected_package()) {
+                        if(self.package.selected_package().code) {
+                            // disable submit button
+                            $('#pkgsel div button').prop('disabled', true);
+                            // change label color
+                            $('#pkgsel span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                            // show next section, reveal nav, and scroll
+                            $('#monitor, #nav_monitor').removeClass('hyde');
+                            $('body').animate({
+                                scrollTop: $("#monitor").offset().top,
+                            }, 1000);
+                        }
                     }
                 };
 
@@ -682,18 +880,79 @@
                     // test completeness and set flag
                     if(self.monitoring()) {
                         // disable submit button
-                        $('#monitor div button').prop('disabled', true);
+                        $('#monitor div button, #monitor div input').prop('disabled', true);
                         // change label color
                         $('#monitor span.tab-pos').removeClass('label-inverse').addClass('label-success');
                         // show next section, reveal nav, and scroll
                         $('#premium, #nav_premium').removeClass('hyde');
-                        $(document).scrollTop( $("#premium").offset().top );
+                        $('body').animate({
+                            scrollTop: $("#premium").offset().top,
+                        }, 1000);
                     }
                 };
 
                 self.clear_monitor = function() {
                     // clear monitoring field in viewmodel
                     self.monitoring('');
+                };
+
+                self.test_premium = function() {
+                    // test completeness with flag since this is open-ended
+                    if(self.premium.done()) {
+                        $('#premium div button, #premium div input').prop('disabled', true);
+                        // change label color
+                        $('#premium span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next section, reveal nav, and scroll
+                        $('#combos, #nav_combos').removeClass('hyde');
+                        $('body').animate({
+                            scrollTop: $("#combos").offset().top,
+                        }, 1000);
+                    }
+                };
+
+                self.clear_premium = function() {
+                    self.premium.done(false);
+                    self.premium.selected_codes().removeAll();
+                    self.premium.contents().removeAll();
+                };
+
+                self.test_combo = function() {
+                    // test completeness with flag since this is open-ended
+                    if(self.combo.done()) {
+                        $('#combos div button, #combos div input').prop('disabled', true);
+                        // change label color
+                        $('#combos span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next section, reveal nav, and scroll
+                        $('#custom, #nav_custom').removeClass('hyde');
+                        $('body').animate({
+                            scrollTop: $("#custom").offset().top,
+                        }, 1000);
+                    }
+                };
+
+                self.clear_combo = function() {
+                    self.combo.done(false);
+                    self.combo.selected_codes().removeAll();
+                    self.combo.contents().removeAll();
+                };
+
+                self.test_customize = function() {
+                    // test completeness with flag since this is open-ended
+                    if(self.customize.done()) {
+                        $('#custom div button, #custom div input').prop('disabled', true);
+                        // change label color
+                        $('#custom span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next 3 sections, reveal navs, and scroll
+                        $('#services, #nav_services, #promos, #nav_promos, #shipping, #nav_shipping').removeClass('hyde');
+                        $('body').animate({
+                            scrollTop: $("#services").offset().top,
+                        }, 1000);
+                    }
+                };
+
+                self.clear_customize = function() {
+                    self.customize.done(false);
+                    self.purchase_lines().removeAll();
                 };
 
                 self.test_shipping = function() {
@@ -703,12 +962,34 @@
                         $('#shipping div button, #shipping div input').prop('disabled', true);
                         // change label color
                         $('#shipping span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                        // show next 2 sections, reveal navs, and scroll
-                        // review has no submit button so we want to show
-                        // the publish and scroller sections as well
-                        $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
-                        $(document).scrollTop( $("#review").offset().top );
+                        // show next section, reveal nav, and scroll
+                        $('#closing, #nav_closing').removeClass('hyde');
+                        $('body').animate({
+                            scrollTop: $("#closing").offset().top,
+                        }, 1000);
                     }
+                };
+
+                self.clear_shipping = function() {
+                    self.shipping('');
+                };
+
+                self.test_closing = function() {
+                    // test completeness with flag since this is open-ended
+                    if(self.closing.done()) {
+                        $('#closing div button, #closing div input').prop('disabled', true);
+                        // change label color
+                        $('#closing span.tab-pos').removeClass('label-inverse').addClass('label-success');
+                        // show next 3 sections, reveal navs, and scroll
+                        $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
+                        $('body').animate({
+                            scrollTop: $("#review").offset().top,
+                        }, 1000);
+                    }
+                };
+
+                self.clear_closing = function() {
+                    self.closing.done(false);
                 };
 
                 // XXX: insert other fns above this line
@@ -759,60 +1040,6 @@
                     $('#credit_btn').empty().append(credit_str);
                 }
 
-                // packages
-                // global package_data here
-                var package_data = {};
-
-                // bind some click events
-                $('.select_package').on('click', function(evt) {
-                    evt.preventDefault();
-                    var $this = $(this);
-                    var pack = $this.data('package');
-                    $('.show_package').hide();
-                    $('#' + pack).slideToggle("slow");
-                    package_data["package"] = pack
-                    console.log(package_data);
-                    //CustomizeModel(pack);
-                });
-
-                $('.customize').on('click', function(evt) {
-                    evt.preventDefault();
-                    var $this = $(this);
-                    $this.hide();
-                    var detail = $this.data('detail');
-                    $('.pckg_detail').slideToggle("slow");
-                    $('.cust_pckg').slideToggle("slow");
-                });
-
-                $('.cancel_purchase').on('click', function(evt) {
-                    $('.purchase').slideToggle("slow");
-                    $('.customize').slideToggle("slow");
-                });
-
-                $('.add_purchase').on('click', function(evt) {
-                    $('.cust_pckg').slideToggle("slow");
-                    $('.customize').slideToggle("slow");
-                });
-
-                $('.expand_equip').on('click', function(evt) {
-                    var $this = $(this);
-                    var sec = $this.data('equip');
-                    $this.hide();
-                    $('#' + sec).slideToggle("slow");
-                    $('#hide' + sec).slideToggle("slow");
-                });
-
-                $('.hide_equip').on('click', function(evt) {
-                    var $this = $(this);
-                    var sec = $this.data('equip');
-                    $this.hide();
-                    $('#' + sec).slideToggle("slow");
-                    $('#expand' + sec).slideToggle("slow");
-                });
-
-                $('.checkbox').on('change', function(evt) {
-                    var $this = $(this);
-                });
 
                 // FORM LOGIC
 
@@ -825,7 +1052,11 @@
                 master_settings.test_cinfo();
                 master_settings.test_pkgsel();
                 master_settings.test_monitor();
+                master_settings.test_premium();
+                master_settings.test_combo();
+                master_settings.test_customize();
                 master_settings.test_shipping();
+                master_settings.test_closing();
 
                 // XXX: more form section handlers...
 
@@ -851,7 +1082,8 @@
                     evt.preventDefault();
                     
                     // save contents of viewmodel as json blob and fire test
-                    master_settings.test_pkgsel()
+                    master_settings.package.done(true);
+                    master_settings.test_pkgsel();
                     json_handler._save(master_settings);
                 });
                 $('#pkgsel_form').on('reset', function(evt) {
@@ -865,12 +1097,86 @@
                     evt.preventDefault();
                     
                     // save contents of viewmodel as json blob and fire test
-                    master_settings.test_monitor()
+                    master_settings.test_monitor();
                     json_handler._save(master_settings);
                 });
                 $('#monitor_form').on('reset', function(evt) {
                     // blank out monitoring selection
                     master_settings.clear_monitor();
+                });
+
+                // premium addons
+                $('#premium_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.premium.done(true);
+                    master_settings.test_premium();
+                    json_handler._save(master_settings);
+                });
+                $('#premium_form').on('reset', function(evt) {
+                    // blank out premium items selection
+                    master_settings.clear_premium();
+                });
+
+                // combos
+                $('#combo_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.combo.done(true);
+                    master_settings.test_combo();
+                    json_handler._save(master_settings);
+                });
+                $('#combo_form').on('reset', function(evt) {
+                    // blank out combo selection
+                    master_settings.clear_combo();
+                });
+
+                // customize
+                $('#customize_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.customize.done(true);
+                    master_settings.test_customize();
+                    json_handler._save(master_settings);
+                });
+                $('#customize_form').on('reset', function(evt) {
+                    // blank out combo selection
+                    master_settings.clear_customize();
+                });
+
+                // shipping
+                $('#shipping_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.test_shipping();
+                    json_handler._save(master_settings);
+                });
+                $('#shipping_form').on('reset', function(evt) {
+                    // blank out combo selection
+                    master_settings.clear_shipping();
+                });
+
+                // closing
+                $('#closing_form').on('submit', function(evt) {
+                    // prevent default event
+                    evt.preventDefault();
+                    
+                    // save contents of viewmodel as json blob and fire test
+                    master_settings.closing.done(true);
+                    master_settings.test_closing();
+                    json_handler._save(master_settings);
+                });
+                $('#closing_form').on('reset', function(evt) {
+                    // blank out combo selection
+                    master_settings.clear_closing();
                 });
             });
         </script>

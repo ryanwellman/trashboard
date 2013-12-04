@@ -73,33 +73,49 @@ def test_json(request):
     # sends json response given in the dictionary below
     ctx =   {
                 'applicant': {
-                    'fname':    'al',
-                    'lname':    'smif',
-                    'initial':  'h',
+                    'fname':    '',
+                    'lname':    '',
+                    'initial':  '',
                 },
                 'billing_address': {
-                    'address':  '92103 chainsaw place',
-                    'city':     'marfa',
-                    'state':    'tx'.upper(),
-                    'zip':      '12345',
-                    'country':  'usa'.upper(),
+                    'address':  '',
+                    'city':     '',
+                    'state':    '',
+                    'zip':      '',
+                    'country':  '',
                 },
-                'email':    'al@smif.com',
-                'approved': 'approved',
+                'email':    '',
+                'approved': '',
                 'package':  {
                     'selected_package': {
-                        'code': 'copper',
+                        'code': '',
+                        'name': '',
                     },
-                    'customizing': 'False',
+                    'customizing': False,
                     'cb_balance': '0',
                     'updated_contents': [],
-                    'changed_contents': 'False',
+                    'changed_contents': False,
                     'customization_lines': [],
+                    'done': False,
                 },
-                'shipping': 'jpost',
-                'monitoring': 'standard',
+                'shipping': '',
+                'monitoring': '',
                 'premium': {
                     'selected_codes': [],
+                    'contents': [],
+                    'done': False,
+                },
+                'combo': {
+                    'selected_codes': [],
+                    'contents': [],
+                    'done': False,
+                },
+                'customize': {
+                    'purchase_lines': [],
+                    'done': False,
+                },
+                'closing': {
+                    'done': False,
                 },
             }
 
@@ -134,13 +150,13 @@ def draw_container(request, agreement_id=None):
     # from Product: code <-> code, name <-> name, description <-> description
     # this next one will actually be two prices per pricemodels.py
     # from ProductPrice price <-> price
-    premiums    =  [    {'code':'CAMERA', 'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!'},
-                        {'code':'CELLSERV', 'name':'Cellular Antenna', 'price':'$79.99', 'description': 'Cut the wires and it still works!'},
-                        {'code':'GPS', 'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!'}    ]
+    premiums    =  [    {'code':'CAMERA', 'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!', 'contents': [{'code':'CAMERA', 'quantity':'1',},],},
+                        {'code':'CELLANT', 'name':'Cellular Antenna', 'price':'$79.99', 'description': 'Cut the wires and it still works!', 'contents': [{'code':'CELLANT', 'quantity':'1'},{'code':'CELLSERV', 'quantity':'1',},],},
+                        {'code':'GPS', 'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!', 'contents': [{'code':'GPS', 'quantity':'1',},{'code':'GPSSERV', 'quantity':'1'}],}    ]
 
-    combos      =  [    {'code':'3KEYS', 'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!', 'contents': [{'code':'SIMNXT', 'quantity':'1',},], },
-                        {'code':'MANYKEY', 'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!', 'contents': [{'code':'MOTDEC', 'quantity':'1',},], },
-                        {'code':'SOLAR', 'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!', 'contents': [{'code':'DWSENS', 'quantity':'5',},], },    ]
+    combos      =  [    {'code':'3KEYS', 'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!', 'contents': [{'code':'KEYPAD', 'quantity':'3',},], },
+                        {'code':'MANYKEY', 'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!', 'contents': [{'code':'KEYCHAIN', 'quantity':'10',},], },
+                        {'code':'SOLAR', 'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!', 'contents': [{'code':'ALRMBATT', 'quantity': '1'},{'code':'SOLARPANEL', 'quantity':'1',},], },    ]
 
     services    =  [    {'code':'VIDEOSRV', 'name':'Video Service', 'price':'$19.99/mo', 'reason': 'cameras'},
                         {'code':'SMOKESRV', 'name':'Smoke Service', 'price':'$29.99/mo', 'reason': 'smoke detector(s)'},
@@ -182,7 +198,7 @@ def draw_container(request, agreement_id=None):
 
 
     # uses render_to to draw the template
-    return dict(premiums=dumps(premiums), combos=combos, services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=agreement_id)
+    return dict(premiums=dumps(premiums), combos=dumps(combos), services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=dumps(dict(agreement_id=agreement_id)))
 
 
 @render_to('templates/package.html')

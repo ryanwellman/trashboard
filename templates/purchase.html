@@ -124,7 +124,7 @@
         return self;
     };
 
-    PartLine = function(blob) {
+    PartLineVM = function(blob) {
         var self = new UpdatableAndSerializable();
         blob = blob || {};
 
@@ -171,7 +171,7 @@
         };
 
         self.addLine = function() {
-            self.purchase_lines().push(new PartLine({'selected_part': {}, 'quantity': 0}));
+            self.purchase_lines().push(new PartLineVM({'selected_part': {}, 'quantity': 0}));
             self.purchase_lines.valueHasMutated();
             console.log(ko.toJSON(self.purchase_lines()));
         };

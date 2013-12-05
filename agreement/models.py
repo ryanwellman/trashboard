@@ -243,7 +243,16 @@ class Agreement(Updatable):
             id_display = u'Unsaved'
         else:
             id_display = unicode(self.id)
-        return u','.join([unicode(f) for f in [id_display, self.applicant, self.approved, self.package, self.billing_address, self.system_address]]) # needs campaign_id
+
+        fields = [id_display, self.approved]
+        try:
+            fields.append(self.campaign)
+            fields.append(self.applicant)
+            fields.append(self.package)
+            fields.append(billing_address)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields]) # needs campaign_id
 
     class Meta:
         verbose_name = u'Customer Agreement'

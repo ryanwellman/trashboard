@@ -348,7 +348,7 @@ PremiumVM = function(blob) {
                     'quantity': self.selected_codes()[i].contents[j].quantity,
                 };
 
-                self.contents.push(ret);                            
+                self.contents.push(ret);
             }
         }
 
@@ -385,7 +385,7 @@ ComboVM = function(blob) {
                     'quantity': self.selected_codes()[i].contents[j].quantity,
                 };
 
-                self.contents.push(ret);                            
+                self.contents.push(ret);
             }
         }
 
@@ -531,6 +531,7 @@ MasterVM = function(blob) {
 
     // field types
     var fields = {
+        'initial': InitialVM,
         'id': ko.observable,
         'applicant': ApplicantVM,
         'coapplicant': ApplicantVM,
@@ -591,6 +592,19 @@ MasterVM = function(blob) {
 
     self.shipping_nav = ko.computed(function() {
         return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
+    });
+
+    self.chargeback_nav = ko.computed(function() {
+        return self.package.cb_balance();
+    })
+    self.master_zipcode = ko.computed(function() {
+        if(self.initial.zip_code()) {
+            return (self.initial.zip_code()) ? self.initial.zip_code() : '';
+        } else if (self.billing_address.zip()) {
+            return (self.billing_address.zip()) ? self.billing_address.zip() : '';
+        } else {
+            return '';
+        }
     });
 
     // XXX: add the rest of the variables that need to be pretty

@@ -117,6 +117,11 @@ def test_json(request):
                 'closing': {
                     'done': False,
                 },
+                'initial': {
+                    'zip_code': '',
+                    'dwelling': '',
+                    'promotion_code': '',
+                }
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)
@@ -293,3 +298,8 @@ def Purchase(request):
     json_ko_parts = dumps(ko_parts)
 
     return dict(json_ko_parts=json_ko_parts)
+
+
+@render_to('templates/initial_info.html')
+def InitialInfo(request):
+    return dict()

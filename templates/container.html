@@ -17,6 +17,7 @@
                 window.AID = {{agreement_id|safe}};
             {% endblock %}
         </script>
+{% include 'templates/initial_info.html' %}
 {% include 'templates/customer_info.html' %}
 {% include 'templates/customize.html' %}
 {% include 'templates/combos.html' %}
@@ -32,6 +33,7 @@
     </head>
     <body>
         <!-- z-index on the next line fixes buttons visible over the infobar -->
+        <!--
         <div class="affix" style="top:40px;right:0px;z-index:1000">
             <div id="infobar" class="well">
                 <i id="infobar_resize" class="icon-resize-small"></i>
@@ -64,10 +66,41 @@
                 </div>
             </div>
         </div>
+        -->
         <div class="affix" style="top:40px;left:0px;z-index:1000">
             <!-- this is intentionally left blank for future expansion -->
         </div>
+        <div class="well" id="right_sidebar" data-target="right_sidebar">
+            <ul class="nav nav-list">
+                <li id="nav_initial_info"><a href="#initial_info">Initial Info</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_pkgsel"><a href="#pkgsel">Package</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_monitor"><a href="#monitor">Monitoring</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_premium"><a href="#premium">Premium</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_combos"><a href="#combos">Combos</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_custom"><a href="#custom">Custom</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_services"><a href="#services">Services</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_promos"><a href="#promos">Promos</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_cinfo"><a href="#cinfo">Customer Info</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_shipping"><a href="#shipping">Shipping</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_closing"><a href="#closing">Closing</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_review"><a href="#review">Review</a></li>
+                <li class="divider"></li>
+                <li class="hyde" id="nav_publish"><a href="#publish">Publish</a></li>
+            </ul>
+        </div>
         <div class="container">
+            <!--
             <div class="navbar navbar-fixed-top" id="navbar">
                 <div class="navbar-inner">
                     <ul class="nav">
@@ -86,9 +119,57 @@
                     </ul>
                 </div>
             </div>
+            -->
+            <div class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <ul>
+                        <li class="span2">
+                            <b>Customer Info:</b><br>
+                            <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First M. Last'"></span><br>
+                            <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
+                            <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span>
+                            <span data-bind="css: {muted: master_zipcode().length == 0}, text: master_zipcode() ? master_zipcode : 'ZIP'"></span>
+                        </li>
+                        <li class="span1.5">
+                            <b>Package:</b><br>
+                            <h4><span data-bind="text: package_nav"></span></h4>
+                        </li>
+                        <li class="span1.5">
+                            <b>Monthly Cost:</b><br>
+                            <center><h4>$0.00</h4></center>
+                        </li>
+                        <li class="span1.5">
+                            <b>Upfront Cost:</b><br>
+                            <center><h4>$0.00</h4></center>
+                        </li>
+                        <li class="span1.5">
+                            <b>Chargeback:</b><br>
+                            <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
+                        </li>
+                        <li class="span2.5">
+                            <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>
+                            <b>Monitoring:</b> <span data-bind="text: monitoring_nav"></span><br>
+                            <b>Promotions:</b> promotions
+                        </li>
+                        <li class="span2.5">
+                            <b>Combos:</b> combos<br>
+                            <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
+                            <b>Rate Drops:</b> rate drops<br>
+                        </li>
+                        <li class="span2">
+                            <b>Approval Status:</b><br>
+                            <span class="btn btn-large btn-info"><i class="icon-time icon-white"></i> Pending</span>
+                        </li>
+                        <li class="span2 pull-right">
+                            <b>Logged in as:</b><br>
+                            <i class="icon-user"></i> {{ user }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <div class="content">
-                <section id="cinfo">
-                    <div data-bind="template: { name: 'customer_info', data: $data }">Customer Info Form</div>
+                <section id="initial_info">
+                    <div data-bind="template: { name: 'initial_info', data: $data }">Initial Info Form</div>
                 </section>
                 <section id="pkgsel" class="hyde">
                     <div data-bind="template: { name: 'packages', data: $data }">Package Select Form</div>
@@ -111,6 +192,9 @@
                 <section id="promos" class="hyde">
                     <div data-bind="template: { name: 'promos_', data: $data }">Promo Form</p>
                 </section>
+                <section id="cinfo" class="hyde">
+                    <div data-bind="template: { name: 'customer_info', data: $data }">Customer Info Form</div>
+                </section>
                 <section id="shipping" class="hyde">
                     <div data-bind="template: { name: 'shipping_', data: $data }">Shipping Form</div>
                 </section>
@@ -124,7 +208,7 @@
                     <div data-bind="template: { name: 'publish_', data: $data }">Publish Form</div>
                 </section>
                 <section id="scroller" class="hyde">
-                    <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -->
+                     <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -->
                     <p>&nbsp;</p>
                 </section>
             </div>

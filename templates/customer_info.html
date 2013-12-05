@@ -34,7 +34,7 @@
 										<input type="text" placeholder="Address" data-bind="value: billing_address.address">
 									</div>
 									<span class="help-inline"></span>
-								</div>								
+								</div>
 								<div class="control-group">
 									<label class="control-label">City:</label>
 									<div class="controls">
@@ -54,7 +54,7 @@
 								<div class="control-group">
 									<label class="control-label">ZIP:</label>
 									<div class="controls">
-										<input type="text" placeholder="ZIP" data-bind="value: billing_address.zip">
+										<input type="text" placeholder="ZIP" data-bind="value: master_zipcode()">
 									</div>
 									<span class="help-inline"></span>
 								</div>
@@ -80,15 +80,10 @@
 									<span class="help-inline"></span>
 								</div>
 							</div>
-							<div class="span3">
-								<div class="well pagination-centered" id="credit_btn">
-									<a class="btn btn-large btn-info"><i class="icon-time icon-white"></i> Pending</a>
-								</div>
-							</div>
 						</div>
 						<div class="form-actions">
 							<div class="pull-right">
-								<button type="submit" class="btn btn-primary" id="cinfo_submit"><i class="icon-check icon-white"></i> Submit</button>
+								<button type="submit" class="btn btn-primary" id="cinfo_submit"><i class="icon-arrow-down icon-white"></i> Next</button>
 								<button class="btn" type="reset">Clear</button>
 							</div>
 						</div>

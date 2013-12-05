@@ -144,7 +144,7 @@ def draw_container(request, agreement_id=None):
     # right now there is no actual Agreement model other than the dummy one in the
     # agreement app
 
-    # XXX: what should be coming back from the form json? just codes?
+    # XXX: eventually people should be getting these lists of things from somewhere else
 
     # for the following 4 lists of dictionaries:
     # from Product: code <-> code, name <-> name, description <-> description

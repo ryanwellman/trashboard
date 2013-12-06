@@ -39,18 +39,23 @@ UpdatableAndSerializable = function() {
     this._test = function(fields) {
         fields = fields || [];
 
+        // return false if fields is blank
         if(!fields) {
             return false;
         }
 
+        // create list of 'is it empty?' values
+        var flags = [];
         _.each(fields, function(v, k) {
             // dereference observables for their values
             var cond = (typeof v == 'function') ? v() : v;
-            if(!cond) {
-                return false;
-            }
+            flags.push(!cond);
         });
-        return true;
+
+        // if anything is empty (true), return false
+        return !_.reduce(flags, function(memo, v) {
+            return memo || v;
+        });
     };
 
     // generic function to lock the section
@@ -671,16 +676,8 @@ MasterVM = function(blob) {
 
     self.test_initialinfo = function() {
         // test completeness and set flag
-        if(self.initial.zip_code() && self.initial.dwelling()) {
-            // disable form fields
-            $('#initial_info div input, #initial_info div select, #initial_info div button').prop('disabled', true);
-            // change label color
-            $('#initial_info span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next section, reveal nav, and scroll
-            $('#pkgsel, #nav_pkgsel').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $('#pkgsel').offset().top,
-            }, 1000);
+        if(self.initial.complete()) {
+            self._next('#initial_info', '#pkgsel, #nav_pkgsel', '#pkgsel');
         }
     };
 

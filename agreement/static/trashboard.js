@@ -37,6 +37,12 @@ UpdatableAndSerializable = function() {
 
     // generic function to test a UAS's completeness
     this._test = function(fields) {
+        fields = fields || [];
+
+        if(!fields) {
+            return false;
+        }
+
         _.each(fields, function(v, k) {
             // dereference observables for their values
             var cond = (typeof v == 'function') ? v() : v;
@@ -130,6 +136,27 @@ JSONHandler = function() {
             console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
         });
     };
+};
+
+InitialVM = function(blob) {
+    var self = new UpdatableAndSerializable();
+    blob = blob || {};
+
+    var fields = {
+        "zip_code": ko.observable,
+        "dwelling": ko.observable,
+        "promotion_code": ko.observable,
+    };
+
+    _.each(fields, function(v, k) {
+        self[k] = v(blob[k]);
+    });
+
+    self.complete = function() {
+        return self._test([self.zip_code, self.dwelling]);
+    };
+
+    return self;
 };
 
 // refer to the comments in MasterVM to understand the next two objects
@@ -526,22 +553,6 @@ CustomVM = function(blob) {
     return self;
 };
 
-InitialVM = function(blob) {
-    var self = new UpdatableAndSerializable();
-    blob = blob || {};
-
-    var fields = {
-        "zip_code": ko.observable,
-        "dwelling": ko.observable,
-        "promotion_code": ko.observable,
-    };
-
-    _.each(fields, function(v, k) {
-        self[k] = v(blob[k]);
-    });
-
-    return self;
-};
 
 ClosingVM = function(blob) {
     var self = new UpdatableAndSerializable();

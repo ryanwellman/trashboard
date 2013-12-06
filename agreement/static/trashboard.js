@@ -383,6 +383,10 @@ PackageVM = function(blob) {
         return JSON.stringify(ret);
     };
 
+    self.complete = function() {
+        return self._test([self.selected_package]);
+    };
+
     // hax: don't be done until a package is selected for the first time
     var flag = self.done();
     self.done(false);
@@ -555,6 +559,10 @@ CustomVM = function(blob) {
         alert('{'+$.map(self.purchase_lines(), function(val) { return val._serialize(); }) + '}');
     }
 
+    self.complete = function() {
+        return self._test([self.done]);
+    };
+
     return self;
 };
 
@@ -570,6 +578,10 @@ ClosingVM = function(blob) {
     _.each(fields, function(v, k) {
         self[k] = v(blob[k]);
     });
+
+    self.complete = function() {
+        return self._test([self.done]);
+    };
 
     return self;
 };

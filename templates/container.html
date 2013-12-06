@@ -74,25 +74,25 @@
             <ul class="nav nav-list">
                 <li id="nav_initial_info"><a data-bind="css: { 'complete': initial.complete(), 'incomplete': !initial.complete() }" href="#initial_info">Initial Info</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': initial.complete(), 'incomplete': !initial.complete() }" href="#pkgsel">Package</a></li>
+                <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': package.complete(), 'incomplete': !package.complete() }" href="#pkgsel">Package</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_monitor"><a class="green_nav" href="#monitor">Monitoring</a></li>
+                <li class="hyde" id="nav_monitor"><a data-bind="css: { 'complete': monitoring(), 'incomplete': !monitoring() }" href="#monitor">Monitoring</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_premium"><a class="green_nav" href="#premium">Premium</a></li>
+                <li class="hyde" id="nav_premium"><a data-bind="css: { 'complete': premium.done(), 'incomplete': !premium.done() }" href="#premium">Premium</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_combos"><a class="green_nav" href="#combos">Combos</a></li>
+                <li class="hyde" id="nav_combos"><a data-bind="css: { 'complete': combo.done(), 'incomplete': !combo.done() }" href="#combos">Combos</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_custom"><a class="green_nav" href="#custom">Custom</a></li>
+                <li class="hyde" id="nav_custom"><a data-bind="css: { 'complete': customize.complete(), 'incomplete': !customize.complete() }" href="#custom">Custom</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_services"><a class="green_nav" href="#services">Services</a></li>
+                <li class="hyde" id="nav_services"><a class="green_nav complete" href="#services">Services</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_promos"><a class="green_nav" href="#promos">Promos</a></li>
+                <li class="hyde" id="nav_promos"><a class="green_nav complete" href="#promos">Promos</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_cinfo"><a class="green_nav" href="#cinfo">Customer Info</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_shipping"><a class="green_nav" href="#shipping">Shipping</a></li>
+                <li class="hyde" id="nav_shipping"><a data-bind="css: { 'complete': shipping(), 'incomplete': !shipping() }" href="#shipping">Shipping</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_closing"><a class="green_nav" href="#closing">Closing</a></li>
+                <li class="hyde" id="nav_closing"><a data-bind="css: { 'complete': closing.done(), 'incomplete': !closing.done() }" href="#closing">Closing</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_review"><a class="green_nav" href="#review">Review</a></li>
                 <li class="divider"></li>

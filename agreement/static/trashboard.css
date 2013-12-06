@@ -127,9 +127,18 @@ ul {
     padding: 8px;
     font-size: 20px;
 }
-.nav-list > .active > a {
+.nav-list > .active > .complete {
     background-color: green;
+}
+.nav-list > .active > .incomplete {
+    background-color: black;
 }
 .green_nav {
     color: green;
+}
+.complete {
+    color: green;
+}
+.incomplete {
+    color: black;
 }

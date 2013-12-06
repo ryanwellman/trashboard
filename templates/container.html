@@ -72,9 +72,9 @@
         </div>
         <div class="well" id="right_sidebar" data-target="right_sidebar">
             <ul class="nav nav-list">
-                <li id="nav_initial_info"><a class="green_nav" href="#initial_info">Initial Info</a></li>
+                <li id="nav_initial_info"><a data-bind="css: { 'complete': initial.complete(), 'incomplete': !initial.complete() }" href="#initial_info">Initial Info</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_pkgsel"><a class="green_nav" href="#pkgsel">Package</a></li>
+                <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': initial.complete(), 'incomplete': !initial.complete() }" href="#pkgsel">Package</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_monitor"><a class="green_nav" href="#monitor">Monitoring</a></li>
                 <li class="divider"></li>

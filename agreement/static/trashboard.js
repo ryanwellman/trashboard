@@ -665,7 +665,7 @@ MasterVM = function(blob) {
     // variables included that are not from json (constants)
     self.countries = ["USA"].concat(["Canada"].sort()); // sort everyone else
     self.states = ["AL","AK","AS","AZ","AR","CA","CO","CT","DE","DC","FM","FL","GA","GU","HI","ID","IL","IN","IA","S","KY","LA","ME","MH","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","MP","OH","OK","OR","PW","PA","PR","RI","SC","SD","TN","TX","UT","VT","VI","VA","WA","WV","WI","WY"].concat(["AB","BC","MB","NB","NL","NT","NS","NU","ON","PE","QC","SK","YT"]); // sort states
-
+    self.dwellings = ["One Story", "Two Story", "Business"];
     // XXX: insert other variables here
 
     // some ideas for the following functions:

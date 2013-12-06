@@ -14,12 +14,7 @@
                             <div class="span3">
                                 <label class="control-label">Dwelling Type:</label>
                                 <div class="controls">
-                                    <select data-bind="value: initial.dwelling">
-                                        <option></option>
-                                        <option value="one_story">One Story</option>
-                                        <option value="two_story">Two Story</option>
-                                        <option value="business">Business</option>
-                                    </select>
+                                    <select data-bind="options: dwellings, optionsCaption: 'Please select...', value: initial.dwelling"></select>
                                     <span class="help-inline"></span>
                                 </div>
                             </div>

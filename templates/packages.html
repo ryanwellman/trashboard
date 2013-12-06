@@ -25,7 +25,7 @@
                 <div class="controls controls-row" data-bind="visible: package.selected_package() && !package.customizing() && !package.changed_contents()">
                     <br />
                     <button class="btn btn-success" data-bind="click: package.customize">Customize</button>
-                    <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>
+                    <!-- <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button> -->
                     <br />
                     <table class="table" id="package_contents">
                         <thead>
@@ -57,7 +57,7 @@
                 <div class="controls controls-row" data-bind="visible: package.changed_contents() && !package.customizing()">
                     <br />
                     <button class="btn btn-success" data-bind="click: package.customize">Customize</button>
-                    <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>
+                    <!--<button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button>-->
                     <br />
                     <table class="table" id="package_contents">
                         <thead>

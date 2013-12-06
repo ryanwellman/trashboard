@@ -144,7 +144,12 @@
                         </li>
                         <li class="span1.5">
                             <b>Chargeback:</b><br>
+                            <!-- ko if: chargeback_nav() >= 0 -->
                             <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
+                            <!-- /ko -->
+                            <!-- ko if: chargeback_nav() < 0 -->
+                            <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-important"></span></center>
+                            <!-- /ko -->
                         </li>
                         <li class="span2.5">
                             <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>

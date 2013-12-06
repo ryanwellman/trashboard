@@ -331,10 +331,16 @@ PackageVM = function(blob) {
         }
         self.changed_contents(true);
         self.customizing(false);
+        $('body').animate({
+            scrollTop: $('#pkgsel').offset().top,
+        }, 1000);
     };
 
     self.cancel_customization = function() {
         self.customizing(false);
+        $('body').animate({
+            scrollTop: $('#pkgsel').offset().top,
+        }, 1000);
     };
 
     self._serialize = function() {
@@ -606,23 +612,23 @@ MasterVM = function(blob) {
 
     // computed variables for the nav bar & review section
     self.agreement_id_nav = ko.computed(function() {
-        return (self.id && self.id() ? "Agreement ID: " + self.id() : "No Agreement ID");
+        return (self.id && self.id() ? self.id() : "No Agreement ID");
     });
 
     self.package_nav = ko.computed(function() {
         if(self.package.selected_package()) {
-            return (self.package.selected_package().name) ? "Package: " + self.package.selected_package().name : "No Package";
+            return (self.package.selected_package().name) ? self.package.selected_package().name : "No Package";
         } else {
             return "No Package";
         }
     });
 
     self.monitoring_nav = ko.computed(function() {
-        return (self.monitoring()) ? "Monitoring: " + self.monitoring() : "No Monitoring";
+        return (self.monitoring()) ? self.monitoring() : "No Monitoring";
     });
 
     self.shipping_nav = ko.computed(function() {
-        return (self.shipping()) ? "Shipping : " + self.shipping() : "No Shipping";
+        return (self.shipping()) ? self.shipping() : "No Shipping";
     });
 
     self.chargeback_nav = ko.computed(function() {
@@ -791,7 +797,7 @@ MasterVM = function(blob) {
             // change label color
             $('#custom span.tab-pos').removeClass('label-inverse').addClass('label-success');
             // show next 3 sections, reveal navs, and scroll
-            $('#services, #nav_services, #promos, #nav_promos, #cinfo, #nav_cinfo').removeClass('hyde');
+            $('#services, #nav_services, #promos, #nav_promos').removeClass('hyde');
             $('body').animate({
                 scrollTop: $("#services").offset().top,
             }, 1000);
@@ -801,6 +807,13 @@ MasterVM = function(blob) {
     self.clear_customize = function() {
         self.customize.done(false);
         self.purchase_lines().removeAll();
+    };
+
+    self.test_services_and_promos = function() {
+        $('#cinfo, #nav_cinfo').removeClass('hyde');
+        $('body').animate({
+            scrollTop: $("#cinfo").offset().top,
+        }, 1000);
     };
 
     self.test_shipping = function() {
@@ -858,7 +871,7 @@ $(function() {
     // SCROLL SPY
 
     // scrollspy to activate elements in the navbar when they are visible
-    $('body').scrollspy({target: '#right_sidebar', offset: 65});
+    $('body').scrollspy({target: '#right_sidebar', offset: 150});
 
     // JQUERY DOM MANIPS
 
@@ -978,6 +991,7 @@ $(function() {
         master_settings.test_premium();
         json_handler._save(master_settings);
     });
+
     $('#premium_form').on('reset', function(evt) {
         // blank out premium items selection
         master_settings.clear_premium();
@@ -1008,9 +1022,17 @@ $(function() {
         master_settings.test_customize();
         json_handler._save(master_settings);
     });
+
     $('#customize_form').on('reset', function(evt) {
         // blank out alacarte selection
         master_settings.clear_customize();
+    });
+
+    // promo and services
+    $('#promo_form').on('submit', function(evt) {
+        evt.preventDefault();
+
+        master_settings.test_services_and_promos();
     });
 
     // shipping

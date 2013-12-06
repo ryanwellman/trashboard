@@ -127,6 +127,9 @@ ul {
     padding: 8px;
     font-size: 20px;
 }
-section {
-    padding-bottom: 40px;
+.nav-list > .active > a {
+    background-color: green;
+}
+.green_nav {
+    color: green;
 }

@@ -35,6 +35,37 @@ UpdatableAndSerializable = function() {
         return ko.toJSON(this);
     };
 
+    // generic function to test a UAS's completeness
+    this._test = function(fields) {
+        _.each(fields, function(v, k) {
+            // dereference observables for their values
+            var cond = (typeof v == 'function') ? v() : v;
+            if(!cond) {
+                return false;
+            }
+        });
+        return true;
+    };
+
+    // generic function to lock the section
+    this._lock = function(lock) {
+        // disable form fields
+        $(lock).prop('disabled', true);
+    };
+
+    // generic function to ease the next section in
+    // args contain jQ compatible names
+    this._next = function(tab, reveal, scroll) {
+        // change label color
+        $(tab + ' span.tab-pos').removeClass('label-inverse').addClass('label-success');
+        // reveal actual sections and the nav bars
+        $(reveal).removeClass('hyde');
+        // animate scroll bar to next section
+        $('body').animate({
+            scrollTop: $(scroll).offset().top,
+        }, 1000);
+    };
+
     return this;
 };
 
@@ -863,7 +894,6 @@ $(function() {
     // fire all the test functions to see which sections
     // have already been completed as per the input json
     // these test functions should show the next section
-    // and perhaps disable form input (need guidance here)
     // if all of their properties are present in the json
     // received from the server
     master_settings.test_cinfo();
@@ -875,7 +905,7 @@ $(function() {
     master_settings.test_shipping();
     master_settings.test_closing();
 
-    // XXX: more form section handlers...
+    // form section button handlers
 
     // initial info
     $('#initialinfo_form').on('submit', function(evt) {
@@ -979,7 +1009,7 @@ $(function() {
         json_handler._save(master_settings);
     });
     $('#customize_form').on('reset', function(evt) {
-        // blank out combo selection
+        // blank out alacarte selection
         master_settings.clear_customize();
     });
 
@@ -993,7 +1023,7 @@ $(function() {
         json_handler._save(master_settings);
     });
     $('#shipping_form').on('reset', function(evt) {
-        // blank out combo selection
+        // blank out shipping selection
         master_settings.clear_shipping();
     });
 
@@ -1008,7 +1038,7 @@ $(function() {
         json_handler._save(master_settings);
     });
     $('#closing_form').on('reset', function(evt) {
-        // blank out combo selection
+        // blank out closing selection
         master_settings.clear_closing();
     });
 });

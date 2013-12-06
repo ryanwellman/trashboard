@@ -621,6 +621,28 @@ MasterVM = function(blob) {
     //  helper functions that take form data and construct
     //  other form data
 
+    self.test_initialinfo = function() {
+        // test completeness and set flag
+        if(self.initial.zip_code() && self.initial.dwelling()) {
+            // disable form fields
+            $('#initial_info div input, #initial_info div select, #initial_info div button').prop('disabled', true);
+            // change label color
+            $('#initial_info span.tab-pos').removeClass('label-inverse').addClass('label-success');
+            // show next section, reveal nav, and scroll
+            $('#pkgsel, #nav_pkgsel').removeClass('hyde');
+            $('body').animate({
+                scrollTop: $('#pkgsel').offset().top,
+            }, 1000);
+        }
+    };
+
+    self.clear_initialinfo = function() {
+        // clear cinfo fields in viewmodel
+        self.initial.zip_code('');
+        self.initial.dwelling('');
+        self.initial.promotion_code('');
+    };
+
     self.test_cinfo = function() {
         // test completeness and set flag
         if(self.applicant.fname() && self.applicant.lname() && self.billing_address.address() && self.email()) {
@@ -629,9 +651,9 @@ MasterVM = function(blob) {
             // change label color
             $('#cinfo span.tab-pos').removeClass('label-inverse').addClass('label-success');
             // show next section, reveal nav, and scroll
-            $('#pkgsel, #nav_pkgsel').removeClass('hyde');
+            $('#shipping, #nav_shipping').removeClass('hyde');
             $('body').animate({
-                scrollTop: $('#pkgsel').offset().top,
+                scrollTop: $('#shipping').offset().top,
             }, 1000);
         }
     };

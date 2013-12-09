@@ -69,8 +69,12 @@ UpdatableAndSerializable = function() {
         // go through the fields and clear them
         _.each(fields, function(v, k) {
             if(typeof v == 'function') {
-                // feed observables the right blanks
-                v((v() instanceof Array) ? [] : '');
+                // feed observables a blank and removeAll on arrays
+                if(v() instanceof Array) {
+                    v().removeAll();
+                } else {
+                    v('');
+                }
             } else {
                 v = '';
             }
@@ -205,6 +209,14 @@ ApplicantVM = function(blob) {
         }
     });
 
+    self.complete = function() {
+        return self._test([self.fname() && self.lname()]);
+    };
+
+    self.clear = function() {
+        self._clear(Object.keys(fields));
+    };
+
     return self;
 };
 
@@ -225,6 +237,15 @@ AddressVM = function(blob) {
             self[k] = v(blob[k]);
         }
     });
+
+    self.complete = function() {
+        // we can figure out what country you're in from the state
+        return self._test([self.address(), self.city(), self.state(), self.zip()]);
+    };
+
+    self.clear = function() {
+        self._clear(Object.keys(fields));
+    };
 
     return self;
 };
@@ -407,7 +428,12 @@ PackageVM = function(blob) {
     };
 
     self.complete = function() {
-        return self._test([self.selected_package]);
+        self._test([self.done()]);
+    };
+
+    self.clear = function() {
+        self._clear([self.selected_package]);
+        self.done(false);
     };
 
     // hax: don't be done until a package is selected for the first time
@@ -452,6 +478,15 @@ PremiumVM = function(blob) {
         return true;
     };
 
+    self.complete = function() {
+        return self._test([self.done()]);
+    };
+
+    self.clear = function() {
+        self._clear(Object.keys(fields));
+        self.done(false);
+    };
+
     return self;
 };
 
@@ -487,6 +522,15 @@ ComboVM = function(blob) {
 
         // required for ko to allow checkbox to click
         return true;
+    };
+
+    self.complete = function() {
+        return self._test([self.done()]);
+    };
+
+    self.clear = function() {
+        self._clear(Object.keys(fields));
+        self.done(false);
     };
 
     return self;
@@ -583,7 +627,12 @@ CustomVM = function(blob) {
     }
 
     self.complete = function() {
-        return self._test([self.done]);
+        return self._test([self.done()]);
+    };
+
+    self.clear = function() {
+        self._clear(Object.keys(fields));
+        self.done(false);
     };
 
     return self;
@@ -604,6 +653,10 @@ ClosingVM = function(blob) {
 
     self.complete = function() {
         return self._test([self.done]);
+    };
+
+    self.clear = function() {
+        self.done(false);
     };
 
     return self;
@@ -717,74 +770,40 @@ MasterVM = function(blob) {
     };
 
     self.clear_initialinfo = function() {
-        // clear cinfo fields in viewmodel
-        self.initial.zip_code('');
-        self.initial.dwelling('');
-        self.initial.promotion_code('');
+        // clear initial info fields in viewmodel
+        self.initial.clear();
     };
 
     self.test_cinfo = function() {
         // test completeness and set flag
-        if(self.applicant.fname() && self.applicant.lname() && self.billing_address.address() && self.email()) {
-            // disable form fields
-            $('#cinfo div input, #cinfo div select, #cinfo div button').prop('disabled', true);
-            // change label color
-            $('#cinfo span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next section, reveal nav, and scroll
-            $('#shipping, #nav_shipping').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $('#shipping').offset().top,
-            }, 1000);
+        if(self.applicant.complete() && self.billing_address.complete() && self.email()) {
+            self._next('#cinfo', '#shipping, #nav_shipping', '#shipping');
         }
     };
 
     self.clear_cinfo = function() {
         // clear cinfo fields in viewmodel
-        self.applicant.fname('');
-        self.applicant.initial('');
-        self.applicant.lname('');
-        self.billing_address.address('');
-        self.billing_address.city('');
-        self.billing_address.state('');
-        self.billing_address.zip('');
-        self.billing_address.country('');
+        self.applicant.clear();
+        self.billing_address.clear();
         self.email('');
     };
 
     self.test_pkgsel = function() {
         // test completeness and set flag
-        if(self.package.selected_package()) {
-            if(self.package.selected_package().code) {
-                // disable submit button
-                $('#pkgsel div button').prop('disabled', true);
-                // change label color
-                $('#pkgsel span.tab-pos').removeClass('label-inverse').addClass('label-success');
-                // show next section, reveal nav, and scroll
-                $('#monitor, #nav_monitor').removeClass('hyde');
-                $('body').animate({
-                    scrollTop: $("#monitor").offset().top,
-                }, 1000);
-            }
+        if(self.package.complete()) {
+            self._next('#pkgsel', '#monitor, #nav_monitor', '#monitor');
         }
     };
 
     self.clear_pkgsel = function() {
         // clear package field in viewmodel
-        self.package.selected_package('');
+        self.package.clear();
     };
 
     self.test_monitor = function() {
         // test completeness and set flag
         if(self.monitoring()) {
-            // disable submit button
-            $('#monitor div button, #monitor div input').prop('disabled', true);
-            // change label color
-            $('#monitor span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next section, reveal nav, and scroll
-            $('#premium, #nav_premium').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $("#premium").offset().top,
-            }, 1000);
+            self._next('#monitor', '#premium, #nav_premium', '#premium');
         }
     };
 
@@ -795,82 +814,45 @@ MasterVM = function(blob) {
 
     self.test_premium = function() {
         // test completeness with flag since this is open-ended
-        if(self.premium.done()) {
-            $('#premium div button, #premium div input').prop('disabled', true);
-            // change label color
-            $('#premium span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next section, reveal nav, and scroll
-            $('#combos, #nav_combos').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $("#combos").offset().top,
-            }, 1000);
+        if(self.premium.complete()) {
+            self._next('premium', '#combos, #nav_combos', '#combos');
         }
     };
 
     self.clear_premium = function() {
-        self.premium.done(false);
-        self.premium.selected_codes().removeAll();
-        self.premium.contents().removeAll();
+        self.premium.clear();
     };
 
     self.test_combo = function() {
         // test completeness with flag since this is open-ended
-        if(self.combo.done()) {
-            $('#combos div button, #combos div input').prop('disabled', true);
-            // change label color
-            $('#combos span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next section, reveal nav, and scroll
-            $('#custom, #nav_custom').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $("#custom").offset().top,
-            }, 1000);
+        if(self.combo.complete()) {
+            self._next('#combos', '#custom, #nav_custom', '#custom');
         }
     };
 
     self.clear_combo = function() {
-        self.combo.done(false);
-        self.combo.selected_codes().removeAll();
-        self.combo.contents().removeAll();
+        self.combo.clear();
     };
 
     self.test_customize = function() {
         // test completeness with flag since this is open-ended
-        if(self.customize.done()) {
-            $('#custom div button, #custom div input').prop('disabled', true);
-            // change label color
-            $('#custom span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next 3 sections, reveal navs, and scroll
-            $('#services, #nav_services, #promos, #nav_promos').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $("#services").offset().top,
-            }, 1000);
+        if(self.customize.complete()) {
+            self._next('#custom', '#services, #nav_services, #promos, #nav_promos', '#services');
         }
     };
 
     self.clear_customize = function() {
-        self.customize.done(false);
-        self.purchase_lines().removeAll();
+        self.customize.clear();
     };
 
     self.test_services_and_promos = function() {
-        $('#cinfo, #nav_cinfo').removeClass('hyde');
-        $('body').animate({
-            scrollTop: $("#cinfo").offset().top,
-        }, 1000);
+        self._next('', '#cinfo, #nav_cinfo', '#cinfo');
     };
 
     self.test_shipping = function() {
         // test completeness and set flag
         if(self.shipping()) {
-            // disable form fields
-            $('#shipping div button, #shipping div input').prop('disabled', true);
-            // change label color
-            $('#shipping span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next section, reveal nav, and scroll
-            $('#closing, #nav_closing').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $("#closing").offset().top,
-            }, 1000);
+            self._next('#shipping', '#closing, #nav_closing', '#closing');
         }
     };
 
@@ -880,20 +862,13 @@ MasterVM = function(blob) {
 
     self.test_closing = function() {
         // test completeness with flag since this is open-ended
-        if(self.closing.done()) {
-            $('#closing div button, #closing div input').prop('disabled', true);
-            // change label color
-            $('#closing span.tab-pos').removeClass('label-inverse').addClass('label-success');
-            // show next 3 sections, reveal navs, and scroll
-            $('#review, #nav_review, #publish, #nav_publish, #scroller').removeClass('hyde');
-            $('body').animate({
-                scrollTop: $("#review").offset().top,
-            }, 1000);
+        if(self.closing.complete()) {
+            self._next('#closing', '#review, #nav_review, #publish, #nav_publish, #scroller', '#review');
         }
     };
 
     self.clear_closing = function() {
-        self.closing.done(false);
+        self.closing.clear();
     };
 
     // XXX: insert other fns above this line

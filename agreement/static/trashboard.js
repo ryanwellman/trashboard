@@ -58,6 +58,25 @@ UpdatableAndSerializable = function() {
         });
     };
 
+    this._clear = function (fields) {
+        fields = fields || [];
+
+        // nothing was cleared
+        if (!fields) {
+            return;
+        }
+
+        // go through the fields and clear them
+        _.each(fields, function(v, k) {
+            if(typeof v == 'function') {
+                // feed observables the right blanks
+                v((v() instanceof Array) ? [] : '');
+            } else {
+                v = '';
+            }
+        });
+    }; 
+
     // generic function to lock the section
     this._lock = function(lock) {
         // disable form fields
@@ -160,6 +179,10 @@ InitialVM = function(blob) {
     self.complete = function() {
         return self._test([self.zip_code, self.dwelling]);
     };
+
+    self.clear = function () {
+        self._clear(Object.keys(fields));
+    }
 
     return self;
 };

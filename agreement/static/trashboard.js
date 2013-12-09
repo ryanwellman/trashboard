@@ -89,15 +89,22 @@ UpdatableAndSerializable = function() {
 
     // generic function to ease the next section in
     // args contain jQ compatible names
+    // any of these can be blank
     this._next = function(tab, reveal, scroll) {
         // change label color
-        $(tab + ' span.tab-pos').removeClass('label-inverse').addClass('label-success');
+        if(tab) {
+            $(tab + ' span.tab-pos').removeClass('label-inverse').addClass('label-success');
+        }
         // reveal actual sections and the nav bars
-        $(reveal).removeClass('hyde');
+        if(reveal) {
+            $(reveal).removeClass('hyde');
+        }
         // animate scroll bar to next section
-        $('body').animate({
-            scrollTop: $(scroll).offset().top,
-        }, 1000);
+        if(scroll) {
+            $('body').animate({
+                scrollTop: $(scroll).offset().top,
+            }, 1000);
+        }
     };
 
     return this;
@@ -164,31 +171,6 @@ JSONHandler = function() {
             console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
         });
     };
-};
-
-InitialVM = function(blob) {
-    var self = new UpdatableAndSerializable();
-    blob = blob || {};
-
-    var fields = {
-        "zip_code": ko.observable,
-        "dwelling": ko.observable,
-        "promotion_code": ko.observable,
-    };
-
-    _.each(fields, function(v, k) {
-        self[k] = v(blob[k]);
-    });
-
-    self.complete = function() {
-        return self._test([self.zip_code, self.dwelling]);
-    };
-
-    self.clear = function () {
-        self._clear(Object.keys(fields));
-    }
-
-    return self;
 };
 
 // refer to the comments in MasterVM to understand the next two objects
@@ -428,7 +410,7 @@ PackageVM = function(blob) {
     };
 
     self.complete = function() {
-        self._test([self.done()]);
+        return self._test([self.done()]);
     };
 
     self.clear = function() {
@@ -672,7 +654,6 @@ MasterVM = function(blob) {
 
     // field types
     var fields = {
-        'initial': InitialVM,
         'id': ko.observable,
         'applicant': ApplicantVM,
         'coapplicant': ApplicantVM,
@@ -685,6 +666,8 @@ MasterVM = function(blob) {
         'shipping': ko.observable,
         'monitoring': ko.observable,
         'email': ko.observable,
+        'floorplan': ko.observable,
+        'promo_code': ko.observable,
         'premium': PremiumVM,
         'combo': ComboVM,
         'customize': CustomVM,
@@ -737,15 +720,6 @@ MasterVM = function(blob) {
 
     self.chargeback_nav = ko.computed(function() {
         return self.package.cb_balance();
-    })
-    self.master_zipcode = ko.computed(function() {
-        if(self.initial.zip_code()) {
-            return (self.initial.zip_code()) ? self.initial.zip_code() : '';
-        } else if (self.billing_address.zip()) {
-            return (self.billing_address.zip()) ? self.billing_address.zip() : '';
-        } else {
-            return '';
-        }
     });
 
     // XXX: add the rest of the variables that need to be pretty
@@ -756,6 +730,18 @@ MasterVM = function(blob) {
     self.dwellings = ["One Story", "Two Story", "Business"];
     // XXX: insert other variables here
 
+    // test things that don't have their own viewmodel or have many viewmodels for completeness
+
+    // initial info section
+    self.initial_complete = function() {
+        return self._test([self.billing_address.zip(), self.floorplan()]);
+    };    
+
+    // customer info section
+    self.cinfo_complete = function() {
+        return self._test([self.applicant.complete(), self.billing_address.complete(), self.email()]);
+    };
+
     // some ideas for the following functions:
     //  loader functions that make the correct form parts
     //  appear when their preceding form section is complete
@@ -764,19 +750,21 @@ MasterVM = function(blob) {
 
     self.test_initialinfo = function() {
         // test completeness and set flag
-        if(self.initial.complete()) {
+        if(self.initial_complete()) {
             self._next('#initial_info', '#pkgsel, #nav_pkgsel', '#pkgsel');
         }
     };
 
     self.clear_initialinfo = function() {
         // clear initial info fields in viewmodel
-        self.initial.clear();
+        self.billing_address.zip('');
+        self.floorplan('');
+        self.promo_code('');
     };
 
     self.test_cinfo = function() {
         // test completeness and set flag
-        if(self.applicant.complete() && self.billing_address.complete() && self.email()) {
+        if(self.cinfo_complete()) {
             self._next('#cinfo', '#shipping, #nav_shipping', '#shipping');
         }
     };

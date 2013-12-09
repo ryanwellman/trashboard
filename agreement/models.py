@@ -237,6 +237,9 @@ class Agreement(Updatable):
     package = models.ForeignKey(Package, related_name='package')
     shipping = models.CharField(max_length=10)
     monitoring = models.CharField(max_length=10)
+    floorplan = models.CharField(max_length=10)
+    promo_code = models.CharField(max_length=20)
+
 
     def __unicode__(self):
         if not self.id:
@@ -249,7 +252,7 @@ class Agreement(Updatable):
             fields.append(self.campaign)
             fields.append(self.applicant)
             fields.append(self.package)
-            fields.append(billing_address)
+            fields.append(self.billing_address)
         except ObjectDoesNotExist:
             pass
         return u','.join([unicode(f) for f in fields]) # needs campaign_id
@@ -275,7 +278,7 @@ class InvoiceLine(Updatable):
     note            =   models.CharField(max_length=50)
     product         =   models.ForeignKey(Product)
     pricetable      =   models.ForeignKey(PriceTable)
-    qty             =   models.IntegerField(default=0)
+    quantity        =   models.IntegerField(default=0)
     pricedate       =   models.DateTimeField()
     upfront_each    =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_total   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)

@@ -100,6 +100,8 @@ def test_json(request):
                 },
                 'shipping': '',
                 'monitoring': '',
+                'floorplan': '',
+                'promo_code':'',
                 'premium': {
                     'selected_codes': [],
                     'contents': [],
@@ -117,11 +119,6 @@ def test_json(request):
                 'closing': {
                     'done': False,
                 },
-                'initial': {
-                    'zip_code': '',
-                    'dwelling': '',
-                    'promotion_code': '',
-                }
             }
 
     return SerializeOrRedirect(reverse(draw_test), ctx)

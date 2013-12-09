@@ -72,7 +72,7 @@
         </div>
         <div class="well" id="right_sidebar" data-target="right_sidebar">
             <ul class="nav nav-list">
-                <li id="nav_initial_info"><a data-bind="css: { 'complete': initial.complete(), 'incomplete': !initial.complete() }" href="#initial_info">Initial Info</a></li>
+                <li id="nav_initial_info"><a data-bind="css: { 'complete': initial_complete(), 'incomplete': !initial_complete() }" href="#initial_info">Initial Info</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': package.complete(), 'incomplete': !package.complete() }" href="#pkgsel">Package</a></li>
                 <li class="divider"></li>
@@ -128,7 +128,7 @@
                             <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First M. Last'"></span><br>
                             <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
                             <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span>
-                            <span data-bind="css: {muted: master_zipcode().length == 0}, text: master_zipcode() ? master_zipcode : 'ZIP'"></span>
+                            <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span>
                         </li>
                         <li class="span1.5">
                             <b>Package:</b><br>

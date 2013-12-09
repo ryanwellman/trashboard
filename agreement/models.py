@@ -57,8 +57,8 @@ class ProductPrice(Serializable):
     monthly_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     cb_points       =   models.IntegerField(default=0)
-    fromdate        =   models.DateTimeField()
-    todate          =   models.DateTimeField()
+    fromdate        =   models.DateTimeField(null=True)
+    todate          =   models.DateTimeField(null=True)
     promo           =   models.BooleanField(default=False)
 
 
@@ -205,6 +205,29 @@ class CmpPrice(Serializable):
         ordering = ['campaign']
 
 
+class Progress(Updatable):
+    """
+    represents an agreement's state
+    """
+
+    premium = models.BooleanField(default=False)
+    combo = models.BooleanField(default=False)
+    customize = models.BooleanField(default=False)
+    closing = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        fields = [self.premium, self.combo, self.customize, self.closing]
+        try:
+            fields.append(self.agreement)
+        except ObjectDoesNotExist:
+            pass
+
+        return u','.join([unicode(f) for f in fields])
+
+    class Meta:
+        pass
+        
+
 class Agreement(Updatable):
     """
     represents an agreement by a customer to buy our products
@@ -239,7 +262,7 @@ class Agreement(Updatable):
     monitoring = models.CharField(max_length=10)
     floorplan = models.CharField(max_length=10)
     promo_code = models.CharField(max_length=20)
-
+    progress = models.ForeignKey(Progress, related_name='progress')
 
     def __unicode__(self):
         if not self.id:
@@ -383,7 +406,7 @@ class Organization(Serializable):
     provider_id =   models.IntegerField(primary_key=True)
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.name]])
+        return u','.join([unicode(f) for f in [self.name, self.provider_id]])
 
     class Meta:
         ordering = ['name']

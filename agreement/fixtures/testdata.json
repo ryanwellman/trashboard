@@ -1,561 +1,533 @@
-[
-  {
+[{
     "pk": "10RTDROP",
     "model": "agreement.product",
     "fields": {
-      "category": "Rate Drops",
-      "type": "closer",
-      "name": "$10\/mo rate drop",
-      "description": "Removes $10 (requires manager approval)"
+        "category": "Rate Drops",
+        "type": "closer",
+        "name": "$10/mo rate drop",
+        "description": "Removes $10 (requires manager approval)"
     }
-  },
-  {
+}, {
     "pk": "3KEYS",
     "model": "agreement.product",
     "fields": {
-      "category": "Combination Deals",
-      "type": "combo",
-      "name": "3 Keypads",
-      "description": "Great for households with children!"
+        "category": "Combination Deals",
+        "type": "combo",
+        "name": "3 Keypads",
+        "description": "Great for households with children!"
     }
-  },
-  {
+}, {
     "pk": "5RTDROP",
     "model": "agreement.product",
     "fields": {
-      "category": "Rate Drops",
-      "type": "closer",
-      "name": "$5\/mo rate drop",
-      "description": "Removes $5 from the monthly monitoring rate"
+        "category": "Rate Drops",
+        "type": "closer",
+        "name": "$5/mo rate drop",
+        "description": "Removes $5 from the monthly monitoring rate"
     }
-  },
-  {
+}, {
     "pk": "ALPACASRV",
     "model": "agreement.product",
     "fields": {
-      "category": "Services",
-      "type": "service",
-      "name": "Alpaca Rental Service",
-      "description": "alpaca shears"
+        "category": "Services",
+        "type": "service",
+        "name": "Alpaca Rental Service",
+        "description": "alpaca shears"
     }
-  },
-  {
+}, {
     "pk": "CAMERA",
     "model": "agreement.product",
     "fields": {
-      "category": "Premium Items",
-      "type": "equipment",
-      "name": "Camera Add-on",
-      "description": "Watch your home from somewhere else!"
+        "category": "Premium Items",
+        "type": "equipment",
+        "name": "Camera Add-on",
+        "description": "Watch your home from somewhere else!"
     }
-  },
-  {
+}, {
     "pk": "CELLSERV",
     "model": "agreement.product",
     "fields": {
-      "category": "Premium Items",
-      "type": "equipment",
-      "name": "Cellular Antenna",
-      "description": "Cut the wires and it still works!"
+        "category": "Premium Items",
+        "type": "equipment",
+        "name": "Cellular Antenna",
+        "description": "Cut the wires and it still works!"
     }
-  },
-  {
+}, {
     "pk": "CRBMDT",
     "model": "agreement.product",
     "fields": {
-      "category": "Fire Sensors",
-      "type": "part",
-      "name": "Carbon Monoxide Detector",
-      "description": ""
+        "category": "Fire Sensors",
+        "type": "part",
+        "name": "Carbon Monoxide Detector",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "DWSENS",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Sensors",
-      "type": "part",
-      "name": "Door\/Window Sensors",
-      "description": ""
+        "category": "Security Sensors",
+        "type": "part",
+        "name": "Door/Window Sensors",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "FLSENS",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Sensors",
-      "type": "part",
-      "name": "Flood Sensor",
-      "description": ""
+        "category": "Security Sensors",
+        "type": "part",
+        "name": "Flood Sensor",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "FREEKEY",
     "model": "agreement.product",
     "fields": {
-      "category": "Rate Drops",
-      "type": "closer",
-      "name": "Free Keychains",
-      "description": "Give away some of our famous disposable keychains"
+        "category": "Rate Drops",
+        "type": "closer",
+        "name": "Free Keychains",
+        "description": "Give away some of our famous disposable keychains"
     }
-  },
-  {
+}, {
     "pk": "FREESHIP",
     "model": "agreement.product",
     "fields": {
-      "category": "Rate Drops",
-      "type": "closer",
-      "name": "Free Shipping",
-      "description": "Cancels out shipping cost for the customer"
+        "category": "Rate Drops",
+        "type": "closer",
+        "name": "Free Shipping",
+        "description": "Cancels out shipping cost for the customer"
     }
-  },
-  {
+}, {
     "pk": "GBSENS",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Sensors",
-      "type": "part",
-      "name": "Glass Break Sensor",
-      "description": ""
+        "category": "Security Sensors",
+        "type": "part",
+        "name": "Glass Break Sensor",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "GDSENS",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Sensors",
-      "type": "part",
-      "name": "Garage Door Sensor",
-      "description": ""
+        "category": "Security Sensors",
+        "type": "part",
+        "name": "Garage Door Sensor",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "GPS",
     "model": "agreement.product",
     "fields": {
-      "category": "Premium Items",
-      "type": "equipment",
-      "name": "GPS",
-      "description": "Let first responders know where you are at all times!"
+        "category": "Premium Items",
+        "type": "equipment",
+        "name": "GPS",
+        "description": "Let first responders know where you are at all times!"
     }
-  },
-  {
+}, {
     "pk": "KEYCRC",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "Keychain Remote Control",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "Keychain Remote Control",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "LTSENS",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Sensors",
-      "type": "part",
-      "name": "Low Temperature Sensor",
-      "description": ""
+        "category": "Security Sensors",
+        "type": "part",
+        "name": "Low Temperature Sensor",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "MANYKEY",
     "model": "agreement.product",
     "fields": {
-      "category": "Combination Deals",
-      "type": "combo",
-      "name": "Many Keychains",
-      "description": "So cheap they're disposable!"
+        "category": "Combination Deals",
+        "type": "combo",
+        "name": "Many Keychains",
+        "description": "So cheap they're disposable!"
     }
-  },
-  {
+}, {
     "pk": "MEDPEN",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "Medical Panic Pendant",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "Medical Panic Pendant",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "MEDPNB",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "Medical Panic Bracelet",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "Medical Panic Bracelet",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "MINPNP",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "Mini Pinpad",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "Mini Pinpad",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "MOTDEC",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Sensors",
-      "type": "part",
-      "name": "Motion Detector",
-      "description": ""
+        "category": "Security Sensors",
+        "type": "part",
+        "name": "Motion Detector",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "SIMNXT",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Panels",
-      "type": "part",
-      "name": "Simon XT",
-      "description": ""
+        "category": "Security Panels",
+        "type": "part",
+        "name": "Simon XT",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "SIMTHR",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Panels",
-      "type": "part",
-      "name": "Simon 3",
-      "description": ""
+        "category": "Security Panels",
+        "type": "part",
+        "name": "Simon 3",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "SMKDET",
     "model": "agreement.product",
     "fields": {
-      "category": "Fire Sensors",
-      "type": "part",
-      "name": "Smoke Detector",
-      "description": ""
+        "category": "Fire Sensors",
+        "type": "part",
+        "name": "Smoke Detector",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "SMOKESRV",
     "model": "agreement.product",
     "fields": {
-      "category": "Services",
-      "type": "service",
-      "name": "Smoke Service",
-      "description": "smoke detector(s)"
+        "category": "Services",
+        "type": "service",
+        "name": "Smoke Service",
+        "description": "smoke detector(s)"
     }
-  },
-  {
+}, {
     "pk": "SOLAR",
     "model": "agreement.product",
     "fields": {
-      "category": "Combination Deals",
-      "type": "combo",
-      "name": "Solar Alarm Add-on Kit",
-      "description": "For the consumer with no grid power!"
+        "category": "Combination Deals",
+        "type": "combo",
+        "name": "Solar Alarm Add-on Kit",
+        "description": "For the consumer with no grid power!"
     }
-  },
-  {
+}, {
     "pk": "SOLLGT",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "Solar Light",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "Solar Light",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "TLKDEV",
     "model": "agreement.product",
     "fields": {
-      "category": "Security Panels",
-      "type": "part",
-      "name": "Talkover Device",
-      "description": ""
+        "category": "Security Panels",
+        "type": "part",
+        "name": "Talkover Device",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "TLKKYP",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "Talking Keypad",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "Talking Keypad",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "TLKTSC",
     "model": "agreement.product",
     "fields": {
-      "category": "Accessories",
-      "type": "part",
-      "name": "XT Talking Touchscreen",
-      "description": ""
+        "category": "Accessories",
+        "type": "part",
+        "name": "XT Talking Touchscreen",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "VIDEOSRV",
     "model": "agreement.product",
     "fields": {
-      "category": "Services",
-      "type": "service",
-      "name": "Video Service",
-      "description": "cameras"
+        "category": "Services",
+        "type": "service",
+        "name": "Video Service",
+        "description": "cameras"
     }
-  },
-  {
+}, {
     "pk": "XTNAPM",
     "model": "agreement.product",
     "fields": {
-      "category": "Home Automation",
-      "type": "part",
-      "name": "X10 Appliance Module",
-      "description": ""
+        "category": "Home Automation",
+        "type": "part",
+        "name": "X10 Appliance Module",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "XTNSIR",
     "model": "agreement.product",
     "fields": {
-      "category": "Home Automation",
-      "type": "part",
-      "name": "XT Siren",
-      "description": ""
+        "category": "Home Automation",
+        "type": "part",
+        "name": "XT Siren",
+        "description": ""
     }
-  },
-  {
+}, {
     "pk": "XTSRCK",
     "model": "agreement.product",
     "fields": {
-      "category": "Home Automation",
-      "type": "part",
-      "name": "X10 Socket Rocket",
-      "description": ""
+        "category": "Home Automation",
+        "type": "part",
+        "name": "X10 Socket Rocket",
+        "description": ""
     }
-  },
-  {
+}, {
+    "pk": "Cpn PT",
+    "model": "agreement.pricetable",
+    "fields": {}
+}, {
+    "pk": "Org PT",
+    "model": "agreement.pricetable",
+    "fields": {}
+}, {
     "pk": "Bronze",
     "model": "agreement.package",
     "fields": {
-      "code": "bronze"
+        "code": "bronze"
     }
-  },
-  {
+}, {
     "pk": "Copper",
     "model": "agreement.package",
     "fields": {
-      "code": "copper"
+        "code": "copper"
     }
-  },
-  {
+}, {
     "pk": "Gold",
     "model": "agreement.package",
     "fields": {
-      "code": "gold"
+        "code": "gold"
     }
-  },
-  {
+}, {
     "pk": "Platinum",
     "model": "agreement.package",
     "fields": {
-      "code": "platinum"
+        "code": "platinum"
     }
-  },
-  {
+}, {
     "pk": "Silver",
     "model": "agreement.package",
     "fields": {
-      "code": "silver"
+        "code": "silver"
     }
-  },
-  {
+}, {
     "pk": 1,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "DWSENS",
-      "quantity": 3,
-      "package": "Copper"
+        "product": "DWSENS",
+        "quantity": 3,
+        "package": "Copper"
     }
-  },
-  {
+}, {
     "pk": 2,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "SIMNXT",
-      "quantity": 1,
-      "package": "Copper"
+        "product": "SIMNXT",
+        "quantity": 1,
+        "package": "Copper"
     }
-  },
-  {
+}, {
     "pk": 3,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "MOTDEC",
-      "quantity": 2,
-      "package": "Copper"
+        "product": "MOTDEC",
+        "quantity": 2,
+        "package": "Copper"
     }
-  },
-  {
+}, {
     "pk": 4,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "DWSENS",
-      "quantity": 7,
-      "package": "Bronze"
+        "product": "DWSENS",
+        "quantity": 7,
+        "package": "Bronze"
     }
-  },
-  {
+}, {
     "pk": 5,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "SIMNXT",
-      "quantity": 1,
-      "package": "Bronze"
+        "product": "SIMNXT",
+        "quantity": 1,
+        "package": "Bronze"
     }
-  },
-  {
+}, {
     "pk": 6,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "MOTDEC",
-      "quantity": 2,
-      "package": "Bronze"
+        "product": "MOTDEC",
+        "quantity": 2,
+        "package": "Bronze"
     }
-  },
-  {
+}, {
     "pk": 7,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "DWSENS",
-      "quantity": 10,
-      "package": "Silver"
+        "product": "DWSENS",
+        "quantity": 10,
+        "package": "Silver"
     }
-  },
-  {
+}, {
     "pk": 8,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "SIMNXT",
-      "quantity": 1,
-      "package": "Silver"
+        "product": "SIMNXT",
+        "quantity": 1,
+        "package": "Silver"
     }
-  },
-  {
+}, {
     "pk": 9,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "MOTDEC",
-      "quantity": 2,
-      "package": "Silver"
+        "product": "MOTDEC",
+        "quantity": 2,
+        "package": "Silver"
     }
-  },
-  {
+}, {
     "pk": 10,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "DWSENS",
-      "quantity": 12,
-      "package": "Gold"
+        "product": "DWSENS",
+        "quantity": 12,
+        "package": "Gold"
     }
-  },
-  {
+}, {
     "pk": 11,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "SIMNXT",
-      "quantity": 1,
-      "package": "Gold"
+        "product": "SIMNXT",
+        "quantity": 1,
+        "package": "Gold"
     }
-  },
-  {
+}, {
     "pk": 12,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "MOTDEC",
-      "quantity": 2,
-      "package": "Gold"
+        "product": "MOTDEC",
+        "quantity": 2,
+        "package": "Gold"
     }
-  },
-  {
+}, {
     "pk": 13,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "DWSENS",
-      "quantity": 15,
-      "package": "Platinum"
+        "product": "DWSENS",
+        "quantity": 15,
+        "package": "Platinum"
     }
-  },
-  {
+}, {
     "pk": 14,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "SIMNXT",
-      "quantity": 1,
-      "package": "Platinum"
+        "product": "SIMNXT",
+        "quantity": 1,
+        "package": "Platinum"
     }
-  },
-  {
+}, {
     "pk": 15,
     "model": "agreement.pkgproduct",
     "fields": {
-      "product": "MOTDEC",
-      "quantity": 2,
-      "package": "Platinum"
+        "product": "MOTDEC",
+        "quantity": 2,
+        "package": "Platinum"
     }
-  },
-  {
+}, {
+    "pk": "1",
+    "model": "agreement.campaign",
+    "fields": {
+        "name": "Test Campaign"
+    }
+}, {
+    "pk": 1,
+    "model": "agreement.cmpprice",
+    "fields": {
+        "date_updated": "2013-12-09T22:01:23.921Z",
+        "notes": "",
+        "zorder": 0,
+        "campaign": "1",
+        "pricetable": "Cpn PT"
+    }
+}, {
     "pk": "3KEYS",
     "model": "agreement.combo",
-    "fields": {
-      
-    }
-  },
-  {
+    "fields": {}
+}, {
     "pk": "MANYKEY",
     "model": "agreement.combo",
-    "fields": {
-      
-    }
-  },
-  {
+    "fields": {}
+}, {
     "pk": "SOLAR",
     "model": "agreement.combo",
-    "fields": {
-      
-    }
-  },
-  {
+    "fields": {}
+}, {
     "pk": "10RTDROP",
     "model": "agreement.ratedrop",
-    "fields": {
-      
-    }
-  },
-  {
+    "fields": {}
+}, {
     "pk": "5RTDROP",
     "model": "agreement.ratedrop",
-    "fields": {
-      
-    }
-  },
-  {
+    "fields": {}
+}, {
     "pk": "FREEKEY",
     "model": "agreement.ratedrop",
-    "fields": {
-      
-    }
-  },
-  {
+    "fields": {}
+}, {
     "pk": "FREESHIP",
     "model": "agreement.ratedrop",
+    "fields": {}
+}, {
+    "pk": 1,
+    "model": "agreement.organization",
     "fields": {
-      
+        "name": "Test Organization"
     }
-  }
-]
+}, {
+    "pk": 1,
+    "model": "agreement.orgprice",
+    "fields": {
+        "date_updated": "2013-12-09T21:59:35.550Z",
+        "organization": 1,
+        "notes": "",
+        "zorder": 0,
+        "pricetable": "Org PT"
+    }
+}, {
+    "pk": 1,
+    "model": "agreement.orgcampaign",
+    "fields": {
+        "date_updated": "2013-12-09T21:52:47.580Z",
+        "organization": 1,
+        "campaign": "1"
+    }
+}]

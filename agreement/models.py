@@ -33,7 +33,7 @@ class PriceTable(Serializable):
     layered on top of it later
     """
 
-    group       =   models.CharField(max_length=10, primary_key=True)
+    group       =   models.CharField(max_length=20, primary_key=True)
     products    =   models.ManyToManyField(Product, through='ProductPrice', related_name='ProductPrices')
 
     def __unicode__(self):
@@ -205,29 +205,6 @@ class CmpPrice(Serializable):
         ordering = ['campaign']
 
 
-class Progress(Updatable):
-    """
-    represents an agreement's state
-
-    XXX: this could be packed into a single field with 2**6=64 values
-         on the other hand there's a place to add future state or non-boolean state
-    """
-
-    premium = models.BooleanField(default=False)
-    combo = models.BooleanField(default=False)
-    customize = models.BooleanField(default=False)
-    closing = models.BooleanField(default=False)
-    package = models.BooleanField(default=False)
-    promos = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        fields = [self.premium, self.combo, self.customize, self.closing, self.package, self.promos]
-        return u','.join([unicode(f) for f in fields])
-
-    class Meta:
-        pass
-        
-
 class Agreement(Updatable):
     """
     represents an agreement by a customer to buy our products
@@ -247,7 +224,7 @@ class Agreement(Updatable):
         monitoring: who gets paid to watch this system
         floorplan: what shape is the target address
         promo_code: just one for now!
-        progress: store one of 16 states of the form associated with this model
+        progress: store one of 64 states of the form associated with this model
 
     this field is updatable from a json-like blob
     """
@@ -265,7 +242,12 @@ class Agreement(Updatable):
     monitoring = models.CharField(max_length=10)
     floorplan = models.CharField(max_length=10)
     promo_code = models.CharField(max_length=20)
-    progress = models.ForeignKey(Progress, related_name='progress')
+    done_premium = models.BooleanField(default=False)
+    done_combo = models.BooleanField(default=False)
+    done_customize = models.BooleanField(default=False)
+    done_closing = models.BooleanField(default=False)
+    done_package = models.BooleanField(default=False)
+    done_promos = models.BooleanField(default=False)
 
     def __unicode__(self):
         if not self.id:
@@ -302,10 +284,10 @@ class InvoiceLine(Updatable):
 
     agreement       =   models.ForeignKey(Agreement)
     note            =   models.CharField(max_length=50)
-    product         =   models.ForeignKey(Product)
-    pricetable      =   models.ForeignKey(PriceTable)
+    product         =   models.CharField(max_length=20)
+    pricetable      =   models.CharField(max_length=20)
     quantity        =   models.IntegerField(default=0)
-    pricedate       =   models.DateTimeField()
+    pricedate       =   models.DateTimeField(auto_now_add=True) # timestamp on save
     upfront_each    =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_total   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)    
@@ -314,6 +296,7 @@ class InvoiceLine(Updatable):
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     parent          =   models.ForeignKey('self', blank=True, null=True)
     mandatory       =   models.BooleanField(default=False)
+
 
     @property
     def upfront_display(self):

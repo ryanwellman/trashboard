@@ -644,29 +644,6 @@ ClosingVM = function(blob) {
     return self;
 };
 
-PromoVM = function(blob) {
-    var self = new UpdatableAndSerializable();
-    blob = blob || {};
-
-    var fields = {
-        "done": ko.observable,
-    };
-
-    _.each(fields, function(v, k) {
-        self[k] = v(blob[k]);
-    });
-
-    self.complete = function() {
-        return self._test([self.done]);
-    };
-
-    self.clear = function() {
-        self.done(false);
-    };
-
-    return self;
-};
-
 // initialize a view model from a blob
 MasterVM = function(blob) {
     // capture a new copy of UAS into MasterVM's closure
@@ -695,7 +672,12 @@ MasterVM = function(blob) {
         'combo': ComboVM,
         'customize': CustomVM,
         'closing': ClosingVM,
-        'services_and_promos': PromoVM,
+        'done_package': ko.observable,
+        'done_premium': ko.observable,
+        'done_combo': ko.observable,
+        'done_customize': ko.observable,
+        'done_closing': ko.observable,
+        'done_promos': ko.observable,
     };
 
     // try to assign things from blob to fields if they exist
@@ -827,7 +809,7 @@ MasterVM = function(blob) {
     self.test_premium = function() {
         // test completeness with flag since this is open-ended
         if(self.premium.complete()) {
-            self._next('premium', '#combos, #nav_combos', '#combos');
+            self._next('#premium', '#combos, #nav_combos', '#combos');
         }
     };
 
@@ -858,7 +840,7 @@ MasterVM = function(blob) {
     };
 
     self.test_services_and_promos = function() {
-        if(self.services_and_promos.done()) {
+        if(self.done_promos()) {
             self._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo', '#cinfo');
         }
     };
@@ -1066,6 +1048,7 @@ $(function() {
     $('#promo_form').on('submit', function(evt) {
         evt.preventDefault();
 
+        master_settings.services_and_promos.done(true);
         master_settings.test_services_and_promos();
     });
 

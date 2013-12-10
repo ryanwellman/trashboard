@@ -35,7 +35,7 @@ def dyn_json(request, agreement_id=None):
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
     else:
         # make a new agreement with non-optional blank child models included
-        agreement = Agreement(campaign=campaign, package=blankp, applicant=Applicant(), billing_address=Address(), system_address=Address(), progress=Progress())
+        agreement = Agreement(campaign=campaign, package=blankp, applicant=Applicant(), billing_address=Address(), system_address=Address())
 
     # handle outgoing data
     if request.method == 'GET':
@@ -45,22 +45,22 @@ def dyn_json(request, agreement_id=None):
                     'premium': {
                         'selected_codes': [],
                         'contents': [],
-                        'done': agreement.progress.premium,
+                        'done': agreement.done_premium,
                     },
                     'combo': {
                         'selected_codes': [],
                         'contents': [],
-                        'done': agreement.progress.combo,
+                        'done': agreement.done_combo,
                     },
                     'customize': {
                         'purchase_lines': [],
-                        'done': agreement.progress.customize,
+                        'done': agreement.done_customize,
                     },
                     'closing': {
-                        'done': agreement.progress.closing,
+                        'done': agreement.done_closing,
                     },
                     'services_and_promos': {
-                        'done': agreement.progress.promos,
+                        'done': agreement.done_promos,
                     },
                 }
         response.update(ctx);
@@ -78,7 +78,7 @@ def dyn_json(request, agreement_id=None):
                     'updated_contents': [],
                     'changed_contents': False,
                     'customization_lines': [],
-                    'done': agreement.progress.package,
+                    'done': agreement.done_package,
                 }
         response['package'] = ctx
         response.pop('progress', None)
@@ -90,20 +90,17 @@ def dyn_json(request, agreement_id=None):
             print incoming
 
         # DEBUG: fix progress field
-        progress = Progress.objects.filter( premium=incoming['premium']['done'],
-                                            combo=incoming['combo']['done'],
-                                            customize=incoming['customize']['done'],
-                                            closing=incoming['closing']['done'],
-                                            package=incoming['package']['done'],
-                                            promos=incoming['services_and_promos']['done'])
+        agreement.done_premium=incoming['premium']['done']
+        agreement.done_combo=incoming['combo']['done']
+        agreement.done_customize=incoming['customize']['done']
+        agreement.done_closing=incoming['closing']['done']
+        agreement.done_package=incoming['package']['done']
+        agreement.done_promos=incoming['services_and_promos']['done']
         incoming.pop('premium',None)
         incoming.pop('combo',None)
         incoming.pop('customize',None)
         incoming.pop('closing',None)
         incoming.pop('services_and_promos', None)
-
-        # attach progress object to agreement
-        agreement.progress = progress[0]
 
         # DEBUG: fix package field
         selpkg = incoming.get('package').get('selected_package')

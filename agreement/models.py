@@ -208,20 +208,20 @@ class CmpPrice(Serializable):
 class Progress(Updatable):
     """
     represents an agreement's state
+
+    XXX: this could be packed into a single field with 2**6=64 values
+         on the other hand there's a place to add future state or non-boolean state
     """
 
     premium = models.BooleanField(default=False)
     combo = models.BooleanField(default=False)
     customize = models.BooleanField(default=False)
     closing = models.BooleanField(default=False)
+    package = models.BooleanField(default=False)
+    promos = models.BooleanField(default=False)
 
     def __unicode__(self):
-        fields = [self.premium, self.combo, self.customize, self.closing]
-        try:
-            fields.append(self.agreement)
-        except ObjectDoesNotExist:
-            pass
-
+        fields = [self.premium, self.combo, self.customize, self.closing, self.package, self.promos]
         return u','.join([unicode(f) for f in fields])
 
     class Meta:
@@ -245,6 +245,9 @@ class Agreement(Updatable):
         package: what box do we use
         shipping: who gets paid to transport the package
         monitoring: who gets paid to watch this system
+        floorplan: what shape is the target address
+        promo_code: just one for now!
+        progress: store one of 16 states of the form associated with this model
 
     this field is updatable from a json-like blob
     """

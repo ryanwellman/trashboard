@@ -125,7 +125,7 @@ JSONHandler = function() {
         // obtain blob from ajax
         var result = $.ajax({
             dataType: "json",
-            url: '/json3/' + agreement_id,
+            url: '/json2/' + agreement_id,
             async: false, // asynchronous load means empty blob
         });
 
@@ -154,7 +154,7 @@ JSONHandler = function() {
         var result = $.ajax({
             type: "POST",
             dataType: "json",
-            url: '/json3/' + agreement_id,
+            url: '/json2/' + agreement_id,
             async: false, // testing with and without this
             data: payload,
         });
@@ -644,6 +644,29 @@ ClosingVM = function(blob) {
     return self;
 };
 
+PromoVM = function(blob) {
+    var self = new UpdatableAndSerializable();
+    blob = blob || {};
+
+    var fields = {
+        "done": ko.observable,
+    };
+
+    _.each(fields, function(v, k) {
+        self[k] = v(blob[k]);
+    });
+
+    self.complete = function() {
+        return self._test([self.done]);
+    };
+
+    self.clear = function() {
+        self.done(false);
+    };
+
+    return self;
+};
+
 // initialize a view model from a blob
 MasterVM = function(blob) {
     // capture a new copy of UAS into MasterVM's closure
@@ -672,6 +695,7 @@ MasterVM = function(blob) {
         'combo': ComboVM,
         'customize': CustomVM,
         'closing': ClosingVM,
+        'services_and_promos': PromoVM,
     };
 
     // try to assign things from blob to fields if they exist
@@ -834,7 +858,9 @@ MasterVM = function(blob) {
     };
 
     self.test_services_and_promos = function() {
-        self._next('', '#cinfo, #nav_cinfo', '#cinfo');
+        if(self.services_and_promos.done()) {
+            self._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo', '#cinfo');
+        }
     };
 
     self.test_shipping = function() {
@@ -915,12 +941,14 @@ $(function() {
     // these test functions should show the next section
     // if all of their properties are present in the json
     // received from the server
-    master_settings.test_cinfo();
+    master_settings.test_initialinfo();
     master_settings.test_pkgsel();
     master_settings.test_monitor();
     master_settings.test_premium();
     master_settings.test_combo();
     master_settings.test_customize();
+    master_settings.test_services_and_promos();
+    master_settings.test_cinfo();
     master_settings.test_shipping();
     master_settings.test_closing();
 

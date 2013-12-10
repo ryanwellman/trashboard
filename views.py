@@ -10,7 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 from django.views.decorators.csrf import csrf_exempt
-from dynamicresponse.response import *
+from dynamicresponse.response import SerializeOrRedirect
 
 # import from self (models)
 from agreement.models import *
@@ -19,28 +19,110 @@ from agreement.models import *
 def dyn_json(request, agreement_id=None):
     """
     reads or updates an Agreement and returns it to the caller as json
-    """
-    # attempts to get or set a specific agreement
-    # this is csrf_exempt so i can test it with curl
-    agreement = None
 
+    XXX: eventually this will need to accept a campaign id as well
+    """
+
+    # attempts to get or set a specific agreement
+    agreement = None
+    response = None
+    campaign = Campaign.objects.all()[0]
+    blankp = Package.objects.filter(code='blank')[0]
+
+    # handle obtaining an agreement object
     if agreement_id:
         # user wants a specific agreement
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
     else:
         # make a new agreement with non-optional blank child models included
-        agreement = Agreement(applicant=Applicant(), billing_address=Address(), system_address=Address())
+        agreement = Agreement(campaign=campaign, package=blankp, applicant=Applicant(), billing_address=Address(), system_address=Address(), progress=Progress())
 
+    # handle outgoing data
     if request.method == 'GET':
-        pass
+        response = agreement.serialize(ignore=['campaign'])
+        # DEBUG: add things that make this form actually work but don't save
+        ctx =   {
+                    'premium': {
+                        'selected_codes': [],
+                        'contents': [],
+                        'done': agreement.progress.premium,
+                    },
+                    'combo': {
+                        'selected_codes': [],
+                        'contents': [],
+                        'done': agreement.progress.combo,
+                    },
+                    'customize': {
+                        'purchase_lines': [],
+                        'done': agreement.progress.customize,
+                    },
+                    'closing': {
+                        'done': agreement.progress.closing,
+                    },
+                    'services_and_promos': {
+                        'done': agreement.progress.promos,
+                    },
+                }
+        response.update(ctx);
 
+        # DEBUG: fix package
+        code = ''
+        if not agreement.package.code == 'blank':
+            code = agreement.package.code
+        ctx =   {
+                    'selected_package': {
+                        'code': agreement.package.code,
+                    },
+                    'customizing': False,
+                    'cb_balance': '0',
+                    'updated_contents': [],
+                    'changed_contents': False,
+                    'customization_lines': [],
+                    'done': agreement.progress.package,
+                }
+        response['package'] = ctx
+        response.pop('progress', None)
+
+    # handle incoming data
     if request.method == 'POST':
         for key in request.POST:    # request.POST is fucked up when sending JSON
             incoming = loads(key)
             print incoming
 
+        # DEBUG: fix progress field
+        progress = Progress.objects.filter( premium=incoming['premium']['done'],
+                                            combo=incoming['combo']['done'],
+                                            customize=incoming['customize']['done'],
+                                            closing=incoming['closing']['done'],
+                                            package=incoming['package']['done'],
+                                            promos=incoming['services_and_promos']['done'])
+        incoming.pop('premium',None)
+        incoming.pop('combo',None)
+        incoming.pop('customize',None)
+        incoming.pop('closing',None)
+        incoming.pop('services_and_promos', None)
+
+        # attach progress object to agreement
+        agreement.progress = progress[0]
+
+        # DEBUG: fix package field
+        selpkg = incoming.get('package').get('selected_package')
+        if selpkg:
+            selpkg_code = selpkg.get('code') or ''
+        else:
+            selpkg_code = ''
+
+        packages = Package.objects.filter(code=selpkg_code)
+        if packages:
+            agreement.package = packages[0]
+
+        incoming.pop('package', None)
+
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)
+
+        # create a response
+        response = agreement.serialize(ignore=['campaign'])
 
     if request.method == 'PUT':
         pass
@@ -48,8 +130,6 @@ def dyn_json(request, agreement_id=None):
     if request.method == 'DELETE':
         pass
 
-    # serialize the agreement we made
-    response = agreement.serialize()
     return SerializeOrRedirect(reverse(draw_test), response)
 
 
@@ -63,7 +143,7 @@ def serve_json(request):
     # agreement = Agreement.objects.raw('SELECT * FROM agreement_agreement ORDER BY RAND() LIMIT 1')
 
     ctx = agreement.serialize()
-    return SerializeOrRedirect(reverse(draw_test), ctx)
+    return SerializeOrRedirect(reverse(draw_test), response)
 
 
 def test_json(request):
@@ -117,6 +197,9 @@ def test_json(request):
                     'done': False,
                 },
                 'closing': {
+                    'done': False,
+                },
+                'services_and_promos': {
                     'done': False,
                 },
             }
@@ -204,7 +287,7 @@ def draw_container(request, agreement_id=None):
 
 
 @render_to('templates/package.html')
-def Package(request):
+def Packages(request):
     ko_packages = [{'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3' },
                                                                   {'code':'SIMNXT', 'quantity':'1' },
                                                                   {'code':'MOTDEC', 'quantity':'2' }

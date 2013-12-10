@@ -133,8 +133,9 @@ class Updatable(Serializable):
                         # if isn't then we need to use that one
                         new_field = fkinstances[k]
 
-                    # update and add it to the original object
-                    new_field.update_from_dict(incoming.get(k))
+                    # update and add it to the original object if it can be updated
+                    if hasattr(new_field, 'update_from_dict'):
+                        new_field.update_from_dict(incoming.get(k))
                     setattr(self, k, new_field)
                 else:
                     setattr(self, k, incoming.get(k))

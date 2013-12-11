@@ -1,0 +1,41 @@
+		<script type="text/html" id="shipping_">
+			<div class="well">
+				<span class="label label-inverse box-rotate tab-pos">Shipping</span>
+				<form id="shipping_form">
+					<fieldset>
+						<div class="controls controls-row">
+							<!-- <legend>Shipping Options</legend> -->
+							<div class="span4">
+								<div class="control-group">
+									<div class="controls">
+										<label class="radio">
+											<input type="radio" name="rtd" value="usps" data-bind="checked: shipping" checked>
+											USPS Priority Mail
+										</label>
+										<label class="radio">
+											<input type="radio" name="rtd" value="fedex" data-bind="checked: shipping">
+											FedEx Regular
+										</label>
+										<label class="radio">
+											<input type="radio" name="rtd" value="ups" data-bind="checked: shipping">
+											UPS Ground
+										</label>
+										<label class="radio">
+											<input type="radio" name="rtd" value="jpost" data-bind="checked: shipping">
+											Japan Post EMS
+										</label>
+									</div>
+									<span class="help-inline"></span>
+									</div>
+								</div>
+							</div>
+						<div class="form-actions">
+							<div class="pull-right">
+								<button type="submit" class="btn btn-primary" id="shipping_submit"><i class="fa fa-arrow-down"></i> Next</button>
+								<button class="btn">Clear</button>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</script>

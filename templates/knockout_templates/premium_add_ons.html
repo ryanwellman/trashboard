@@ -1,0 +1,43 @@
+		<script type="text/html" id="premiums">
+			<div class="well">
+				<span class="label label-inverse box-rotate tab-pos">Premium Items</span>
+				<form id="premium_form">
+					<fieldset>
+						<div class="controls controls-row" data-bind="foreach:PREMIUM">
+							<!-- <legend>Premium Add-Ons</legend> -->
+							<div class="control-group well well-small span3">
+								<label class="control-label checkbox">
+									<input type="checkbox" data-bind="checked: $parent.premium.selected_codes, checkedValue: $data, click: $parent.premium.select_item">
+									<h5 data-bind="text: name"></h5>&nbsp;
+									<span class="badge badge-info" data-bind="text: price"></span>
+									<hr class="muted">
+									<small data-bind="text: $data.description"></small>
+									<ul data-bind="foreach: $data.contents">
+										<li><small data-bind="text: $data.code"></small>&nbsp;x<small data-bind="text: $data.quantity"></small></li>
+									</ul>
+								</label>
+							</div>
+						</div>
+						<table class="table" id="premium_contents">
+							<thead>
+								<tr>
+									<th>Part</th><th>Quantity</th>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach: $parent.premium.contents">
+								<tr>
+									<td><span data-bind="text: code">Code</span></td>
+									<td><span data-bind="text: quantity">Quantity</span></td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="form-actions">
+							<div class="pull-right">
+								<button type="submit" class="btn btn-primary"><i class="fa fa-arrow-down"></i> Next</button>
+								<button class="btn">Clear</button>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</script>

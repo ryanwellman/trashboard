@@ -1,0 +1,38 @@
+        <script type="text/html" id="initial_info">
+            <div class="well">
+                <span class="label label-inverse box-rotate tab-pos">Initial Info</span>
+                <form id="initialinfo_form">
+                    <fieldset>
+                        <div class="controls controls-row">
+                            <div class="span3">
+                                <label class="control-label">Zip Code:</label>
+                                <div class="controls">
+                                    <input type="text" placeholder="Zip Code" data-bind="value: billing_address.zip">
+                                    <span class="help-inline"></span>
+                                </div>
+                            </div>
+                            <div class="span3">
+                                <label class="control-label">Dwelling Type:</label>
+                                <div class="controls">
+                                    <select data-bind="options: dwellings, optionsCaption: 'Please select...', value: floorplan"></select>
+                                    <span class="help-inline"></span>
+                                </div>
+                            </div>
+                            <div class="span3">
+                                <label class="control-label">Promotion Code:</label>
+                                <div class="controls">
+                                    <input type="text" placeholder="Promotion Code" data-bind="value: promo_code">
+                                    <span class="help-inline"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <div class="pull-right">
+                                <button type="submit" class="btn btn-primary" id="cinfo_submit"><i class="fa fa-arrow-down"></i> Next</button>
+                                <button class="btn" type="reset">Clear</button>
+                            </div>
+                        </div>
+                    <fieldset>
+                </form>
+            </div>
+        </script>

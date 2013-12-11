@@ -1,35 +1,22 @@
 <!DOCTYPE html>
-<html>
+{% load compress %}
+
+<html lang="en">
     <head>
-        <title>Test Form</title>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-        <link href="/static/trashboard.css" rel="stylesheet">
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"></script>
-        <script src="http://underscorejs.org/underscore-min.js"></script>
-        <script type="text/javascript">
-            {% block javascript_variables_nocompress %}
-                window.PACKAGES = {{packages|safe}};
-                window.PARTS = {{parts|safe}};
-                window.PREMIUM = {{premiums|safe}};
-                window.COMBOS = {{combos|safe}};
-                window.AID = {{agreement_id|safe}};
-            {% endblock %}
-        </script>
-{% include 'templates/initial_info.html' %}
-{% include 'templates/customer_info.html' %}
-{% include 'templates/customize.html' %}
-{% include 'templates/combos.html' %}
-{% include 'templates/packages.html' %}
-{% include 'templates/monitoring.html' %}
-{% include 'templates/premium_add_ons.html' %}
-{% include 'templates/publish.html' %}
-{% include 'templates/closing.html' %}
-{% include 'templates/promos.html' %}
-{% include 'templates/review.html' %}
-{% include 'templates/services.html' %}
-{% include 'templates/shipping.html' %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <title>{% block title %}Protect America Intranet{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        {% compress css %}
+        <link type="text/less" rel="stylesheet" href="{% static "less/style.less" %}">
+        {% block stylesheets %}{% endblock %}
+        {% endcompress %}
+
+        <link rel="shortcut icon" href="{% static "images/favicon.ico" %}">
+        {% include 'knockout_templates.html' %}
     </head>
     <body>
         <!-- z-index on the next line fixes buttons visible over the infobar -->
@@ -163,11 +150,11 @@
                         </li>
                         <li class="span2">
                             <b>Approval Status:</b><br>
-                            <span class="btn btn-large btn-info"><i class="icon-time icon-white"></i> Pending</span>
+                            <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
                         </li>
                         <li class="span2 pull-right">
                             <b>Logged in as:</b><br>
-                            <i class="icon-user"></i> {{ user }}
+                            <i class="fa fa-user"></i> {{ user }}
                         </li>
                     </ul>
                 </div>
@@ -218,6 +205,46 @@
                 </section>
             </div>
         </div>
-        <script src="/static/trashboard.js"></script>
+
+        {% block javascript_nocompress %}{% endblock %}
+
+        <script type="text/javascript">
+            window.PACKAGES = {{packages|safe}};
+            window.PARTS = {{parts|safe}};
+            window.PREMIUM = {{premiums|safe}};
+            window.COMBOS = {{combos|safe}};
+            window.AID = {{agreement_id|safe}};
+            {% block javascript_variables_nocompress %}{% endblock %}
+        </script>
+
+        {% compress js %}
+        <script type="text/javascript" src="{% static 'js/jquery-1.10.1.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/undrescore-1.5.2.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/knockout-3.0.0.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery.cookie-1.3.1.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/trashboard.js' %}"></script>
+
+        <script type="text/javascript">
+            $(function(){
+                // https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax
+                function csrfSafeMethod(method) {
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+
+                $.ajaxSetup({
+                    crossDomain: false,
+                    cache: false,
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type)) {
+                            xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                        }
+                    }
+                });
+            });
+        </script>
+        {% block javascript_compress %}{% endblock %}
+        {% endcompress %}
+
     </body>
 </html>

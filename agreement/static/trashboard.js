@@ -672,12 +672,7 @@ MasterVM = function(blob) {
         'combo': ComboVM,
         'customize': CustomVM,
         'closing': ClosingVM,
-        'done_package': ko.observable,
-        'done_premium': ko.observable,
-        'done_combo': ko.observable,
-        'done_customize': ko.observable,
-        'done_closing': ko.observable,
-        'done_promos': ko.observable,
+        'services_and_promos': ko.observable,
     };
 
     // try to assign things from blob to fields if they exist
@@ -840,7 +835,7 @@ MasterVM = function(blob) {
     };
 
     self.test_services_and_promos = function() {
-        if(self.done_promos()) {
+        if(self.services_and_promos()) {
             self._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo', '#cinfo');
         }
     };

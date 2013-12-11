@@ -14,6 +14,7 @@ from dynamicresponse.response import SerializeOrRedirect
 
 # import from self (models)
 from agreement.models import *
+import pricefunctions
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
@@ -40,7 +41,7 @@ def dyn_json(request, agreement_id=None):
     # handle outgoing data
     if request.method == 'GET':
         response = agreement.serialize(ignore=['campaign'])
-        # DEBUG: add things that make this form actually work but don't save
+        # DEBUG: add things that make this form actually work but don't save completely yet
         ctx =   {
                     'premium': {
                         'selected_codes': [],
@@ -81,7 +82,12 @@ def dyn_json(request, agreement_id=None):
                     'done': agreement.done_package,
                 }
         response['package'] = ctx
-        response.pop('progress', None)
+        response.pop('done_package', None)
+        response.pop('done_premium', None)
+        response.pop('done_combo', None)
+        response.pop('done_customize', None)
+        response.pop('done_closing', None)
+        response.pop('done_promos', None)
 
     # handle incoming data
     if request.method == 'POST':
@@ -89,13 +95,13 @@ def dyn_json(request, agreement_id=None):
             incoming = loads(key)
             print incoming
 
-        # DEBUG: fix progress field
-        agreement.done_premium=incoming['premium']['done']
-        agreement.done_combo=incoming['combo']['done']
-        agreement.done_customize=incoming['customize']['done']
-        agreement.done_closing=incoming['closing']['done']
-        agreement.done_package=incoming['package']['done']
-        agreement.done_promos=incoming['services_and_promos']['done']
+        # DEBUG: save agreement state
+        agreement.done_premium = incoming.get('premium').get('done')
+        agreement.done_combo = incoming.get('combo').get('done')
+        agreement.done_customize = incoming.get('customize').get('done')
+        agreement.done_closing = incoming.get('closing').get('done')
+        agreement.done_package = incoming.get('package').get('done')
+        agreement.done_promos = incoming.get('services_and_promos').get('done')
         incoming.pop('premium',None)
         incoming.pop('combo',None)
         incoming.pop('customize',None)
@@ -226,12 +232,14 @@ def draw_container(request, agreement_id=None):
     # right now there is no actual Agreement model other than the dummy one in the
     # agreement app
 
-    # XXX: eventually people should be getting these lists of things from somewhere else
+    # XXX: eventually people should be getting these lists of things from somewhere else by campaign
 
     # for the following 4 lists of dictionaries:
     # from Product: code <-> code, name <-> name, description <-> description
     # this next one will actually be two prices per pricemodels.py
     # from ProductPrice price <-> price
+
+
     premiums    =  [    {'code':'CAMERA', 'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!', 'contents': [{'code':'CAMERA', 'quantity':'1',},],},
                         {'code':'CELLANT', 'name':'Cellular Antenna', 'price':'$79.99', 'description': 'Cut the wires and it still works!', 'contents': [{'code':'CELLANT', 'quantity':'1'},{'code':'CELLSERV', 'quantity':'1',},],},
                         {'code':'GPS', 'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!', 'contents': [{'code':'GPS', 'quantity':'1',},{'code':'GPSSERV', 'quantity':'1'}],}    ]

@@ -452,10 +452,10 @@ class OrgCampaign(Serializable):
     date_updated    =   models.DateTimeField()
 
     def __unicode__(self):
-        fields = [self.zorder]
+        fields = [self.date_updated]
         try:
             fields.append(self.organization)
-            fields.append(self.pricetable)
+            fields.append(self.campaign)
         except ObjectDoesNotExist:
             pass
         return u','.join([unicode(f) for f in fields])

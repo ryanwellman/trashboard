@@ -1,6 +1,7 @@
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils import timezone
 from agreement.uas import Updatable, Serializable
 
 class Product(Serializable):
@@ -234,7 +235,7 @@ class Agreement(Updatable):
     coapplicant = models.ForeignKey(Applicant, related_name='co_applicant', blank=True, null=True)
     billing_address = models.ForeignKey(Address, related_name='billing')
     system_address =models.ForeignKey(Address, related_name='system')
-    pricetable_date = models.DateField(auto_now_add=True) # automatically timestamped on creation
+    pricetable_date = models.DateField(default=timezone.now) # automatically timestamped on creation
     email = models.CharField(max_length=75)
     approved = models.CharField(max_length=10)
     package = models.ForeignKey(Package, related_name='package')

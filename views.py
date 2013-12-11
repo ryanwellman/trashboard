@@ -38,7 +38,7 @@ def dyn_json(request, agreement_id=None):
 
     # handle outgoing data
     if request.method == 'GET':
-        response = agreement.serialize(ignore=['campaign'])
+        response = agreement.serialize(ignore=['campaign', 'pricetable_date'])
         # DEBUG: add things that make this form actually work but don't save completely yet
         ctx =   {
                     'premium': {
@@ -118,6 +118,9 @@ def dyn_json(request, agreement_id=None):
             agreement.package = packages[0]
 
         incoming.pop('package', None)
+
+        # DEBUG: get rid of pricetable_date
+        incoming.pop('pricetable_date', None)
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)

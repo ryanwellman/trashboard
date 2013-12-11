@@ -644,6 +644,30 @@ ClosingVM = function(blob) {
     return self;
 };
 
+
+PromoVM = function(blob) {
+    var self = new UpdatableAndSerializable();
+    blob = blob || {};
+
+    var fields = {
+        "done": ko.observable,
+    };
+
+    _.each(fields, function(v, k) {
+        self[k] = v(blob[k]);
+    });
+
+    self.complete = function() {
+        return self._test([self.done]);
+    };
+
+    self.clear = function() {
+        self.done(false);
+    };
+
+    return self;
+};
+
 // initialize a view model from a blob
 MasterVM = function(blob) {
     // capture a new copy of UAS into MasterVM's closure
@@ -672,7 +696,7 @@ MasterVM = function(blob) {
         'combo': ComboVM,
         'customize': CustomVM,
         'closing': ClosingVM,
-        'services_and_promos': ko.observable,
+        'services_and_promos': PromoVM,
     };
 
     // try to assign things from blob to fields if they exist
@@ -835,7 +859,7 @@ MasterVM = function(blob) {
     };
 
     self.test_services_and_promos = function() {
-        if(self.services_and_promos()) {
+        if(self.services_and_promos.done()) {
             self._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo', '#cinfo');
         }
     };

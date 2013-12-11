@@ -34,7 +34,7 @@
                 </tr>
             </tbody>
         </table>
-        <button class="btn btn-success purchase_items" data-bind='click: addLine'><i class="icon-plus"></i> Add Part</button>
+        <button class="btn btn-success purchase_items" data-bind='click: addLine'><i class="fa fa-plus"></i> Add Part</button>
         <button class="btn btn-primary purchase_items" data-bind='click: save'>Save Purchase</button>
     </div>
 
@@ -68,7 +68,7 @@
         // not as good as the python version
         this._update_from_dict = function(blob, obj) {
             // can only copy vms composed of other UAS-derived objects
-            //  that are observable, vanilla variables, or arrays 
+            //  that are observable, vanilla variables, or arrays
             _.each(blob, function(v, k) {
                 console.log(ko.toJSON(blob));
                 console.log(obj.returnFields());

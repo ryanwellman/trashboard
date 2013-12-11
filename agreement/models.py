@@ -6,18 +6,18 @@ from agreement.uas import Updatable, Serializable
 class Product(Serializable):
     """
     conceptually represents a sort-of upc for anything we sell
-    
+
     products are separated into a set of bins by type
     """
 
     # ptypes = ['shipping', 'incentives', 'equipment', 'combo', 'closer',
     #          'part', 'service', 'monitoring']
 
-    code        =   models.CharField(max_length=20, primary_key=True)
-    type        =   models.CharField(max_length=10)
-    category    =   models.CharField(max_length=20)
-    name        =   models.CharField(max_length=20)
-    description =   models.CharField(max_length=100)
+    code        =   models.CharField(max_length=64, primary_key=True)
+    type        =   models.CharField(max_length=64)
+    category    =   models.CharField(max_length=64)
+    name        =   models.CharField(max_length=64)
+    description =   models.CharField(max_length=255)
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.code, self.name, self.type, self.category]])
@@ -290,7 +290,7 @@ class InvoiceLine(Updatable):
     pricedate       =   models.DateTimeField(auto_now_add=True) # timestamp on save
     upfront_each    =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_total   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
-    upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)    
+    upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_each    =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_total   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)

@@ -1,0 +1,179 @@
+@import "../bootstrap/less/bootstrap.less";
+
+
+@copper: #B87333;
+@bronze: #CD7F32;
+@silver: #C0C0C0;
+@gold: #D4A017;
+@platinum: #E5E4E2;
+
+.transform-origin(@x-offset, @y-offset){
+    -webkit-transform-origin: @x-offset @y-offset;
+    -moz-transform-origin: @x-offset @y-offset;
+    -o-transform-origin: @x-offset @y-offset;
+    -ms-transform-origin: @x-offset @y-offset;
+    transform-origin: @x-offset @y-offset;
+}
+
+body {
+    padding-top: 60px;
+    height: 100%;
+}
+
+section {
+    padding-top: 100px;
+    margin-top: -100px;
+
+    .content > & {
+        & > p {
+            background-color: #f5f5f5;
+            height: 570px;
+        }
+    }
+}
+
+#infobar {
+    display: table;
+    border-spacing: 5px;
+
+    i {
+        position: absolute;
+        top: 4px;
+        right: 2px;
+    }
+}
+
+#infobar_content {
+    display: table-row;
+    & > div{
+        display: table-cell;
+    }
+}
+
+#infobar_left {
+    border: 1px solid rgb(227,227,227);
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.infobar_zero {
+    margin: 0;
+    padding: 2px;
+}
+
+.box-rotate {
+    .rotate(-90deg);
+}
+
+.tab-pos {
+    .transform-origin(25%, 217%);
+    width: 120px;
+    font-size: 12pt;
+    padding: 10px;
+    text-align: center;
+}
+
+.copper {
+    background-color: @copper;
+}
+
+.bronze {
+    background-color: @bronze;
+}
+
+.silver {
+    background-color: @silver;
+}
+
+.gold {
+    background-color: @gold;
+}
+
+.platinum {
+    background-color: @platinum;
+}
+
+.select_package,
+.customize,
+.cancel_custom {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.nav-list {
+    & > .active {
+        & > .complete {
+            background-color: green;
+        }
+
+        & > .incomplete {
+            background-color: black;
+        }
+    }
+}
+
+.hyde {
+    visibility: hidden;
+}
+
+.select_package {
+    cursor: pointer;
+    cursor: hand;
+}
+.customize {
+    cursor: pointer;
+    cursor: hand;
+}
+.cancel_custom {
+    cursor: pointer;
+    cursor: hand;
+}
+.part_section {
+    background-color: #2B3856;
+    color: white;
+}
+.package_name {
+    color:white;
+    font: 16pt;
+    font-weight: bold;
+    text-align: center;
+}
+.currently_chosen {
+    border: 5px dashed green;
+}
+.purchase_items {
+    width: 140px;
+}
+#right_sidebar {
+    position: fixed;
+    padding-top: 60px;
+    right: 0%;
+    height: 100%;
+}
+#infobox {
+    position: fixed;
+    top: 0%;
+}
+ul {
+    list-style-type: none;
+}
+.container {
+    padding-top: 60px;
+}
+.page_section {
+    padding-bottom: 60px;
+}
+.navbadge {
+    padding: 8px;
+    font-size: 20px;
+}
+
+.green_nav {
+    color: green;
+}
+.complete {
+    color: green;
+}
+.incomplete {
+    color: black;
+}

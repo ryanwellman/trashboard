@@ -1,7 +1,5 @@
 # import built-ins
-import json
 from json import dumps, loads
-from random import choice
 
 # import 3rd-party modules
 from annoying.decorators import render_to, ajax_request
@@ -210,7 +208,7 @@ def test_json(request):
     return SerializeOrRedirect(reverse(draw_test), ctx)
 
 
-@render_to('templates/container.html')
+@render_to('container.html')
 def draw_container(request, agreement_id=None):
     """
     renders an agreement form container to the caller along with its parts
@@ -291,7 +289,7 @@ def draw_container(request, agreement_id=None):
     return dict(premiums=dumps(premiums), combos=dumps(combos), services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=dumps(dict(agreement_id=agreement_id)))
 
 
-@render_to('templates/package.html')
+@render_to('package.html')
 def Packages(request):
     ko_packages = [{'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3' },
                                                                   {'code':'SIMNXT', 'quantity':'1' },
@@ -351,12 +349,12 @@ def Packages(request):
                 json_ko_categories=json_ko_categories)
 
 
-@render_to('templates/dyntest.html')
+@render_to('dyntest.html')
 def draw_test(request):
     return dict()
 
 
-@render_to('templates/purchase.html')
+@render_to('purchase.html')
 def Purchase(request):
     ko_parts = [{'code':'DWSENS', 'name':'Door/Window Sensors', 'points':'5', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
                 {'code':'GBSENS', 'name':'Glass Break Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
@@ -385,6 +383,6 @@ def Purchase(request):
     return dict(json_ko_parts=json_ko_parts)
 
 
-@render_to('templates/initial_info.html')
+@render_to('initial_info.html')
 def InitialInfo(request):
     return dict()

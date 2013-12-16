@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Serializable(models.Model):
     """
@@ -118,11 +119,16 @@ class Updatable(Serializable):
         fktypes = dict((f.name, f.rel.to) for f in self._meta.fields if f.get_internal_type() == 'ForeignKey')
         fkinstances = dict((f, getattr(self, f)) for f in fktypes)
 
+        # fix datetime field in Agreement
+        # XXX: make this get the field by type instead
+        if hasattr(self, 'pricetable_date'):
+            incoming['pricetable_date'] = self.pricetable_date
+
         # save only fields that exist in the model and aren't id fields
         for k in enumerator:
             if hasattr(self, k):
                 if k is 'id':
-                    continue
+                    continue    
                 # check to see if this requires recursion
                 if k in fkinstances:
                     # now check to see if this thing is None

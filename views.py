@@ -12,7 +12,7 @@ from dynamicresponse.response import SerializeOrRedirect
 
 # import from self (models)
 from agreement.models import *
-import pricefunctions
+from pricefunctions import *
 
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
@@ -118,9 +118,6 @@ def dyn_json(request, agreement_id=None):
             agreement.package = packages[0]
 
         incoming.pop('package', None)
-
-        # DEBUG: get rid of pricetable_date
-        incoming.pop('pricetable_date', None)
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)
@@ -287,9 +284,9 @@ def draw_container(request, agreement_id=None):
                         {'code':'SIMNXT', 'name':'Simon XT', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
                         {'code':'TLKDEV', 'name':'Talkover Device', 'points':'10', 'quantity':'0', 'category':'Security Panels', 'price':'199.00'}  ]
 
-
+    return dict(gen_arrays(Campaign.objects.all()[0]), agreement_id=dumps(dict(agreement_id=agreement_id)))
     # uses render_to to draw the template
-    return dict(premiums=dumps(premiums), combos=dumps(combos), services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=dumps(dict(agreement_id=agreement_id)))
+    #return dict(premiums=dumps(premiums), combos=dumps(combos), services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=dumps(dict(agreement_id=agreement_id)))
 
 
 @render_to('package.html')

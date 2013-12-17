@@ -126,7 +126,7 @@ def dyn_json(request, agreement_id=None):
 
         # handle invoice lines
         for code in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
-            
+            pass
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)

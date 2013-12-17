@@ -29,7 +29,7 @@ def find_parent_orgs(campaign):
 
     # return list of orgs
     found = []
-    
+
     # loop over through tables
     for oc in campaign.orgcampaign_set.all():
         found.append(oc.organization)
@@ -96,12 +96,12 @@ def gen_arrays(campaign):
     for pack in Package.objects.all():
         if pack.code=='blank':
             continue
-        
+
         # cache contents
         contents = []
         for pkgp in pack.pkgproduct_set.all():
             contents.append(dict(code=pkgp.product.code, quantity=pkgp.quantity))
-        
+
         # add to packages
         packages.append(dict(code=pack.code, name=pack.name, contents=contents))
 
@@ -131,4 +131,4 @@ def gen_arrays(campaign):
             parts.append(dict(code=str(prod.product.code), name=str(prod.product.name), points=str(prod.cb_points), category=str(prod.product.category), price=format(prod.monthly_price, '.2f')))
 
     # return something our view model can use as context
-    return dict(parts=dumps(parts), packages=dumps(packages), closers=closers, services=services, combos=dumps(combos), premiums=dumps(premiums))
+    return dict(parts=dumps(parts), packages=dumps(packages), closers=dumps(closers), services=dumps(services), combos=dumps(combos), premiums=dumps(premiums))

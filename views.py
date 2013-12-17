@@ -89,7 +89,12 @@ def dyn_json(request, agreement_id=None):
         response.pop('done_closing', None)
         response.pop('done_promos', None)
 
+        # obtain the invoice lines for this agreement
+        ilines = InvoiceLine.objects.filter(agreement=agreement)
+        
         # turn invoice lines into quantities
+        for iline in ilines:
+            pass
 
     # handle incoming data
     if request.method == 'POST':
@@ -133,6 +138,9 @@ def dyn_json(request, agreement_id=None):
 
         # now loop through the things that need invoice lines
         for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
+            # obtain the orm product associated with this code
+            selected_product = Product.objects.filter(code=selected.code)[0]
+
             # assemble the pieces into a context
             ilinectx = dict(agreement=agreement, note='', product=selected.code, quantity=selected.quantity, pricedate=timezone.now)
             ilinectx.update(fantastic_pricelist[selected.code])
@@ -145,7 +153,14 @@ def dyn_json(request, agreement_id=None):
 
             # now handle children of this last line
             for children in selected.contents:
+                # obtain this thing's combo line to get its strikeout prices
+                child_product = Product.objects.filter(code=children.code)[0]
+                cline = ComboLine.objects.filter(parent=selected_product, product=child_product)[0]
+
+                # assemble these pieces
                 ichildctx = dict(agreement=agreement, note='', product=children.code, quantity=children.quantity, pricedate=timezone.now, parent=iline)
+                ichildctx['monthly_strike'] = cline.monthly_strike
+                ichildctx['upfront_strike'] = cline.upfront_strike
 
                 # actually create it
                 ichild = InvoiceLine(**ichildctx)

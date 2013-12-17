@@ -1,5 +1,7 @@
 """
 this module contains the functions that extract price tables from the database structure
+
+XXX: needs db call optimization
 """
 from json import dumps, loads
 from agreement.models import *
@@ -82,11 +84,13 @@ def gen_arrays(campaign):
     generate the lists that go into the container view
     """
 
+    # XXX: this function and its predecessors use too many queries
+
     # cache product price list
     pricelist = get_productprice_list(campaign)
 
     # variables
-    parts, packages, closers, services, combos, premiums = ([],) * 6
+    parts, packages, closers, services, combos, premiums = ([], [], [], [], [], [])
 
     # get packages first
     for pack in Package.objects.all():
@@ -102,22 +106,29 @@ def gen_arrays(campaign):
         packages.append(dict(code=pack.code, name=pack.name, contents=contents))
 
     # step through parts list and assign items to the variables we need
-    # XXX: use the real types for this as shown in the models
     for prod in pricelist:
         # premium items
         if prod.product.category == 'Premium Items':
-            # XXX: add contents
-            premiums.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, contents=[]))
+            # get contents
+            pitems = []
+            for cline in ComboLine.objects.filter(parent=prod.product):
+                pitems.append(dict(code=cline.product.code, quantity=cline.quantity))
+
+            premiums.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, contents=pitems))
         elif prod.product.category == 'Services':
             services.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), reason=prod.product.description))
         elif prod.product.category == 'Rate Drops':
             closers.append(dict(code=prod.product.code, name=prod.product.name, description=prod.product.description))
         elif prod.product.category == 'Combination Deals':
-            # XXX: add contents
-            combos.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, contents=[]))
+            # get contents
+            citems = []
+            for cline in ComboLine.objects.filter(parent=prod.product):
+                citems.append(dict(code=cline.product.code, quantity=cline.quantity))
+
+            combos.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, contents=citems))
         else:
             # has not been appended elsewhere
             parts.append(dict(code=str(prod.product.code), name=str(prod.product.name), points=str(prod.cb_points), category=str(prod.product.category), price=format(prod.monthly_price, '.2f')))
 
     # return something our view model can use as context
-    return dict(parts=dumps(parts), packages=dumps(packages), closers=dumps(closers), services=dumps(services), combos=dumps(combos), premiums=dumps(premiums))
+    return dict(parts=dumps(parts), packages=dumps(packages), closers=closers, services=services, combos=dumps(combos), premiums=dumps(premiums))

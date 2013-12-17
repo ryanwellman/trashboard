@@ -1,5 +1,6 @@
 # import built-ins
 from json import dumps, loads
+from itertools import chain
 
 # import 3rd-party modules
 from annoying.decorators import render_to, ajax_request
@@ -87,6 +88,8 @@ def dyn_json(request, agreement_id=None):
         response.pop('done_closing', None)
         response.pop('done_promos', None)
 
+        # turn invoice lines into quantities
+
     # handle incoming data
     if request.method == 'POST':
         for key in request.POST:    # request.POST is fucked up when sending JSON
@@ -100,9 +103,11 @@ def dyn_json(request, agreement_id=None):
         agreement.done_closing = incoming.get('closing').get('done')
         agreement.done_package = incoming.get('package').get('done')
         agreement.done_promos = incoming.get('services_and_promos').get('done')
-        incoming.pop('premium',None)
-        incoming.pop('combo',None)
-        incoming.pop('customize',None)
+
+        # save some of the things we're splitting off
+        premiums = incoming.pop('premium',None)
+        combos = incoming.pop('combo',None)
+        customs = incoming.pop('customize',None)
         incoming.pop('closing',None)
         incoming.pop('services_and_promos', None)
 
@@ -118,6 +123,10 @@ def dyn_json(request, agreement_id=None):
             agreement.package = packages[0]
 
         incoming.pop('package', None)
+
+        # handle invoice lines
+        for code in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
+            
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)

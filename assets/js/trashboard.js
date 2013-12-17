@@ -626,18 +626,41 @@ ClosingVM = function(blob) {
     blob = blob || {};
 
     var fields = {
-        "done": ko.observable,
+        'selected_codes': ko.observableArray,
+        'contents': ko.observableArray,
+        'done': ko.observable,
     };
 
     _.each(fields, function(v, k) {
-        self[k] = v(blob[k]);
+        if(blob[k] != undefined) {
+            self[k] = v(blob[k]);
+        }
     });
 
+    self.select_item = function() {
+        self.contents.removeAll();
+        for(var i = 0; i < self.selected_codes().length; i++) {
+            console.log(self.selected_codes()[i].contents);
+            for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
+                var ret = {
+                    'code': self.selected_codes()[i].contents[j].code,
+                    'quantity': self.selected_codes()[i].contents[j].quantity,
+                };
+
+                self.contents.push(ret);
+            }
+        }
+
+        // required for ko to allow checkbox to click
+        return true;
+    };
+
     self.complete = function() {
-        return self._test([self.done]);
+        return self._test([self.done()]);
     };
 
     self.clear = function() {
+        self._clear(Object.keys(fields));
         self.done(false);
     };
 

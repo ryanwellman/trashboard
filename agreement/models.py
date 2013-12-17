@@ -320,44 +320,12 @@ class InvoiceLine(Updatable):
         ordering = ['agreement']
 
 
-class Service(Product):
-    """
-    represents a service as a product
-    """
-
-    pass
-
-
-class Combo(Product):
-    """
-    represents a combo package as a product
-    """
-
-    pass
-
-
-class Incentive(Product):
-    """
-    represents an incentive as a product
-    """
-
-    pass
-
-
-class RateDrop(Product):
-    """
-    represents a rate drop as a product
-    """
-
-    pass
-
-
 class ComboLine(Serializable):
     """
     represents one piece of a combo package
     """
 
-    parent          =   models.ForeignKey(Combo, related_name="ParentCombo") # a product of type combo
+    parent          =   models.ForeignKey(Product, related_name="ParentCombo") # a product of type combo
     product         =   models.ForeignKey(Product)
     quantity        =   models.PositiveIntegerField(default=0)
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)

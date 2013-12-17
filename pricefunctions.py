@@ -4,6 +4,8 @@ this module contains the functions that extract price tables from the database s
 XXX: needs db call optimization
 """
 from json import dumps, loads
+from datetime import datetime
+from django.utils import timezone
 from agreement.models import *
 
 def f7(seq):
@@ -74,7 +76,15 @@ def get_productprice_list(campaign):
     for obj in sorted_pts:
         pt = obj.get('pt')
         for pp in pt.productprice_set.all():
-            price_set.append(pp)
+            # insert promo prices at the head of the line
+            if pp.promo:
+                price_set.insert(0, pp)
+            # make sure this price is temporally accurate
+            elif pp.fromdate < timezone.now() < pp.todate:
+                price_set.append(pp)
+            # keep going
+            else:
+                continue
 
     # deduplicate with a slightly modified f7
     return f7(price_set)

@@ -9,6 +9,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import get_object_or_404
 from django.http import QueryDict
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 from dynamicresponse.response import SerializeOrRedirect
 
 # import from self (models)
@@ -124,9 +125,31 @@ def dyn_json(request, agreement_id=None):
 
         incoming.pop('package', None)
 
-        # handle invoice lines
-        for code in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
-            pass
+        # handle invoice lines by first deleting them all and obtaining a price list
+        InvoiceLine.objects.filter(agreement=agreement).delete()
+        pricelist = get_productprice_list(campaign)
+        for pp in pricelist:
+            fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0))
+
+        # now loop through the things that need invoice lines
+        for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
+            # assemble the pieces into a context
+            ilinectx = dict(agreement=agreement, note='', product=selected.code, quantity=selected.quantity, pricedate=timezone.now)
+            ilinectx.update(fantastic_pricelist[selected.code])
+            ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
+            ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
+
+            # actually create this invoice line
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
+
+            # now handle children of this last line
+            for children in selected.contents:
+                ichildctx = dict(agreement=agreement, note='', product=children.code, quantity=children.quantity, pricedate=timezone.now, parent=iline)
+
+                # actually create it
+                ichild = InvoiceLine(**ichildctx)
+                ichild.save()
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)

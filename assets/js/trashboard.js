@@ -531,6 +531,7 @@ PartVM = function(blob) {
         "points": ko.observable,
     }
 
+    console.log(blob);
     _.each(fields, function(v, k) {
         self[k] = v(blob[k]);
     });
@@ -541,6 +542,16 @@ PartVM = function(blob) {
 
     return self;
 };
+
+// all a-la-carte vms need this in window
+window.CPARTS = [];
+window.DPARTS = {};
+for(var idx in window.PARTS) {
+    // turn these object literals into models so they can be manipulated directly
+    var temp = new PartVM(window.PARTS[idx]);
+    window.CPARTS.push(temp);
+    window.DPARTS[temp.code()] = temp;
+}
 
 PartLineVM = function(blob) {
     var self = new UpdatableAndSerializable();
@@ -551,14 +562,13 @@ PartLineVM = function(blob) {
         "quantity": ko.observable,
     };
 
-    _.each(fields, function(v, k) {
-        // cheating
-        self[k] = ko.observable(blob[k])
-        //self[k] = v(blob[k]);
-    });
+    // this thing is special since the knockout bindings of each drop-down
+    // are actual PartVMs we created in the loop above
+    self['quantity'] = fields['quantity'](blob['quantity']);
+    self['selected_part'] = window.DPARTS[blob['selected_part']['code']];
 
     self.total_price = ko.computed(function() {
-        return (self.selected_part() && self.selected_part().price) ? self.quantity() * self.selected_part().price() : 0.00;
+        return (self.selected_part.code() && self.selected_part.price()) ? self.quantity() * self.selected_part.price() : 0.00;
     });
 
     self.returnFields = function() {
@@ -566,18 +576,11 @@ PartLineVM = function(blob) {
     };
 
     self._serialize = function() {
-        return ko.toJSON({ 'code': self.selected_part().code(), 'quantity': self.quantity() });
+        return ko.toJSON({ 'code': self.selected_part.code(), 'quantity': self.quantity() });
     };
 
     return self;
 };
-
-// customvm needs this in window
-window.CPARTS = [];
-for(var idx in window.PARTS) {
-    // turn these object literals into models so they have ufd
-    window.CPARTS.push(new PartVM(window.PARTS[idx]));
-}
 
 CustomVM = function(blob) {
     var self = new UpdatableAndSerializable();
@@ -588,8 +591,13 @@ CustomVM = function(blob) {
         "done": ko.observable,
     };
 
-    _.each(fields, function(v, k) {
-        self[k] = v(blob[k]);
+    // custom vm is kind of special, it needs to be able to handle things
+    // coming in already built
+    self['done'] = fields['done'](blob['done']);
+    self['purchase_lines'] = fields['purchase_lines']();
+    _.each(blob['purchase_lines'], function(v, k) {
+        self.purchase_lines().push(new PartLineVM(v));
+        self.purchase_lines.valueHasMutated();
     });
 
     self.returnFields = function() {
@@ -627,7 +635,6 @@ ClosingVM = function(blob) {
 
     var fields = {
         'selected_codes': ko.observableArray,
-        'contents': ko.observableArray,
         'done': ko.observable,
     };
 
@@ -673,23 +680,46 @@ PromoVM = function(blob) {
     blob = blob || {};
 
     var fields = {
-        "done": ko.observable,
+        'selected_codes': ko.observableArray,
+        'done': ko.observable,
     };
 
     _.each(fields, function(v, k) {
-        self[k] = v(blob[k]);
+        if(blob[k] != undefined) {
+            self[k] = v(blob[k]);
+        }
     });
 
+    self.select_item = function() {
+        self.contents.removeAll();
+        for(var i = 0; i < self.selected_codes().length; i++) {
+            console.log(self.selected_codes()[i].contents);
+            for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
+                var ret = {
+                    'code': self.selected_codes()[i].contents[j].code,
+                    'quantity': self.selected_codes()[i].contents[j].quantity,
+                };
+
+                self.contents.push(ret);
+            }
+        }
+
+        // required for ko to allow checkbox to click
+        return true;
+    };
+
     self.complete = function() {
-        return self._test([self.done]);
+        return self._test([self.done()]);
     };
 
     self.clear = function() {
+        self._clear(Object.keys(fields));
         self.done(false);
     };
 
     return self;
 };
+
 
 // initialize a view model from a blob
 MasterVM = function(blob) {
@@ -929,22 +959,6 @@ $(function() {
     // scrollspy to activate elements in the navbar when they are visible
     $('body').scrollspy({target: '#right_sidebar', offset: 150});
 
-    // JQUERY DOM MANIPS
-
-    // toggle the info bar
-    $('#infobar_resize').click(function(e) {
-        $('#infobar_content').toggle();
-        $('#infobar').toggleClass("infobar_zero");
-        $('#infobar_resize').toggleClass("icon-resize-small icon-resize-full");
-    });
-
-    // toggle the info bar resize icon on hover
-    $('#infobar_resize').hover(function() {
-        $(this).toggleClass("icon-white");
-    }, function() {
-        $(this).toggleClass("icon-white");
-    });
-
     // JQUERY FORM-SPECIFIC MANIPS
 
     // customer info
@@ -956,7 +970,6 @@ $(function() {
         if (master_settings.approved() == 'no hit') { credit_str += "btn-warning'><i class='icon-warning-sign icon-white'></i> No Hit</a>"; };
         $('#credit_btn').empty().append(credit_str);
     }
-
 
     // FORM LOGIC
 

@@ -58,12 +58,55 @@ def dyn_json(request, agreement_id=None):
                         'done': agreement.done_customize,
                     },
                     'closing': {
+                        'selected_codes': [],
                         'done': agreement.done_closing,
                     },
                     'services_and_promos': {
+                        'selected_codes': [],
                         'done': agreement.done_promos,
                     },
                 }
+
+        # obtain the invoice lines for this agreement
+        ilines = InvoiceLine.objects.filter(agreement=agreement)
+
+        # obtain a price list and its associate fantastic version
+        pricelist = get_productprice_list(campaign)
+        fantastic_pricelist = {}
+        for pp in pricelist:
+            fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), points=pp.cb_points)
+        
+        # turn invoice lines into knockout viewmodel blobs
+        for iline in ilines:
+            selected_product = Product.objects.filter(code=iline.product)[0]
+            if iline.category == 'Premium Items':
+                children = ComboLine.objects.filter(parent=selected_product)
+                clist = []
+                for child in children:
+                    ctx['premium']['contents'].append(dict(code=iline.product, quantity=iline.quantity))
+                    clist.append(dict(code=child.product.code, quantity=child.quantity))
+
+                ctx['premium']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, contents=clist, name=selected_product.name))
+            elif iline.category == 'Combination Deals':
+                children = ComboLine.objects.filter(parent=selected_product)
+                clist = []
+                for child in children:
+                    ctx['combo']['contents'].append(dict(code=iline.product, quantity=iline.quantity))
+                    clist.append(dict(code=child.product.code, quantity=child.quantity))
+
+                ctx['combo']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, contents=clist, name=selected_product.name))
+            elif iline.category == 'Services':
+                pass
+            elif iline.category == 'Rate Drops':
+                pass
+            else:
+                # a-la-carte items use a different paradigm
+                partctx = dict(category=iline.category, code=iline.product, name=selected_product.name, price=fantastic_pricelist[iline.product]['monthly_each'], points=fantastic_pricelist[iline.product]['points'])
+                cartectx = dict(selected_part=partctx, quantity=iline.quantity)
+                ctx['customize']['purchase_lines'].append(cartectx)
+
+
+
         response.update(ctx);
 
         # DEBUG: fix package
@@ -88,13 +131,6 @@ def dyn_json(request, agreement_id=None):
         response.pop('done_customize', None)
         response.pop('done_closing', None)
         response.pop('done_promos', None)
-
-        # obtain the invoice lines for this agreement
-        ilines = InvoiceLine.objects.filter(agreement=agreement)
-        
-        # turn invoice lines into quantities
-        for iline in ilines:
-            pass
 
     # handle incoming data
     if request.method == 'POST':
@@ -137,12 +173,27 @@ def dyn_json(request, agreement_id=None):
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0))
 
         # now loop through the things that need invoice lines
+        # services and promos (incentives)
+
+        # a-la-carte items
+        for selected in customs.get('purchase_lines'):
+            # assemble a context
+            ilinectx = dict(agreement=agreement, note='', product=selected.selected_part.code, category=selected.selected_part.category, quantity=selected.quantity, pricedate=timezone.now)
+            ilinectx.update(fantastic_pricelist[selected.selected_part.code])
+            ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
+            ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
+
+            # create it
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
+
+        # premium items (actually combos) and combos
         for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
             # obtain the orm product associated with this code
             selected_product = Product.objects.filter(code=selected.code)[0]
 
             # assemble the pieces into a context
-            ilinectx = dict(agreement=agreement, note='', product=selected.code, quantity=selected.quantity, pricedate=timezone.now)
+            ilinectx = dict(agreement=agreement, note='', product=selected.code, category=selected.category, quantity=selected.quantity, pricedate=timezone.now)
             ilinectx.update(fantastic_pricelist[selected.code])
             ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
             ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
@@ -158,7 +209,7 @@ def dyn_json(request, agreement_id=None):
                 cline = ComboLine.objects.filter(parent=selected_product, product=child_product)[0]
 
                 # assemble these pieces
-                ichildctx = dict(agreement=agreement, note='', product=children.code, quantity=children.quantity, pricedate=timezone.now, parent=iline)
+                ichildctx = dict(agreement=agreement, note='', product=children.code, category=children.category, quantity=children.quantity, pricedate=timezone.now, parent=iline)
                 ichildctx['monthly_strike'] = cline.monthly_strike
                 ichildctx['upfront_strike'] = cline.upfront_strike
 

@@ -286,6 +286,7 @@ class InvoiceLine(Updatable):
     agreement       =   models.ForeignKey(Agreement)
     note            =   models.CharField(max_length=50)
     product         =   models.CharField(max_length=20)
+    category        =   models.CharField(max_length=64)
     pricetable      =   models.CharField(max_length=20)
     quantity        =   models.IntegerField(default=0)
     pricedate       =   models.DateTimeField(auto_now_add=True) # timestamp on save

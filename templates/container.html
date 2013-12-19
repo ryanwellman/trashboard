@@ -61,7 +61,7 @@
             <ul class="nav nav-list">
                 <li id="nav_initial_info"><a data-bind="css: { 'complete': initial_complete(), 'incomplete': !initial_complete() }" href="#initial_info">Initial Info</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': package.complete(), 'incomplete': !package.complete() }" href="#pkgsel">Package</a></li>
+                <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': !!package.selected_package(), 'incomplete': !package.selected_package() }" href="#pkgsel">Package</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_monitor"><a data-bind="css: { 'complete': monitoring(), 'incomplete': !monitoring() }" href="#monitor">Monitoring</a></li>
                 <li class="divider"></li>
@@ -75,15 +75,15 @@
                 <li class="divider"></li>
                 <li class="hyde" id="nav_promos"><a class="green_nav complete" href="#promos">Promos</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_cinfo"><a class="green_nav" href="#cinfo">Customer Info</a></li>
+                <li class="hyde" id="nav_cinfo"><a data-bind="css: { 'complete': cinfo_complete(), 'incomplete': !cinfo_complete() }" href="#cinfo">Customer Info</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_shipping"><a data-bind="css: { 'complete': shipping(), 'incomplete': !shipping() }" href="#shipping">Shipping</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_closing"><a data-bind="css: { 'complete': closing.done(), 'incomplete': !closing.done() }" href="#closing">Closing</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_review"><a class="green_nav" href="#review">Review</a></li>
+                <li class="hyde" id="nav_review"><a class="green_nav complete" href="#review">Review</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_publish"><a class="green_nav" href="#publish">Publish</a></li>
+                <li class="hyde" id="nav_publish"><a class="green_nav complete" href="#publish">Publish</a></li>
             </ul>
         </div>
         <div class="container">

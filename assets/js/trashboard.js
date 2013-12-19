@@ -79,7 +79,7 @@ UpdatableAndSerializable = function() {
                 v = '';
             }
         });
-    }; 
+    };
 
     // generic function to lock the section
     this._lock = function(lock) {
@@ -271,7 +271,6 @@ PackageVM = function(blob) {
             return;
         }
 
-        console.log("select customizing", self.customizing());
         self.selected_package(package);
         self.custom_quantities = {};
         self.customization_lines.removeAll();
@@ -419,10 +418,10 @@ PackageVM = function(blob) {
     };
 
     // hax: don't be done until a package is selected for the first time
-    var flag = self.done();
-    self.done(false);
+    // var flag = self.done();
+    // self.done(false);
     self.select_package(package_index[self.selected_package().code]);
-    self.done(flag);
+    // self.done(flag);
     return self;
 };
 
@@ -825,7 +824,7 @@ MasterVM = function(blob) {
     // initial info section
     self.initial_complete = function() {
         return self._test([self.billing_address.zip(), self.floorplan()]);
-    };    
+    };
 
     // customer info section
     self.cinfo_complete = function() {

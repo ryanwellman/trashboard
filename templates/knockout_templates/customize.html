@@ -16,14 +16,15 @@
                             <tbody data-bind="foreach: customize.purchase_lines">
                                 <tr>
                                     <td>
-                                        <select data-bind='options:CPARTS, optionsText: "name", optionsCaption: "Choose Part...", value: selected_part'></select>
+                                        <select data-bind='options:CPARTS, optionsText: "name", optionsCaption: "Choose Part...", value: selected_part, event:{ change: $parent.customize.dirtyRefresh }'></select>
                                     </td>
                                     <td>
                                         <input class="input-mini" data-bind='visible: selected_part, value: quantity, valueUpdate: "afterkeydown"' style="text-align: center;"/>
                                     </td>
                                     <td data-bind="with: selected_part">$<span data-bind='visible: price, text: price'></span></td>
                                     <td>$<span data-bind='visible: total_price, text: formatCurrency(total_price())'></span></td>
-                                    <td><a href='#' data-bind='click: $parent.removeLine'>Remove</td>
+                                    <td><a href='#' data-bind='click: $parent.customize.removeLine'>Remove</td>
+                                    <td><span data-bind='text: ko.toJSON($data)'></span></td>
                                 </tr>
                             </tbody>
                         </table>

@@ -105,8 +105,6 @@ def dyn_json(request, agreement_id=None):
                 cartectx = dict(selected_part=partctx, quantity=iline.quantity)
                 ctx['customize']['purchase_lines'].append(cartectx)
 
-
-
         response.update(ctx);
 
         # DEBUG: fix package
@@ -169,6 +167,7 @@ def dyn_json(request, agreement_id=None):
         # handle invoice lines by first deleting them all and obtaining a price list
         InvoiceLine.objects.filter(agreement=agreement).delete()
         pricelist = get_productprice_list(campaign)
+        fantastic_pricelist = {}
         for pp in pricelist:
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0))
 
@@ -178,14 +177,15 @@ def dyn_json(request, agreement_id=None):
         # a-la-carte items
         for selected in customs.get('purchase_lines'):
             # assemble a context
-            ilinectx = dict(agreement=agreement, note='', product=selected.selected_part.code, category=selected.selected_part.category, quantity=selected.quantity, pricedate=timezone.now)
-            ilinectx.update(fantastic_pricelist[selected.selected_part.code])
-            ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
-            ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
-
-            # create it
-            iline = InvoiceLine(**ilinectx)
-            iline.save()
+            print selected.get('selected_part').get('code')
+            #ilinectx = dict(agreement=agreement, note='', product=selected.selected_part.code, category=selected.selected_part.category, quantity=selected.quantity, pricedate=timezone.now)
+            #ilinectx.update(fantastic_pricelist[selected.selected_part.code])
+            #ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
+            #ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
+#
+            ## create it
+            #iline = InvoiceLine(**ilinectx)
+            #iline.save()
 
         # premium items (actually combos) and combos
         for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):

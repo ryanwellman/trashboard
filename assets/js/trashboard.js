@@ -531,7 +531,6 @@ PartVM = function(blob) {
         "points": ko.observable,
     }
 
-    console.log(blob);
     _.each(fields, function(v, k) {
         self[k] = v(blob[k]);
     });
@@ -550,7 +549,7 @@ for(var idx in window.PARTS) {
     // turn these object literals into models so they can be manipulated directly
     var temp = new PartVM(window.PARTS[idx]);
     window.CPARTS.push(temp);
-    window.DPARTS[temp.code()] = temp;
+    window.DPARTS[temp.code()] = temp; // hash to access things in CPARTS by code...
 }
 
 PartLineVM = function(blob) {
@@ -562,13 +561,20 @@ PartLineVM = function(blob) {
         "quantity": ko.observable,
     };
 
-    // this thing is special since the knockout bindings of each drop-down
-    // are actual PartVMs we created in the loop above
+    // ...since the knockout bindings of each drop-down are the actual PartVMs we created above
+    // this vm is also special in that it needs to be able to fill itself from the blob but not
+    // with just any old unregulated PartVM; they must be the ones that knockout knows about
     self['quantity'] = fields['quantity'](blob['quantity']);
     self['selected_part'] = window.DPARTS[blob['selected_part']['code']];
 
     self.total_price = ko.computed(function() {
-        return (self.selected_part.code() && self.selected_part.price()) ? self.quantity() * self.selected_part.price() : 0.00;
+        // ko.computeds only update when an observable they referenced on their first run (undocumented!)
+        // changes; we must use this arcane, twisted way of returning zero
+        if(self.selected_part) {
+            return (self.selected_part.code() && self.selected_part.price()) ? self.quantity() * self.selected_part.price() : 0.00;
+        } else {
+            return self.quantity() * 0; // drop-down is empty
+        }
     });
 
     self.returnFields = function() {
@@ -587,12 +593,11 @@ CustomVM = function(blob) {
     blob = blob || {};
 
     var fields = {
-        "purchase_lines": ko.observableArray,
+        "purchase_lines": ko.observableArray, // contains non-observable PartLineVMs
         "done": ko.observable,
     };
 
-    // custom vm is kind of special, it needs to be able to handle things
-    // coming in already built
+    // custom vm is kind of special, it needs to be able to fill its internal array from the blob
     self['done'] = fields['done'](blob['done']);
     self['purchase_lines'] = fields['purchase_lines']();
     _.each(blob['purchase_lines'], function(v, k) {
@@ -604,13 +609,20 @@ CustomVM = function(blob) {
         return fields;
     };
 
+    self.dirtyRefresh = function () {
+        // non-observable contents of observable arrays need this to work when valueHasMutated won't
+        // http://stackoverflow.com/questions/13231738/refresh-observablearray-when-items-are-not-observables
+        var data = self.purchase_lines();
+        self.purchase_lines([]);
+        self.purchase_lines(data);
+    };
+
     self.addLine = function() {
         self.purchase_lines().push(new PartLineVM({'selected_part': {}, 'quantity': 0}));
         self.purchase_lines.valueHasMutated();
-        console.log(ko.toJSON(self.purchase_lines()));
     };
 
-    self.removeLine = function(line) { self.purchase_lines.remove(line) };
+    self.removeLine = function(line) { alert('removing!'); self.purchase_lines.remove(line) };
 
     self.save = function() {
         alert('{'+$.map(self.purchase_lines(), function(val) { return val._serialize(); }) + '}');

@@ -41,7 +41,7 @@ def dyn_json(request, agreement_id=None):
     # handle outgoing data
     if request.method == 'GET':
         response = agreement.serialize(ignore=['campaign', 'pricetable_date'])
-        # DEBUG: add things that make this form actually work but don't save completely yet
+        # create a context of sorts
         ctx =   {
                     'premium': {
                         'selected_codes': [],
@@ -76,7 +76,7 @@ def dyn_json(request, agreement_id=None):
         for pp in pricelist:
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), points=pp.cb_points)
         
-        # turn invoice lines into knockout viewmodel blobs
+        # turn invoice lines into knockout viewmodel blobs and update the context
         for iline in ilines:
             selected_product = Product.objects.filter(code=iline.product)[0]
             if iline.category == 'Premium Items':
@@ -107,7 +107,7 @@ def dyn_json(request, agreement_id=None):
 
         response.update(ctx);
 
-        # DEBUG: fix package
+        # package is its own can of worms
         code = ''
         if not agreement.package.code == 'blank':
             code = agreement.package.code
@@ -136,7 +136,7 @@ def dyn_json(request, agreement_id=None):
             incoming = loads(key)
             print incoming
 
-        # DEBUG: save agreement state
+        # save agreement state
         agreement.done_premium = incoming.get('premium').get('done')
         agreement.done_combo = incoming.get('combo').get('done')
         agreement.done_customize = incoming.get('customize').get('done')
@@ -151,13 +151,14 @@ def dyn_json(request, agreement_id=None):
         incoming.pop('closing',None)
         incoming.pop('services_and_promos', None)
 
-        # DEBUG: fix package field
+        # fix package field if it is the blank package (empty agreement)
         selpkg = incoming.get('package').get('selected_package')
         if selpkg:
             selpkg_code = selpkg.get('code') or ''
         else:
             selpkg_code = ''
 
+        # XXX: might want to do as brian does here and store just a code and not the package object itself
         packages = Package.objects.filter(code=selpkg_code)
         if packages:
             agreement.package = packages[0]
@@ -167,51 +168,53 @@ def dyn_json(request, agreement_id=None):
         # handle invoice lines by first deleting them all and obtaining a price list
         InvoiceLine.objects.filter(agreement=agreement).delete()
         pricelist = get_productprice_list(campaign)
+        
+        # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
         for pp in pricelist:
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0))
 
         # now loop through the things that need invoice lines
         # services and promos (incentives)
+        # this thing coming back from incoming has unicode u'' keys which requires .get()
 
         # a-la-carte items
         for selected in customs.get('purchase_lines'):
             # assemble a context
-            print selected.get('selected_part').get('code')
-            #ilinectx = dict(agreement=agreement, note='', product=selected.selected_part.code, category=selected.selected_part.category, quantity=selected.quantity, pricedate=timezone.now)
-            #ilinectx.update(fantastic_pricelist[selected.selected_part.code])
-            #ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
-            #ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
-#
-            ## create it
-            #iline = InvoiceLine(**ilinectx)
-            #iline.save()
+            ilinectx = dict(agreement=agreement, note='', product=selected.get('selected_part').get('code'), category=selected.get('selected_part').get('category'), quantity=selected.get('quantity'), pricedate=timezone.now)
+            ilinectx.update(fantastic_pricelist[selected.get('selected_part').get('code')])
+            ilinectx['monthly_total'] = int(selected.get('quantity')) * int(ilinectx.get('monthly_each') or 0)
+            ilinectx['upfront_total'] = int(selected.get('quantity')) * int(ilinectx.get('upfront_each') or 0)
+
+            # create it
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
 
         # premium items (actually combos) and combos
         for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
             # obtain the orm product associated with this code
-            selected_product = Product.objects.filter(code=selected.code)[0]
+            selected_product = Product.objects.filter(code=selected.get('code'))[0]
 
             # assemble the pieces into a context
-            ilinectx = dict(agreement=agreement, note='', product=selected.code, category=selected.category, quantity=selected.quantity, pricedate=timezone.now)
-            ilinectx.update(fantastic_pricelist[selected.code])
-            ilinectx['monthly_total'] = selected.quantity * int(ilinectx.get('monthly_each') or 0)
-            ilinectx['upfront_total'] = selected.quantity * int(ilinectx.get('upfront_each') or 0)
+            ilinectx = dict(agreement=agreement, note='', product=selected.get('code'), category=selected.get('category'), quantity=selected.get('quantity'), pricedate=timezone.now)
+            ilinectx.update(fantastic_pricelist[selected.get('code')])
+            ilinectx['monthly_total'] = int(selected.get('quantity')) * int(ilinectx.get('monthly_each') or 0)
+            ilinectx['upfront_total'] = int(selected.get('quantity')) * int(ilinectx.get('upfront_each') or 0)
 
             # actually create this invoice line
             iline = InvoiceLine(**ilinectx)
             iline.save()
 
             # now handle children of this last line
-            for children in selected.contents:
+            for children in selected.get('contents'):
                 # obtain this thing's combo line to get its strikeout prices
-                child_product = Product.objects.filter(code=children.code)[0]
+                child_product = Product.objects.filter(code=children.get('code'))[0]
                 cline = ComboLine.objects.filter(parent=selected_product, product=child_product)[0]
 
                 # assemble these pieces
-                ichildctx = dict(agreement=agreement, note='', product=children.code, category=children.category, quantity=children.quantity, pricedate=timezone.now, parent=iline)
-                ichildctx['monthly_strike'] = cline.monthly_strike
-                ichildctx['upfront_strike'] = cline.upfront_strike
+                ichildctx = dict(agreement=agreement, note='', product=children.get('code'), category=children.get('category'), quantity=children.get('quantity'), pricedate=timezone.now, parent=iline)
+                ichildctx['monthly_strike'] = int(cline.get('monthly_strike'))
+                ichildctx['upfront_strike'] = int(cline.get('upfront_strike'))
 
                 # actually create it
                 ichild = InvoiceLine(**ichildctx)
@@ -319,72 +322,11 @@ def draw_container(request, agreement_id=None):
     if agreement_id:
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
 
-    # this is a dummy view that will render a dummy form that is simply to demo
-    # the possibilities that come with the new agreement form
-
-    # in reality these values would be coming from the models in pricemodels.py
-    # as collections of ProductPrice objects (?)
-
-    # right now there is no actual Agreement model other than the dummy one in the
-    # agreement app
+    # a lot of words used to be here but then we wrote pricefunctions.py and got all of it with 
+    # gen_arrays(), which returns that giant wall of object hierarchy we all know and love... sort of
 
     # XXX: eventually people should be getting these lists of things from somewhere else by campaign
-
-    # for the following 4 lists of dictionaries:
-    # from Product: code <-> code, name <-> name, description <-> description
-    # this next one will actually be two prices per pricemodels.py
-    # from ProductPrice price <-> price
-
-
-    premiums    =  [    {'code':'CAMERA', 'name':'Camera Add-on', 'price':'$49.99', 'description': 'Watch your home from somewhere else!', 'contents': [{'code':'CAMERA', 'quantity':'1',},],},
-                        {'code':'CELLANT', 'name':'Cellular Antenna', 'price':'$79.99', 'description': 'Cut the wires and it still works!', 'contents': [{'code':'CELLANT', 'quantity':'1'},{'code':'CELLSERV', 'quantity':'1',},],},
-                        {'code':'GPS', 'name':'GPS', 'price':'$99.99', 'description': 'Let first responders know where you are at all times!', 'contents': [{'code':'GPS', 'quantity':'1',},{'code':'GPSSERV', 'quantity':'1'}],}    ]
-
-    combos      =  [    {'code':'3KEYS', 'name':'3 Keypads', 'price':'$99.99', 'description': 'Great for households with children!', 'contents': [{'code':'KEYPAD', 'quantity':'3',},], },
-                        {'code':'MANYKEY', 'name':'Many Keychains', 'price':'$29.99', 'description': 'So cheap they\'re disposable!', 'contents': [{'code':'KEYCHAIN', 'quantity':'10',},], },
-                        {'code':'SOLAR', 'name':'Solar Alarm Add-on Kit', 'price':'$159.99', 'description': 'For the consumer with no grid power!', 'contents': [{'code':'ALRMBATT', 'quantity': '1'},{'code':'SOLARPANEL', 'quantity':'1',},], },    ]
-
-    services    =  [    {'code':'VIDEOSRV', 'name':'Video Service', 'price':'$19.99/mo', 'reason': 'cameras'},
-                        {'code':'SMOKESRV', 'name':'Smoke Service', 'price':'$29.99/mo', 'reason': 'smoke detector(s)'},
-                        {'code':'ALPACASRV', 'name':'Alpaca Rental Service', 'price':'$159.99/mo', 'reason': 'alpaca shears'}    ]
-
-    closers     =  [    {'code':'5RTDROP', 'name': '$5/mo rate drop', 'description': 'Removes $5 from the monthly monitoring rate'},
-                        {'code':'10RTDROP', 'name': '$10/mo rate drop', 'description': 'Removes $10 (requires manager approval)'},
-                        {'code':'FREEKEY', 'name': 'Free Keychains', 'description': 'Give away some of our famous disposable keychains'},
-                        {'code':'FREESHIP', 'name': 'Free Shipping', 'description': 'Cancels out shipping cost for the customer'}  ]
-
-    # this one is going to come from the Package class and will change later
-    packages    =  [    {'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]},
-                        {'code':'bronze', 'name':'Bronze', 'contents':[{'code':'DWSENS', 'quantity':'7' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]},
-                        {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'10' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2'  }]},
-                        {'code':'gold', 'name':'Gold', 'contents':[{'code':'DWSENS', 'quantity':'12' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]},
-                        {'code':'platinum', 'name':'Platinum', 'contents':[{'code':'DWSENS', 'quantity':'15' },{'code':'SIMNXT', 'quantity':'1' },{'code':'MOTDEC', 'quantity':'2' }]}  ]
-
-    parts       =  [    {'code':'DWSENS', 'name':'Door/Window Sensors', 'points':'5', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
-                        {'code':'GBSENS', 'name':'Glass Break Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
-                        {'code':'LTSENS', 'name':'Low Temperature Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
-                        {'code':'MOTDEC', 'name':'Motion Detector', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
-                        {'code':'FLSENS', 'name':'Flood Sensor', 'points':'12', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
-                        {'code':'GDSENS', 'name':'Garage Door Sensor', 'points':'8', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
-                        {'code':'KEYCRC', 'name':'Keychain Remote Control', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'49.50'},
-                        {'code':'MEDPNB', 'name':'Medical Panic Bracelet', 'points':'10', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
-                        {'code':'MEDPEN', 'name':'Medical Panic Pendant', 'points':'12', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
-                        {'code':'MINPNP', 'name':'Mini Pinpad', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'30.00'},
-                        {'code':'SOLLGT', 'name':'Solar Light', 'points':'3', 'quantity':'0', 'category':'Accessories', 'price':'19.95'},
-                        {'code':'TLKKYP', 'name':'Talking Keypad', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'99.00'},
-                        {'code':'TLKTSC', 'name':'XT Talking Touchscreen', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'115.00'},
-                        {'code':'SMKDET', 'name':'Smoke Detector', 'points':'15', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
-                        {'code':'CRBMDT', 'name':'Carbon Monoxide Detector', 'points':'10', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
-                        {'code':'XTNSIR', 'name':'XT Siren', 'points':'10', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                        {'code':'XTSRCK', 'name':'X10 Socket Rocket', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                        {'code':'XTNAPM', 'name':'X10 Appliance Module', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                        {'code':'SIMTHR', 'name':'Simon 3', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
-                        {'code':'SIMNXT', 'name':'Simon XT', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
-                        {'code':'TLKDEV', 'name':'Talkover Device', 'points':'10', 'quantity':'0', 'category':'Security Panels', 'price':'199.00'}  ]
-
     return dict(gen_arrays(Campaign.objects.all()[0]), agreement_id=dumps(dict(agreement_id=agreement_id)))
-    # uses render_to to draw the template
-    #return dict(premiums=dumps(premiums), combos=dumps(combos), services=services, closers=closers, packages=dumps(packages), parts=dumps(parts), agreement_id=dumps(dict(agreement_id=agreement_id)))
 
 
 @render_to('package.html')

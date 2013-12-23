@@ -432,3 +432,41 @@ class OrgCampaign(Serializable):
 
     class Meta:
         ordering = ['organization']
+
+
+class PriceGroup(Serializable):
+    """
+    represents a group of providers or campaigns that all use the same prices
+    """
+
+    pricetables     =   models.ManyToManyField(PriceTable, through='PGMembership', related_name='pricetables')
+    name            =   models.CharField(max_length=64)
+
+    def __unicode__(self):
+        fields = [self.name]
+        return u','.join([unicode(f) for f in fields])
+
+    class Meta:
+        ordering = ['name']
+
+
+class PGMembership(Serializable):
+    """
+    through table for PriceGroup and PriceTable
+    """
+
+    pricegroup      =   models.ForeignKey(PriceGroup)
+    pricetable      =   models.ForeignKey(PriceTable)
+    date_updated    =   models.DateField()
+
+    def __unicode__(self):
+        fields = [self.date_updated]
+        try:
+            fields.append(self.pricegroup)
+            fields.append(self.pricetable)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
+
+    class Meta:
+        ordering = ['pricegroup']

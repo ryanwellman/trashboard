@@ -67,10 +67,27 @@ def dyn_json(request, agreement_id=None):
                     },
                 }
 
+        # package is its own can of worms
+        code = ''
+        if not agreement.package.code == 'blank':
+            code = agreement.package.code
+        packctx =   {
+                    'selected_package': {
+                        'code': agreement.package.code,
+                    },
+                    'customizing': False,
+                    'cb_balance': '0',
+                    'updated_contents': [],
+                    'changed_contents': False,
+                    'customization_lines': [],
+                    'done': agreement.done_package,
+                }
+
         # obtain the invoice lines for this agreement
         ilines = InvoiceLine.objects.filter(agreement=agreement)
 
         # obtain a price list and its associate fantastic version
+        # this fantastic pricelist contains cb points instead of price table names
         pricelist = get_productprice_list(campaign)
         fantastic_pricelist = {}
         for pp in pricelist:
@@ -99,30 +116,20 @@ def dyn_json(request, agreement_id=None):
                 pass
             elif iline.category == 'Rate Drops':
                 pass
+            elif iline.category == 'Package Customization':
+                # create customization lines from the invoice lines of this category
+                pass
             else:
                 # a-la-carte items use a different paradigm
                 partctx = dict(category=iline.category, code=iline.product, name=selected_product.name, price=fantastic_pricelist[iline.product]['monthly_each'], points=fantastic_pricelist[iline.product]['points'])
                 cartectx = dict(selected_part=partctx, quantity=iline.quantity)
                 ctx['customize']['purchase_lines'].append(cartectx)
 
+        # add the things that came from invoice lines to the response context
         response.update(ctx);
+        response['package'] = packctx
 
-        # package is its own can of worms
-        code = ''
-        if not agreement.package.code == 'blank':
-            code = agreement.package.code
-        ctx =   {
-                    'selected_package': {
-                        'code': agreement.package.code,
-                    },
-                    'customizing': False,
-                    'cb_balance': '0',
-                    'updated_contents': [],
-                    'changed_contents': False,
-                    'customization_lines': [],
-                    'done': agreement.done_package,
-                }
-        response['package'] = ctx
+        # get rid of values the knockout part does not need
         response.pop('done_package', None)
         response.pop('done_premium', None)
         response.pop('done_combo', None)
@@ -145,11 +152,11 @@ def dyn_json(request, agreement_id=None):
         agreement.done_promos = incoming.get('services_and_promos').get('done')
 
         # save some of the things we're splitting off
-        premiums = incoming.pop('premium',None)
-        combos = incoming.pop('combo',None)
-        customs = incoming.pop('customize',None)
-        incoming.pop('closing',None)
-        incoming.pop('services_and_promos', None)
+        premiums = incoming.pop('premium', None)
+        combos = incoming.pop('combo', None)
+        customs = incoming.pop('customize', None)
+        closers = incoming.pop('closing', None)
+        promos = incoming.pop('services_and_promos', None)
 
         # fix package field if it is the blank package (empty agreement)
         selpkg = incoming.get('package').get('selected_package')
@@ -163,7 +170,7 @@ def dyn_json(request, agreement_id=None):
         if packages:
             agreement.package = packages[0]
 
-        incoming.pop('package', None)
+        packs = incoming.pop('package', None)
 
         # handle invoice lines by first deleting them all and obtaining a price list
         InvoiceLine.objects.filter(agreement=agreement).delete()
@@ -172,16 +179,27 @@ def dyn_json(request, agreement_id=None):
         # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
         for pp in pricelist:
-            fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0))
+            fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), pricetable=pp.pricetable.group)
 
         # now loop through the things that need invoice lines
-        # services and promos (incentives)
+        # XXX: services and promos (incentives), package customizations, closing
         # this thing coming back from incoming has unicode u'' keys which requires .get()
+
+        # package customization
+        for selected in packs.get('customization_lines'):
+            pass
+
+        # services and promos
+        for selected in promos.get('contents'):
+            pass
+
+        for selected in closers.get('contents'):
+            pass
 
         # a-la-carte items
         for selected in customs.get('purchase_lines'):
             # assemble a context
-            ilinectx = dict(agreement=agreement, note='', product=selected.get('selected_part').get('code'), category=selected.get('selected_part').get('category'), quantity=selected.get('quantity'), pricedate=timezone.now)
+            ilinectx = dict(agreement=agreement, note='', product=selected.get('selected_part').get('code'), category=selected.get('selected_part').get('category'), quantity=int(selected.get('quantity')), pricedate=timezone.now())
             ilinectx.update(fantastic_pricelist[selected.get('selected_part').get('code')])
             ilinectx['monthly_total'] = int(selected.get('quantity')) * int(ilinectx.get('monthly_each') or 0)
             ilinectx['upfront_total'] = int(selected.get('quantity')) * int(ilinectx.get('upfront_each') or 0)
@@ -196,7 +214,7 @@ def dyn_json(request, agreement_id=None):
             selected_product = Product.objects.filter(code=selected.get('code'))[0]
 
             # assemble the pieces into a context
-            ilinectx = dict(agreement=agreement, note='', product=selected.get('code'), category=selected.get('category'), quantity=selected.get('quantity'), pricedate=timezone.now)
+            ilinectx = dict(agreement=agreement, note='', product=selected.get('code'), category=selected.get('category'), quantity=int(selected.get('quantity')), pricedate=timezone.now())
             ilinectx.update(fantastic_pricelist[selected.get('code')])
             ilinectx['monthly_total'] = int(selected.get('quantity')) * int(ilinectx.get('monthly_each') or 0)
             ilinectx['upfront_total'] = int(selected.get('quantity')) * int(ilinectx.get('upfront_each') or 0)
@@ -212,7 +230,7 @@ def dyn_json(request, agreement_id=None):
                 cline = ComboLine.objects.filter(parent=selected_product, product=child_product)[0]
 
                 # assemble these pieces
-                ichildctx = dict(agreement=agreement, note='', product=children.get('code'), category=children.get('category'), quantity=children.get('quantity'), pricedate=timezone.now, parent=iline)
+                ichildctx = dict(agreement=agreement, note='', product=children.get('code'), category=children.get('category'), quantity=int(children.get('quantity')), pricedate=timezone.now(), parent=iline)
                 ichildctx['monthly_strike'] = int(cline.get('monthly_strike'))
                 ichildctx['upfront_strike'] = int(cline.get('upfront_strike'))
 

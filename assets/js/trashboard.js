@@ -233,7 +233,6 @@ AddressVM = function(blob) {
 };
 
 // this is ryan's vm for packages translated to the new style
-// new PackageVM({'selected_package': null, 'customizing': false, 'cb_balance': 0, 'updated_contents': [], 'changed_contents': false, 'customization_lines': []})
 
 // fix the window level vars for this to work
 window.package_index = _.object(_.pluck(window.PACKAGES, 'code'), window.PACKAGES);
@@ -517,7 +516,7 @@ ComboVM = function(blob) {
     return self;
 };
 
-// next two view models are for customize
+// next two view models are for alacarte
 PartVM = function(blob) {
     var self = new UpdatableAndSerializable();
     blob = blob || {};
@@ -587,7 +586,7 @@ PartLineVM = function(blob) {
     return self;
 };
 
-CustomVM = function(blob) {
+ALaCarteVM = function(blob) {
     var self = new UpdatableAndSerializable();
     blob = blob || {};
 
@@ -596,7 +595,7 @@ CustomVM = function(blob) {
         "done": ko.observable,
     };
 
-    // custom vm is kind of special, it needs to be able to fill its internal array from the blob
+    // alacarte vm is kind of special, it needs to be able to fill its internal array from the blob
     self['done'] = fields['done'](blob['done']);
     self['purchase_lines'] = fields['purchase_lines']();
     _.each(blob['purchase_lines'], function(v, k) {
@@ -758,7 +757,7 @@ MasterVM = function(blob) {
         'promo_code': ko.observable,
         'premium': PremiumVM,
         'combo': ComboVM,
-        'customize': CustomVM,
+        'alacarte': ALaCarteVM,
         'closing': ClosingVM,
         'services_and_promos': PromoVM,
     };
@@ -820,6 +819,11 @@ MasterVM = function(blob) {
     // XXX: insert other variables here
 
     // test things that don't have their own viewmodel or have many viewmodels for completeness
+
+    // this function will get the selected monitoring value
+    self.selected_monitoring = function(monit) {
+        self.monitoring(monit.value);
+    }
 
     // initial info section
     self.initial_complete = function() {
@@ -903,7 +907,7 @@ MasterVM = function(blob) {
     self.test_combo = function() {
         // test completeness with flag since this is open-ended
         if(self.combo.complete()) {
-            self._next('#combos', '#custom, #nav_custom', '#custom');
+            self._next('#combos', '#a_la_carte, #nav_a_la_carte', '#a_la_carte');
         }
     };
 
@@ -911,15 +915,15 @@ MasterVM = function(blob) {
         self.combo.clear();
     };
 
-    self.test_customize = function() {
+    self.test_alacarte = function() {
         // test completeness with flag since this is open-ended
-        if(self.customize.complete()) {
-            self._next('#custom', '#services, #nav_services, #promos, #nav_promos', '#services');
+        if(self.alacarte.complete()) {
+            self._next('#a_la_carte', '#services, #nav_services, #promos, #nav_promos', '#services');
         }
     };
 
-    self.clear_customize = function() {
-        self.customize.clear();
+    self.clear_alacarte = function() {
+        self.alacarte.clear();
     };
 
     self.test_services_and_promos = function() {
@@ -994,7 +998,7 @@ $(function() {
     master_settings.test_monitor();
     master_settings.test_premium();
     master_settings.test_combo();
-    master_settings.test_customize();
+    master_settings.test_alacarte();
     master_settings.test_services_and_promos();
     master_settings.test_cinfo();
     master_settings.test_shipping();
@@ -1094,20 +1098,20 @@ $(function() {
         master_settings.clear_combo();
     });
 
-    // customize
-    $('#customize_form').on('submit', function(evt) {
+    // alacarte
+    $('#alacarte_form').on('submit', function(evt) {
         // prevent default event
         evt.preventDefault();
 
         // save contents of viewmodel as json blob and fire test
-        master_settings.customize.done(true);
-        master_settings.test_customize();
+        master_settings.alacarte.done(true);
+        master_settings.test_alacarte();
         json_handler._save(master_settings);
     });
 
-    $('#customize_form').on('reset', function(evt) {
+    $('#alacarte_form').on('reset', function(evt) {
         // blank out alacarte selection
-        master_settings.clear_customize();
+        master_settings.clear_alacarte();
     });
 
     // promo and services

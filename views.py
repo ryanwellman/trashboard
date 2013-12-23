@@ -53,9 +53,9 @@ def dyn_json(request, agreement_id=None):
                         'contents': [],
                         'done': agreement.done_combo,
                     },
-                    'customize': {
+                    'alacarte': {
                         'purchase_lines': [],
-                        'done': agreement.done_customize,
+                        'done': agreement.done_alacarte,
                     },
                     'closing': {
                         'selected_codes': [],
@@ -92,7 +92,7 @@ def dyn_json(request, agreement_id=None):
         fantastic_pricelist = {}
         for pp in pricelist:
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), points=pp.cb_points)
-        
+
         # turn invoice lines into knockout viewmodel blobs and update the context
         for iline in ilines:
             selected_product = Product.objects.filter(code=iline.product)[0]
@@ -123,7 +123,7 @@ def dyn_json(request, agreement_id=None):
                 # a-la-carte items use a different paradigm
                 partctx = dict(category=iline.category, code=iline.product, name=selected_product.name, price=fantastic_pricelist[iline.product]['monthly_each'], points=fantastic_pricelist[iline.product]['points'])
                 cartectx = dict(selected_part=partctx, quantity=iline.quantity)
-                ctx['customize']['purchase_lines'].append(cartectx)
+                ctx['alacarte']['purchase_lines'].append(cartectx)
 
         # add the things that came from invoice lines to the response context
         response.update(ctx);
@@ -133,7 +133,7 @@ def dyn_json(request, agreement_id=None):
         response.pop('done_package', None)
         response.pop('done_premium', None)
         response.pop('done_combo', None)
-        response.pop('done_customize', None)
+        response.pop('done_alacarte', None)
         response.pop('done_closing', None)
         response.pop('done_promos', None)
 
@@ -146,7 +146,7 @@ def dyn_json(request, agreement_id=None):
         # save agreement state
         agreement.done_premium = incoming.get('premium').get('done')
         agreement.done_combo = incoming.get('combo').get('done')
-        agreement.done_customize = incoming.get('customize').get('done')
+        agreement.done_alacarte = incoming.get('alacarte').get('done')
         agreement.done_closing = incoming.get('closing').get('done')
         agreement.done_package = incoming.get('package').get('done')
         agreement.done_promos = incoming.get('services_and_promos').get('done')
@@ -175,7 +175,7 @@ def dyn_json(request, agreement_id=None):
         # handle invoice lines by first deleting them all and obtaining a price list
         InvoiceLine.objects.filter(agreement=agreement).delete()
         pricelist = get_productprice_list(campaign)
-        
+
         # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
         for pp in pricelist:
@@ -312,7 +312,7 @@ def test_json(request):
                     'contents': [],
                     'done': False,
                 },
-                'customize': {
+                'alacarte': {
                     'purchase_lines': [],
                     'done': False,
                 },
@@ -340,7 +340,7 @@ def draw_container(request, agreement_id=None):
     if agreement_id:
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
 
-    # a lot of words used to be here but then we wrote pricefunctions.py and got all of it with 
+    # a lot of words used to be here but then we wrote pricefunctions.py and got all of it with
     # gen_arrays(), which returns that giant wall of object hierarchy we all know and love... sort of
 
     # XXX: eventually people should be getting these lists of things from somewhere else by campaign

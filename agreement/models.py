@@ -245,7 +245,7 @@ class Agreement(Updatable):
     promo_code = models.CharField(max_length=20)
     done_premium = models.BooleanField(default=False)
     done_combo = models.BooleanField(default=False)
-    done_customize = models.BooleanField(default=False)
+    done_alacarte = models.BooleanField(default=False)
     done_closing = models.BooleanField(default=False)
     done_package = models.BooleanField(default=False)
     done_promos = models.BooleanField(default=False)

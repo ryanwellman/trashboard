@@ -19,41 +19,6 @@
         {% include 'knockout_templates.html' %}
     </head>
     <body>
-        <!-- z-index on the next line fixes buttons visible over the infobar -->
-        <!--
-        <div class="affix" style="top:40px;right:0px;z-index:1000">
-            <div id="infobar" class="well">
-                <i id="infobar_resize" class="fa fa-resize-small"></i>
-                <div id="infobar_content">
-                    <div id="infobar_left">
-                        <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First M. Last'"></span><br>
-                        <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
-                        <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span><br>
-                        <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span><br>
-                        <span data-bind="css: {muted: countrysafe().length == 0}, text: billing_address.country() ? billing_address.country : 'Country'"></span><br>
-                    </div>
-                    <div id="infobar_middle">
-                        <p>
-                            <span class="label label-default">$Invoice</span><br>
-                            <span class="label label-important">Chargeback</span><br>
-                            <span class="label label-info">Combos</span><br>
-                            <span class="label label-warning">Promotions</span><br>
-                            <span class="label label-success">Rate Drops</span><br>
-                        </p>
-                    </div>
-                    <div id="infobar_right">
-                        <p>
-                            <span data-bind="text: agreement_id_nav" class="label label-default">Agreement ID</span><br>
-                            <span data-bind="text: package_nav" class="label label-important">Package</span><br>
-                            <span data-bind="text: monitoring_nav" class="label label-info">Monitoring</span><br>
-                            <span data-bind="text: shipping_nav" class="label label-warning">Shipping</span><br>
-                            <span class="label label-success">$RMR</span><br>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        -->
         <div class="affix" style="top:40px;left:0px;z-index:1000">
             <!-- this is intentionally left blank for future expansion -->
         </div>
@@ -69,7 +34,7 @@
                 <li class="divider"></li>
                 <li class="hyde" id="nav_combos"><a data-bind="css: { 'complete': combo.done(), 'incomplete': !combo.done() }" href="#combos">Combos</a></li>
                 <li class="divider"></li>
-                <li class="hyde" id="nav_custom"><a data-bind="css: { 'complete': customize.complete(), 'incomplete': !customize.complete() }" href="#custom">Custom</a></li>
+                <li class="hyde" id="nav_a_la_carte"><a data-bind="css: { 'complete': alacarte.complete(), 'incomplete': !alacarte.complete() }" href="#a_la_carte">A La Carte</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_services"><a class="green_nav complete" href="#services">Services</a></li>
                 <li class="divider"></li>
@@ -84,29 +49,11 @@
                 <li class="hyde" id="nav_review"><a class="green_nav complete" href="#review">Review</a></li>
                 <li class="divider"></li>
                 <li class="hyde" id="nav_publish"><a class="green_nav complete" href="#publish">Publish</a></li>
+                <li class="divider"></li>
+                <li><span class="btn btn-success">Save Agreement</span></li>
             </ul>
         </div>
         <div class="container">
-            <!--
-            <div class="navbar navbar-fixed-top" id="navbar">
-                <div class="navbar-inner">
-                    <ul class="nav">
-                        <li id="nav_cinfo"><a href="#cinfo">Customer Info</a></li>
-                        <li class="hyde" id="nav_pkgsel"><a href="#pkgsel">Package</a></li>
-                        <li class="hyde" id="nav_monitor"><a href="#monitor">Monitoring</a></li>
-                        <li class="hyde" id="nav_premium"><a href="#premium">Premium</a></li>
-                        <li class="hyde" id="nav_combos"><a href="#combos">Combos</a></li>
-                        <li class="hyde" id="nav_custom"><a href="#custom">Customize</a></li>
-                        <li class="hyde" id="nav_services"><a href="#services">Services</a></li>
-                        <li class="hyde" id="nav_promos"><a href="#promos">Promos</a></li>
-                        <li class="hyde" id="nav_shipping"><a href="#shipping">Shipping</a></li>
-                        <li class="hyde" id="nav_closing"><a href="#closing">Closing</a></li>
-                        <li class="hyde" id="nav_review"><a href="#review">Review</a></li>
-                        <li class="hyde" id="nav_publish"><a href="#publish">Publish</a></li>
-                    </ul>
-                </div>
-            </div>
-            -->
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
                     <ul>
@@ -122,7 +69,7 @@
                             <h4><span data-bind="text: package_nav"></span></h4>
                         </li>
                         <li class="span1.5">
-                            <b>Monthly Cost:</b><br>
+                            <b>Monthly Cost:</b>
                             <center><h4>$0.00</h4></center>
                         </li>
                         <li class="span1.5">
@@ -146,7 +93,6 @@
                         <li class="span2.5">
                             <b>Combos:</b> combos<br>
                             <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
-                            <b>Rate Drops:</b> rate drops<br>
                         </li>
                         <li class="span2">
                             <b>Approval Status:</b><br>
@@ -175,8 +121,8 @@
                 <section id="combos" class="hyde">
                     <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
                 </section>
-                <section id="custom" class="hyde">
-                    <div data-bind="template: { name: 'customize_', data: $data }">Customize Form</div>
+                <section id="a_la_carte" class="hyde">
+                    <div data-bind="template: { name: 'alacarte_', data: $data }">A La Carte Form</div>
                     </section>
                 <section id="services" class="hyde">
                     <div data-bind="template: { name: 'services_', data: $data }">Services Form</div>
@@ -216,6 +162,7 @@
             window.AID = {{agreement_id|safe}};
             window.SERVICES = {{services|safe}};
             window.CLOSERS = {{closers|safe}};
+            window.MONITORS = [{'name':'Standard', 'value':'standard'}, {'name':'Cellular Conversion', 'value':'cellconv'}, {'name':'Cellular', 'value':'cellular'}, {'name':'Two Way Voice', 'value':'twoway'}, {'name':'Broadband', 'value':'broadband'}]
             {% block javascript_variables_nocompress %}{% endblock %}
         </script>
 

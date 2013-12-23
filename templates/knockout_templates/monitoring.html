@@ -3,36 +3,11 @@
 				<span class="label label-inverse box-rotate tab-pos">Monitoring</span>
 				<form id="monitor_form">
 					<fieldset>
-						<div class="controls controls-row">
-							<!-- <legend>Monitoring</legend> -->
-							<div class="span4">
-								<div class="control-group">
-									<div class="controls">
-										<label class="radio">
-											<input type="radio" name="mtr" value="standard" data-bind="checked: monitoring" checked>
-											Standard
-										</label>
-										<label class="radio">
-											<input type="radio" name="mtr" value="cellconv" data-bind="checked: monitoring">
-											Cellular Conversion
-										</label>
-										<label class="radio">
-											<input type="radio" name="mtr" value="cellular" data-bind="checked: monitoring">
-											Cellular
-										</label>
-										<label class="radio">
-											<input type="radio" name="mtr" value="twoway" data-bind="checked: monitoring">
-											Two-way Voice
-										</label>
-										<label class="radio">
-											<input type="radio" name="mtr" value="broadband" data-bind="checked: monitoring">
-											Broadband
-										</label>
-									</div>
-									<span class="help-inline"></span>
-									</div>
-								</div>
+						<div class="controls controls-row" data-bind="foreach:MONITORS">
+							<div class="select_monitoring control-group well well-small span3" data-bind="click: $parent.selected_monitoring">
+								<center><span data-bind="text: name"></span></center>
 							</div>
+						</div>
 						<div class="form-actions">
 							<div class="pull-right">
 								<button type="submit" class="btn btn-primary" id="monitor_submit" data-bind="enable: monitoring()"><i class="fa fa-arrow-down"></i> Next</button>

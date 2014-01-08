@@ -238,7 +238,7 @@ class Agreement(Updatable):
     pricetable_date = models.DateField(default=timezone.now) # automatically timestamped on creation
     email = models.CharField(max_length=75)
     approved = models.CharField(max_length=10)
-    package = models.ForeignKey(Package, related_name='package')
+    package = models.ForeignKey(Package, related_name='package', blank=True, null=True)
     shipping = models.CharField(max_length=10)
     monitoring = models.CharField(max_length=10)
     floorplan = models.CharField(max_length=10)

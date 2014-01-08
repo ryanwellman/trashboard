@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from agreement.models import *
 
-def f7(seq):
+def uniqifier(seq):
     # uniqifier from peterbe.com/plog/uniqifiers-benchmark
     # alleges to preserve order and works based off of productprice codes
     seen = set()
@@ -89,8 +89,8 @@ def get_productprice_list(campaign):
             else:
                 continue
 
-    # deduplicate with a slightly modified f7
-    return f7(price_set)
+    # deduplicate with a slightly modified f7 uniqifier
+    return uniqifier(price_set)
 
 def gen_arrays(campaign):
     """

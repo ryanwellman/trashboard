@@ -154,7 +154,7 @@ def dyn_json(request, agreement_id=None):
         # save some of the things we're splitting off
         premiums = incoming.pop('premium', None)
         combos = incoming.pop('combo', None)
-        customs = incoming.pop('customize', None)
+        customs = incoming.pop('alacarte', None)
         closers = incoming.pop('closing', None)
         promos = incoming.pop('services_and_promos', None)
 

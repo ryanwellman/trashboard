@@ -127,7 +127,7 @@ def gen_arrays(campaign):
             for cline in ComboLine.objects.filter(parent=prod.product):
                 pitems.append(dict(code=cline.product.code, quantity=cline.quantity))
 
-            premiums.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, contents=pitems))
+            premiums.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, category=prod.product.category, contents=pitems))
         elif prod.product.category == 'Services':
             services.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), reason=prod.product.description))
         elif prod.product.category == 'Rate Drops':
@@ -138,7 +138,7 @@ def gen_arrays(campaign):
             for cline in ComboLine.objects.filter(parent=prod.product):
                 citems.append(dict(code=cline.product.code, quantity=cline.quantity))
 
-            combos.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, contents=citems))
+            combos.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), description=prod.product.description, category=prod.product.category, contents=citems))
         else:
             # has not been appended elsewhere
             parts.append(dict(code=str(prod.product.code), name=str(prod.product.name), points=str(prod.cb_points), category=str(prod.product.category), price=format(prod.monthly_price, '.2f')))

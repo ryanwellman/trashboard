@@ -225,7 +225,6 @@ class Agreement(Updatable):
         monitoring: who gets paid to watch this system
         floorplan: what shape is the target address
         promo_code: just one for now!
-        progress: store one of 64 states of the form associated with this model
 
     this field is updatable from a json-like blob
     """
@@ -237,11 +236,11 @@ class Agreement(Updatable):
     system_address =models.ForeignKey(Address, related_name='system')
     pricetable_date = models.DateField(default=timezone.now) # automatically timestamped on creation
     email = models.CharField(max_length=75)
-    approved = models.CharField(max_length=10)
+    approved = models.CharField(max_length=20)
     package = models.ForeignKey(Package, related_name='package', blank=True, null=True)
-    shipping = models.CharField(max_length=10)
-    monitoring = models.CharField(max_length=10)
-    floorplan = models.CharField(max_length=10)
+    shipping = models.CharField(max_length=20)
+    monitoring = models.CharField(max_length=20)
+    floorplan = models.CharField(max_length=20)
     promo_code = models.CharField(max_length=20)
     done_premium = models.BooleanField(default=False)
     done_combo = models.BooleanField(default=False)

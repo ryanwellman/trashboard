@@ -3,6 +3,7 @@ this module contains the functions that extract price tables from the database s
 
 XXX: needs db call optimization
 """
+from itertools import chain
 from json import dumps, loads
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -21,7 +22,7 @@ def find_campaign_by_id(campaign_id):
     """
 
     # relies on each id having only one campaign
-    campaign = Campaign.objects.filter(pk=campaign_id)[0]
+    campaign = Campaign.objects.get(pk=campaign_id)
     return campaign
 
 def find_parent_orgs(campaign):
@@ -49,13 +50,22 @@ def get_zorders(campaign):
     # var scoping
     z_list = []
 
-    # search for the correct through tables and obtain the zorders
-    for org in organizations:
-        for op in OrgPrice.objects.filter(organization=org):
-            z_list.append(dict(pt=op.pricetable, zorder=op.zorder))
+    # obtain the price group first, campaign ones dominate
+    if campaign.pricegroup:
+        pricegroup = campaign.pricegroup
+    else:
+        # use the list here once to calculate the price group
+        for org in organizations:
+            z_list.append(dict(pg=org.pricegroup, zorder=org.zorder))
 
-    for cp in CmpPrice.objects.filter(campaign=campaign):
-        z_list.append(dict(pt=cp.pricetable, zorder=cp.zorder))
+        # sort this list and take the top item
+        z_sort = sorted(z_list, key=lambda i: i.get('zorder'), reverse=True)
+        pricegroup = z_sort[0].pricegroup
+
+    # search for the price table objects in the price group through table and obtain the zorders
+    z_list = [] # clear
+    for pt in PGMembership.objects.filter(pricegroup=pricegroup):
+        z_list.append(dict(pt=pt.pricetable, zorder=pt.zorder))
 
     # return a list of dictionaries
     return z_list
@@ -132,7 +142,7 @@ def gen_arrays(campaign):
             services.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price, '.2f'), reason=prod.product.description))
         elif prod.product.category == 'Rate Drops':
             closers.append(dict(code=prod.product.code, name=prod.product.name, description=prod.product.description))
-        elif prod.product.category == 'Combination Deals':
+        elif prod.product.category == 'Combos':
             # get contents
             citems = []
             for cline in ComboLine.objects.filter(parent=prod.product):

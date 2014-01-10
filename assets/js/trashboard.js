@@ -273,7 +273,9 @@ PackageVM = function(blob) {
 
     // selected_package is another one of those special things that has 
     // to come out of one of the window variables
-    self['selected_package'](package_index[self.selected_package().code]);
+    if(self.selected_package().code) {
+        self['selected_package'](package_index[self.selected_package().code]);        
+    }
 
     self.select_package = function(package) {
         if(self.done()) {
@@ -427,8 +429,14 @@ PackageVM = function(blob) {
     };
 
     self.select_package(package_index[self.selected_package().code]);
+
     return self;
 };
+
+// create some more indices for these things
+window.premium_index = _.object(_.pluck(window.PREMIUM, 'code'), window.PREMIUM);
+window.combo_index = _.object(_.pluck(window.COMBOS, 'code'), window.COMBOS);
+window.closer_index = _.object(_.pluck(window.CLOSERS, 'code'), window.CLOSERS);
 
 PremiumVM = function(blob) {
     var self = new UpdatableAndSerializable();
@@ -445,6 +453,13 @@ PremiumVM = function(blob) {
             self[k] = v(blob[k]);
         }
     });
+
+    // ko needs the things in selected_codes to be things from window vars
+    codes = []
+    _.each(self.selected_codes(), function(v, k) {
+        codes.push(window.premium_index[v.code]);
+    });
+    self.selected_codes(codes);
 
     self.select_item = function() {
         self.contents.removeAll();
@@ -491,6 +506,13 @@ ComboVM = function(blob) {
             self[k] = v(blob[k]);
         }
     });
+
+    // ko needs the things in selected_codes to be things from window vars
+    codes = []
+    _.each(self.selected_codes(), function(v, k) {
+        codes.push(window.combo_index[v.code]);
+    });
+    self.selected_codes(codes);
 
     self.select_item = function() {
         self.contents.removeAll();
@@ -660,23 +682,12 @@ ClosingVM = function(blob) {
         }
     });
 
-    self.select_item = function() {
-        self.contents.removeAll();
-        for(var i = 0; i < self.selected_codes().length; i++) {
-            console.log(self.selected_codes()[i].contents);
-            for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
-                var ret = {
-                    'code': self.selected_codes()[i].contents[j].code,
-                    'quantity': self.selected_codes()[i].contents[j].quantity,
-                };
-
-                self.contents.push(ret);
-            }
-        }
-
-        // required for ko to allow checkbox to click
-        return true;
-    };
+    // ko needs the things in selected_codes to be things from window vars
+    codes = []
+    _.each(self.selected_codes(), function(v, k) {
+        codes.push(window.closer_index[v.code]);
+    });
+    self.selected_codes(codes);
 
     self.complete = function() {
         return self._test([self.done()]);

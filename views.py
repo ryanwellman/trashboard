@@ -118,7 +118,7 @@ def dyn_json(request, agreement_id=None):
                     clist.append(dict(code=child.product.code, quantity=child.quantity))
 
                 ctx['premium']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, contents=clist, name=selected_product.name))
-            elif iline.category == 'Combination Deals':
+            elif iline.category == 'Combos':
                 children = ComboLine.objects.filter(parent=selected_product)
                 clist = []
                 for child in children:
@@ -127,9 +127,18 @@ def dyn_json(request, agreement_id=None):
 
                 ctx['combo']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, contents=clist, name=selected_product.name))
             elif iline.category == 'Services':
+                # go through all of the invoice lines and pluck out their products for a hash
+                # ask the orm for the require lines of the hash keys (the products)
+                # iterate over require lines and assign/create the appropriate ilines to the parent ones in the hash
+                pass
+            elif iline.category == 'Incentives':
+                # ask the orm for all the products of type incentive
+                # ask the orm for all the require lines that are available with the current price group
+                # 
                 pass
             elif iline.category == 'Rate Drops':
-                pass
+                # these guys look exactly like premiums and combos but with no contents
+                ctx['closing']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, name=selected_product.name))
             elif iline.category == 'Package':
                 # obtain this package's actual contents and put its name in packctx
                 pkgcontents = {}
@@ -189,6 +198,7 @@ def dyn_json(request, agreement_id=None):
             print incoming
 
         # save agreement state
+        agreement.date_updated = timezone.now()
         agreement.done_premium = incoming.get('premium').get('done', False)
         agreement.done_combo = incoming.get('combo').get('done', False)
         agreement.done_alacarte = incoming.get('alacarte').get('done', False)
@@ -234,7 +244,7 @@ def dyn_json(request, agreement_id=None):
         # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
         for pp in pricelist:
-            fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), pricetable=pp.pricetable.group)
+            fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), pricetable=pp.pricetable.name)
 
         # now loop through the things that need invoice lines
         # XXX: services and promos (incentives) closing
@@ -280,8 +290,19 @@ def dyn_json(request, agreement_id=None):
         for selected in promos.get('contents', []):
             pass
 
-        for selected in closers.get('contents', []):
-            pass
+        # closers
+        for selected in closers.get('selected_codes', []):
+            # obtain the orm product
+            selected_product = Product.objects.get(code=selected.get('code'))
+
+            # assemble a context
+            # XXX: no quantities are associated in the form for this object so they are 1
+            ilinectx = dict(agreement=agreement, note='', product=selected.get('code'), category=selected_product.category, quantity=1, pricedate=timezone.now())
+            # XXX: no prices yet 
+
+            # create it
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
 
         # a-la-carte items
         for selected in customs.get('purchase_lines'):
@@ -298,7 +319,7 @@ def dyn_json(request, agreement_id=None):
         # premium items (actually combos) and combos
         for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
             # obtain the orm product associated with this code
-            selected_product = Product.objects.filter(code=selected.get('code'))[0]
+            selected_product = Product.objects.get(code=selected.get('code'))
 
             # assemble the pieces into a context
             # XXX: these things don't have a quantity associated with them right now it's just 1
@@ -314,10 +335,10 @@ def dyn_json(request, agreement_id=None):
             # now handle children of this last line
             for children in selected.get('contents'):
                 # need this to get the combo line and the category
-                child_product = Product.objects.filter(code=children.get('code'))[0]
+                child_product = Product.objects.get(code=children.get('code'))
 
                 # obtain this thing's combo line to get its strikeout prices
-                cline = ComboLine.objects.filter(parent=selected_product, product=child_product)[0]
+                cline = ComboLine.objects.get(parent=selected_product, product=child_product)
 
                 # assemble these pieces
                 ichildctx = dict(agreement=agreement, note='', product=children.get('code'), category=child_product.category, quantity=int(children.get('quantity')), pricedate=timezone.now(), parent=iline)

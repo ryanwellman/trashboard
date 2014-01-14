@@ -85,6 +85,7 @@ class Applicant(Updatable):
     lname = models.CharField(max_length=50)
     initial = models.CharField(max_length=1)
     phone = models.CharField(max_length=15)
+    last4 = models.CharField(max_length=4)
 
     def __unicode__(self):
         if self.initial:
@@ -302,7 +303,7 @@ class InvoiceLine(Updatable):
     category        =   models.CharField(max_length=64)
     pricetable      =   models.CharField(max_length=20)
     quantity        =   models.IntegerField(default=0)
-    pricedate       =   models.DateTimeField(auto_now_add=True) # timestamp on save
+    pricedate       =   models.DateTimeField(default=timezone.now) # timestamp on save
     upfront_each    =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_total   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
@@ -372,6 +373,7 @@ class RequiresLine(Serializable):
 
     parent      =   models.ForeignKey(Product, related_name='ParentProduct')
     child       =   models.ForeignKey(Product, related_name='RequiredProduct', blank=True, null=True)
+    quantity    =   models.IntegerField(default=1)
     pricetable  =   models.ForeignKey(PriceTable)
 
     def __unicode__(self):
@@ -435,3 +437,36 @@ class OrgCampaign(Serializable):
 
     class Meta:
         ordering = ['organization']
+
+
+class Credit(Serializable):
+    """
+    represents a set of credit files for one of our applicants
+    """
+
+    applicant = models.ForeignKey(Applicant)
+    decision = models.CharField(max_length=20)
+    override_by = models.CharField(max_length=64, blank=True, null=True)
+    override_date = models.DateField(default=timezone.now, blank=True, null=True)
+    reference_id = models.IntegerField(default=0)
+
+
+class CreditFile(Serializable):
+    """
+    represents one credit agency's opinion of how good an applicant's
+    ability to repay debt is
+    """
+
+    parent = models.ForeignKey(Credit)
+    beacon = models.IntegerField(default=0)
+    bureau = models.CharField(max_length=20)
+    decision = models.CharField(max_length=20)
+    date_created = models.DateField(default=timezone.now)
+    name = models.CharField(max_length=64)
+    person_id = models.CharField(max_length=128)
+    transaction_id = models.CharField(max_length=64)
+    transaction_status = models.CharField(max_length=20)
+    fraud = models.BooleanField(default=False)
+    frozen = models.BooleanField(default=False)
+    nohit = models.BooleanField(default=False)
+    vermont = models.BooleanField(default=False)

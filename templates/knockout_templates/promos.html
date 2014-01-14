@@ -3,17 +3,20 @@
 				<span class="label label-inverse box-rotate tab-pos">Promos</span>
 				<div class="controls controls-row" data-bind="foreach:INCENTIVES">
 					<!-- only visible if selected -->
-					<div class="control-group well well-small span3" data-bind="visible: $parent.services_and_promos.contains">
+					<div class="control-group well well-small span3" data-bind="visible: $parent.services_and_promos.contains($data, true)">
 						<label class="control-label checkbox">
 							<input type="checkbox" disabled="true" checked>
 							<h5><span data-bind="text: $data.name"></span></h5>&nbsp;
 							<span class="badge badge-info" data-bind="text: $data.price"></span>
 							<hr class="muted">
 							<ul>
-								<li><small>Added because you have <span data-bind="text: $data.reason"></span>
+								<li><small><span data-bind="text: $data.reason"></span>
 							</ul>
 						</label>
 					</div>
+				</div>
+				<div class='controls controls-row' data-bind="visible: $parent.services_and_promos.selected_promos().length == 0">
+					<h5>No available promotions</h5>
 				</div>
 				<form id="promo_form">
 					<div class="form-actions">

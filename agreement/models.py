@@ -9,6 +9,8 @@ class Product(Serializable):
     conceptually represents a sort-of upc for anything we sell
 
     products are separated into a set of bins by type
+
+    XXX: pricefunctions and the view use category to discriminate between products
     """
 
     # ptypes = ['shipping', 'incentives', 'equipment', 'combo', 'closer',
@@ -34,7 +36,7 @@ class PriceTable(Serializable):
     layered on top of it later
     """
 
-    name        =   models.CharField(max_length=20, primary_key=True)
+    name        =   models.CharField(max_length=40, primary_key=True)
     products    =   models.ManyToManyField(Product, through='ProductPrice', related_name='ProductPrices')
 
     def __unicode__(self):
@@ -369,7 +371,7 @@ class RequiresLine(Serializable):
     """
 
     parent      =   models.ForeignKey(Product, related_name='ParentProduct')
-    child       =   models.ForeignKey(Product, related_name='RequiredProduct')
+    child       =   models.ForeignKey(Product, related_name='RequiredProduct', blank=True, null=True)
     pricetable  =   models.ForeignKey(PriceTable)
 
     def __unicode__(self):
@@ -377,6 +379,7 @@ class RequiresLine(Serializable):
         try:
             fields.append(self.parent)
             fields.append(self.child)
+            fields.append(self.pricetable)
         except ObjectDoesNotExist:
             pass
         return u','.join([unicode(f) for f in fields])

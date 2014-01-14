@@ -1,8 +1,9 @@
 		<script type="text/html" id="promos_">
 			<div class="well">
 				<span class="label label-inverse box-rotate tab-pos">Promos</span>
-				<div class="controls controls-row" data-bind="foreach:SERVICES">
-					<div class="control-group well well-small span3">
+				<div class="controls controls-row" data-bind="foreach:INCENTIVES">
+					<!-- only visible if selected -->
+					<div class="control-group well well-small span3" data-bind="visible: $parent.services_and_promos.contains">
 						<label class="control-label checkbox">
 							<input type="checkbox" disabled="true" checked>
 							<h5><span data-bind="text: $data.name"></span></h5>&nbsp;

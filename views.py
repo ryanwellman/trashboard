@@ -99,6 +99,7 @@ def dyn_json(request, agreement_id=None):
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), points=pp.cb_points)
 
         # turn invoice lines into knockout viewmodel blobs and update the context
+        # XXX: use product type here rather than the categories?
         for iline in ilines:
             # skip children invoice lines; they will cascade from the parents
             if iline.parent:
@@ -126,16 +127,6 @@ def dyn_json(request, agreement_id=None):
                     clist.append(dict(code=child.product.code, quantity=child.quantity))
 
                 ctx['combo']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, contents=clist, name=selected_product.name))
-            elif iline.category == 'Services':
-                # go through all of the invoice lines and pluck out their products for a hash
-                # ask the orm for the require lines of the hash keys (the products)
-                # iterate over require lines and assign/create the appropriate ilines to the parent ones in the hash
-                pass
-            elif iline.category == 'Incentives':
-                # ask the orm for all the products of type incentive
-                # ask the orm for all the require lines that are available with the current price group
-                # 
-                pass
             elif iline.category == 'Rate Drops':
                 # these guys look exactly like premiums and combos but with no contents
                 ctx['closing']['selected_codes'].append(dict(price=fantastic_pricelist[iline.product]['monthly_each'], code=iline.product, description=selected_product.description, name=selected_product.name))
@@ -172,7 +163,9 @@ def dyn_json(request, agreement_id=None):
                 packctx['changed_contents'] = not reduce(lambda i, j: i and j, changes.values()) # a false here will make the whole thing false 
                 packctx['cb_balance'] = cbp
                 packctx['updated_contents'] = clist
-
+            elif iline.category in ['Services', 'Incentives']:
+                # services and incentives aren't mutable by the user
+                ctx['services_and_promos']['selected_codes'].append(iline.product.code)
             else:
                 # a-la-carte items use a different paradigm
                 partctx = dict(category=iline.category, code=iline.product, name=selected_product.name, price=fantastic_pricelist[iline.product]['monthly_each'], points=fantastic_pricelist[iline.product]['points'])
@@ -241,6 +234,9 @@ def dyn_json(request, agreement_id=None):
         InvoiceLine.objects.filter(agreement=agreement).delete()
         pricelist = get_productprice_list(campaign)
 
+        # obtain the list of active price tables
+        activepts = [obj['pt'] for obj in get_zorders(campaign)]
+
         # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
         for pp in pricelist:
@@ -285,10 +281,6 @@ def dyn_json(request, agreement_id=None):
             # actually make this thing
             iline = InvoiceLine(**ilinectx)
             iline.save()
-
-        # services and promos
-        for selected in promos.get('contents', []):
-            pass
 
         # closers
         for selected in closers.get('selected_codes', []):
@@ -348,6 +340,47 @@ def dyn_json(request, agreement_id=None):
                 # actually create it
                 ichild = InvoiceLine(**ichildctx)
                 ichild.save()
+
+        # services and promos
+        # this is recalculated each time an agreement blob is sent to the json handler
+        # XXX: detect changes to this and skip unchanged?
+
+        # key all the invoice lines now in this agreement to their product codes
+        # they were blanked out before dealing with the products so that's all that should be there
+        codedlines = {iline.product: iline for iline in InvoiceLine.objects.filter(agreement=agreement)}
+
+        # ask the orm for the require lines of the codedlines keys (the product keys) that are active
+        requires = RequiresLine.objects.filter(parent__in=Product.objects.filter(code__in=codedlines.keys()), pricetable__in=activepts)
+
+        # ask the orm for all the require lines in the current pricetable set with no children (for sure an incentive, requires nothing)
+        easypromos = RequiresLine.objects.filter(child=None, pricetable__in=activepts)
+
+        # ask the orm for all the require lines in the current pricetable set whose 
+        hardpromos = RequiresLine.objects.filter(, pricetable__in=activepts)
+
+        # at this point the union of requires and incentives contains all the services and promos
+        # for this particular agreement
+        seen = set()
+        for rline in chain(requires, vanillas):
+            # test this require line
+            if rline.parent.category == 'Incentives':
+                # handle incentives (promos)
+                # quantity 1 for now on both of these 
+                ilinectx = dict(agreement=agreement, note='', product=rline.parent.code, category=rline.parent.category, quantity=1, pricedate=timezone.now())
+                if iline.child: # this has a requirement
+                     ilinectx['parent'] = codedlines[iline.child.code]
+                ilinectx.update(fantastic_pricelist[rline.parent.code])
+
+                # make sure we don't add an incentive multiple times
+                seen.add(rline.parent.code)
+            else:
+                # handle services
+                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=1, pricedate=timezone.now(), parent=codedlines[rline.parent.code])
+                ilinectx.update(fantastic_pricelist[rline.child.code])
+
+            # actually make this thing
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
 
         # update agreement with values from incoming
         agreement.update_from_dict(incoming)

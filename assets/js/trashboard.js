@@ -717,22 +717,8 @@ PromoVM = function(blob) {
         }
     });
 
-    self.select_item = function() {
-        self.contents.removeAll();
-        for(var i = 0; i < self.selected_codes().length; i++) {
-            console.log(self.selected_codes()[i].contents);
-            for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
-                var ret = {
-                    'code': self.selected_codes()[i].contents[j].code,
-                    'quantity': self.selected_codes()[i].contents[j].quantity,
-                };
-
-                self.contents.push(ret);
-            }
-        }
-
-        // required for ko to allow checkbox to click
-        return true;
+    self.contains = function(param) {
+        return _.contains(self.selected_codes, param.code)
     };
 
     self.complete = function() {

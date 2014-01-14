@@ -707,7 +707,8 @@ PromoVM = function(blob) {
     blob = blob || {};
 
     var fields = {
-        'selected_codes': ko.observableArray,
+        'selected_promos': ko.observableArray,
+        'selected_services': ko.observableArray,
         'done': ko.observable,
     };
 
@@ -717,8 +718,13 @@ PromoVM = function(blob) {
         }
     });
 
-    self.contains = function(param) {
-        return _.contains(self.selected_codes, param.code)
+    self.contains = function(param, type) {
+        // type | true: promo, false: service
+        if(type) {
+            return _.contains(self.selected_promos(), param.code);
+        } else {
+            return _.contains(self.selected_services(), param.code);
+        }
     };
 
     self.complete = function() {

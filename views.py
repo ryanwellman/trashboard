@@ -63,7 +63,8 @@ def dyn_json(request, agreement_id=None):
                         'done': agreement.done_closing,
                     },
                     'services_and_promos': {
-                        'selected_codes': [],
+                        'selected_promos': [],
+                        'selected_services': [],
                         'done': agreement.done_promos,
                     },
                 }
@@ -163,9 +164,11 @@ def dyn_json(request, agreement_id=None):
                 packctx['changed_contents'] = not reduce(lambda i, j: i and j, changes.values()) # a false here will make the whole thing false 
                 packctx['cb_balance'] = cbp
                 packctx['updated_contents'] = clist
-            elif iline.category in ['Services', 'Incentives']:
+            elif iline.category == 'Services':
                 # services and incentives aren't mutable by the user
-                ctx['services_and_promos']['selected_codes'].append(iline.product.code)
+                ctx['services_and_promos']['selected_services'].append(iline.product)
+            elif iline.category == 'Incentives':
+                ctx['services_and_promos']['selected_promos'].append(iline.product)
             else:
                 # a-la-carte items use a different paradigm
                 partctx = dict(category=iline.category, code=iline.product, name=selected_product.name, price=fantastic_pricelist[iline.product]['monthly_each'], points=fantastic_pricelist[iline.product]['points'])
@@ -224,7 +227,7 @@ def dyn_json(request, agreement_id=None):
         # XXX: remove ugly hax
         if not agreement_id: # if the id is present we have something that's been saved
             # define some defaults
-            applicant_default = {'lname': '', 'phone': '', 'initial': '', 'fname': ''}
+            applicant_default = {'lname': '', 'phone': '', 'initial': '', 'fname': '', 'last4': ''}
             address_default = {'city': '', 'state': '', 'address': '', 'zip': '', 'country': ''}
 
             # populate the agreement and save it
@@ -342,47 +345,90 @@ def dyn_json(request, agreement_id=None):
                 ichild.save()
 
         # services and promos
+        # lasciate ogne speranza, voi ch'intrate
+
         # this is recalculated each time an agreement blob is sent to the json handler
         # XXX: detect changes to this and skip unchanged?
+        # XXX: way too many round trips to the database
+        # XXX: way too many loops
+        # XXX: ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly  
 
         # key all the invoice lines now in this agreement to their product codes
         # they were blanked out before dealing with the products so that's all that should be there
         codedlines = {iline.product: iline for iline in InvoiceLine.objects.filter(agreement=agreement)}
 
+        # get the actual product objects that are in the coded lines for these queries since invoice lines only have codes
+        ag_contents = Product.objects.filter(code__in=codedlines.keys())
+
         # ask the orm for the require lines of the codedlines keys (the product keys) that are active
-        requires = RequiresLine.objects.filter(parent__in=Product.objects.filter(code__in=codedlines.keys()), pricetable__in=activepts)
+        # these are the things that require other items to be purchased (services for sure)
+        requires = RequiresLine.objects.filter(parent__in=ag_contents, pricetable__in=activepts)
 
         # ask the orm for all the require lines in the current pricetable set with no children (for sure an incentive, requires nothing)
+        # these require no additional consistency checking
         easypromos = RequiresLine.objects.filter(child=None, pricetable__in=activepts)
 
-        # ask the orm for all the require lines in the current pricetable set whose 
-        hardpromos = RequiresLine.objects.filter(, pricetable__in=activepts)
+        # ask the orm for all the require lines in the current pricetable set whose children are items in this agreement
+        # these are ones that need to be checked for containing all of their children and for being an incentive
+        hardpromos = RequiresLine.objects.filter(child__in=ag_contents, pricetable__in=activepts)
 
-        # at this point the union of requires and incentives contains all the services and promos
-        # for this particular agreement
+        # at this point the union of the above 3 lists contains all the services and promos that
+        # might match this particular agreement...
         seen = set()
-        for rline in chain(requires, vanillas):
+        for rline in chain(requires, easypromos):
             # test this require line
             if rline.parent.category == 'Incentives':
                 # handle incentives (promos)
-                # quantity 1 for now on both of these 
                 ilinectx = dict(agreement=agreement, note='', product=rline.parent.code, category=rline.parent.category, quantity=1, pricedate=timezone.now())
-                if iline.child: # this has a requirement
+                if rline.child: # this has a requirement
                      ilinectx['parent'] = codedlines[iline.child.code]
                 ilinectx.update(fantastic_pricelist[rline.parent.code])
-
-                # make sure we don't add an incentive multiple times
-                seen.add(rline.parent.code)
             else:
                 # handle services
-                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=1, pricedate=timezone.now(), parent=codedlines[rline.parent.code])
+                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=rline.quantity, pricedate=timezone.now(), parent=codedlines[rline.parent.code])
                 ilinectx.update(fantastic_pricelist[rline.child.code])
 
             # actually make this thing
             iline = InvoiceLine(**ilinectx)
             iline.save()
 
-        # update agreement with values from incoming
+        # ...however, hardpromos contains possibly incomplete promotions so this needs to deal with that
+        # counting the number of require lines for the codes in question and making sure the count in hardpromos
+        # matches should work since these values are coming from the database
+
+        # sort hardpromos (a list) by parent codes so we have consecutive requirements for whatever incentive
+        hardpromos = sorted(hardpromos, key=lambda i: i.parent.code)
+
+        cached_incentive, cached_rlines, seen_rlines = object(), [], 0 # XXX: could this be a defaultdict?
+        # this version of the loop makes sure promos that have requirements all get counted
+        # it also depends on the list being sorted by incentive as above
+        for rline in hardpromos:
+            # test this require line
+            if rline.parent.category == 'Incentives':
+                # compare to cache and change if it changed
+                if rline.parent != cached_incentive:
+                    cached_incentive = rline.parent
+                    cached_rlines = RequiresLine.objects.filter(parent=rline.parent)
+                    seen_rlines = 0
+
+                seen_rlines += 1
+
+                # only create an invoice line if this thing matches counts
+                if seen_rlines == len(cached_rlines):
+                    ilinectx = dict(agreement=agreement, note='', product=rline.parent.code, category=rline.parent.category, quantity=1, pricedate=timezone.now())
+                    ilinects['parent'] = codedlines[rline.parent.code] # last one
+                    ilinectx.update(fantastic_pricelist[rline.parent.code])
+                    iline = InvoiceLine(**ilinectx)
+                    iline.save()
+            else:
+                # this a product in our agreement that is required by some other product > skip
+                continue
+
+            # create the invoice line
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
+
+        # update agreement with values from incoming, finally
         agreement.update_from_dict(incoming)
 
         # create a response

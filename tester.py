@@ -1,4 +1,5 @@
 from handy.connections import ChinaCursor
+from json import loads
 
 
 def Tester():
@@ -12,4 +13,6 @@ def Tester():
     cur.execute(sql)
     test_data = cur.fetch_all()
 
-    return test_data
+    loaded = loads(test_data[0]['blob'])
+
+    return loaded

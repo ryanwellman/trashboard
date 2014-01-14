@@ -34,14 +34,14 @@ class PriceTable(Serializable):
     layered on top of it later
     """
 
-    group       =   models.CharField(max_length=20, primary_key=True)
+    name        =   models.CharField(max_length=20, primary_key=True)
     products    =   models.ManyToManyField(Product, through='ProductPrice', related_name='ProductPrices')
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.group]])
+        return u','.join([unicode(f) for f in [self.name]])
 
     class Meta:
-        ordering = ['group']
+        ordering = ['name']
 
 
 class ProductPrice(Serializable):
@@ -55,6 +55,7 @@ class ProductPrice(Serializable):
 
     pricetable      =   models.ForeignKey(PriceTable)
     product         =   models.ForeignKey(Product)
+    max_quantity    =   models.IntegerField(blank=True, null=True)
     monthly_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     cb_points       =   models.IntegerField(default=0)
@@ -156,6 +157,46 @@ class PkgProduct(Serializable):
         ordering = ['package']
 
 
+class PriceGroup(Serializable):
+    """
+    represents a group of providers or campaigns that all use the same stack of price tables
+    """
+
+    pricetables     =   models.ManyToManyField(PriceTable, through='PGMembership', related_name='pricetables')
+    name            =   models.CharField(max_length=64)
+
+    def __unicode__(self):
+        fields = [self.name]
+        return u','.join([unicode(f) for f in fields])
+
+    class Meta:
+        ordering = ['name']
+
+
+class PGMembership(Serializable):
+    """
+    through table for PriceGroup and PriceTable so the things can stack
+    """
+
+    pricegroup      =   models.ForeignKey(PriceGroup)
+    pricetable      =   models.ForeignKey(PriceTable)
+    date_updated    =   models.DateField()
+    notes           =   models.CharField(max_length=200, blank=True)
+    zorder          =   models.IntegerField(default=0)
+
+    def __unicode__(self):
+        fields = [self.zorder, self.date_updated]
+        try:
+            fields.append(self.pricegroup)
+            fields.append(self.pricetable)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
+
+    class Meta:
+        ordering = ['pricegroup']
+
+
 class Campaign(Serializable):
     """
     represents a campaign within an organization.
@@ -165,7 +206,7 @@ class Campaign(Serializable):
     split up people getting paid
     """
 
-    pricetables =   models.ManyToManyField(PriceTable, through='CmpPrice', related_name='Campaigns')
+    pricegroup  =   models.ForeignKey(PriceGroup, blank=True, null=True) # this can be blank but an org must have one
     name        =   models.CharField(max_length=50)
     campaign_id =   models.CharField(max_length=32, primary_key=True)
 
@@ -174,36 +215,6 @@ class Campaign(Serializable):
 
     class Meta:
         ordering = ['campaign_id']
-
-
-class CmpPrice(Serializable):
-    """
-    represents membership by a price table in a campaign
-    through table for Campaign and PriceTable
-
-    price table overlays occur here for individual campaigns
-
-    see OrgPrice for a detailed explanation
-    """
-
-    campaign        =   models.ForeignKey(Campaign)
-    pricetable      =   models.ForeignKey(PriceTable)
-    date_updated    =   models.DateTimeField()
-    notes           =   models.CharField(max_length=30, blank=True)    # still ???
-    zorder          =   models.IntegerField(default=0)                 # 'importance'
-
-    def __unicode__(self):
-        fields = [self.zorder]
-        try:
-            fields.append(self.campaign)
-            fields.append(self.pricetable)
-        except ObjectDoesNotExist:
-            pass
-
-        return u','.join([unicode(f) for f in fields])
-
-    class Meta:
-        ordering = ['campaign']
 
 
 class Agreement(Updatable):
@@ -225,7 +236,6 @@ class Agreement(Updatable):
         monitoring: who gets paid to watch this system
         floorplan: what shape is the target address
         promo_code: just one for now!
-        progress: store one of 64 states of the form associated with this model
 
     this field is updatable from a json-like blob
     """
@@ -236,9 +246,10 @@ class Agreement(Updatable):
     billing_address = models.ForeignKey(Address, related_name='billing')
     system_address =models.ForeignKey(Address, related_name='system')
     pricetable_date = models.DateField(default=timezone.now) # automatically timestamped on creation
+    date_updated = models.DateField(default=timezone.now) # update when updated
     email = models.CharField(max_length=75)
     approved = models.CharField(max_length=20)
-    package = models.ForeignKey(Package, related_name='package', blank=True, null=True)
+    package = models.ForeignKey(Package, related_name='package', blank=True, null=True) # now nullable
     shipping = models.CharField(max_length=20)
     monitoring = models.CharField(max_length=20)
     floorplan = models.CharField(max_length=20)
@@ -264,7 +275,7 @@ class Agreement(Updatable):
             fields.append(self.billing_address)
         except ObjectDoesNotExist:
             pass
-        return u','.join([unicode(f) for f in fields]) # needs campaign_id
+        return u','.join([unicode(f) for f in fields])
 
     class Meta:
         verbose_name = u'Customer Agreement'
@@ -298,7 +309,6 @@ class InvoiceLine(Updatable):
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     parent          =   models.ForeignKey('self', blank=True, null=True)
     mandatory       =   models.BooleanField(default=False)
-
 
     @property
     def upfront_display(self):
@@ -345,6 +355,36 @@ class ComboLine(Serializable):
         ordering = ['parent']
 
 
+class RequiresLine(Serializable):
+    """
+    represents a requirement by one product of another single product
+    indexed on a pricetable
+
+    this is used one way for services and another for incentives
+        * if parent is of type 'incentive' the children are things we need
+          to activate the incentive
+
+        * if parent is of type anything else, the children are things that
+          are mandatory for purchase with the parent
+    """
+
+    parent      =   models.ForeignKey(Product, related_name='ParentProduct')
+    child       =   models.ForeignKey(Product, related_name='RequiredProduct')
+    pricetable  =   models.ForeignKey(PriceTable)
+
+    def __unicode__(self):
+        fields = []
+        try:
+            fields.append(self.parent)
+            fields.append(self.child)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
+
+    class Meta:
+        ordering = ['pricetable']
+
+
 class Organization(Serializable):
     """
     represents an overarching business entity that may
@@ -352,14 +392,14 @@ class Organization(Serializable):
     an agent, but is a way of logically separating the
     members of the business for whatever reason
 
-    each organization also has a price table associated with it
+    each organization also has a price group associated with it
     that governs what they charge for our products
     """
 
-    pricetables =   models.ManyToManyField(PriceTable, through='OrgPrice', related_name='Organizations')
+    pricegroup =    models.ForeignKey(PriceGroup) # must have this
     campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
     name        =   models.CharField(max_length=50)
-    provider_id =   models.IntegerField(primary_key=True)
+    provider_id =   models.CharField(max_length=32, primary_key=True)
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.name, self.provider_id]])
@@ -368,58 +408,18 @@ class Organization(Serializable):
         ordering = ['name']
 
 
-class OrgPrice(Serializable):
-    """
-    represents membership by a price table in an organization
-    through table for Organization and PriceTable
-
-    price table overlays occur here for individual organizations
-    by comparing the z-order of their associated OrgPrices
-
-    this is done by unioning the results in descending
-    z-order and taking the top result
-
-    by default price tables overlay in the reverse order
-    they were added; newer prices are used before older ones.
-    in the case that this is not the right thing,
-    these recipes may help:
-        * you want to insert a global base table?
-            + use a small negative number in the AutoField
-        * you want to insert a specific override?
-            + use a big positive number in the AutoField
-        * anything else?
-            + you will have to recalculate z-order unless there's
-              space between price table z-orders.
-    """
-
-    organization    =   models.ForeignKey(Organization)
-    pricetable      =   models.ForeignKey(PriceTable)
-    date_updated    =   models.DateTimeField()
-    notes           =   models.CharField(max_length=30, blank=True)    # ???
-    zorder          =   models.IntegerField(default=0)                 # 'priority'
-
-    def __unicode__(self):
-        fields = [self.zorder]
-        try:
-            fields.append(self.organization)
-            fields.append(self.pricetable)
-        except ObjectDoesNotExist:
-            pass
-        return u','.join([unicode(f) for f in fields])
-
-    class Meta:
-        ordering = ['organization']
-
-
 class OrgCampaign(Serializable):
     """
     represents membership by a campaign in an organization
     through table for Organization and Campaign
+
+    because these things have price groups they need a zorder too
     """
 
     organization    =   models.ForeignKey(Organization)
     campaign        =   models.ForeignKey(Campaign)
     date_updated    =   models.DateTimeField()
+    zorder          =   models.IntegerField(default=0)
 
     def __unicode__(self):
         fields = [self.date_updated]
@@ -432,41 +432,3 @@ class OrgCampaign(Serializable):
 
     class Meta:
         ordering = ['organization']
-
-
-class PriceGroup(Serializable):
-    """
-    represents a group of providers or campaigns that all use the same prices
-    """
-
-    pricetables     =   models.ManyToManyField(PriceTable, through='PGMembership', related_name='pricetables')
-    name            =   models.CharField(max_length=64)
-
-    def __unicode__(self):
-        fields = [self.name]
-        return u','.join([unicode(f) for f in fields])
-
-    class Meta:
-        ordering = ['name']
-
-
-class PGMembership(Serializable):
-    """
-    through table for PriceGroup and PriceTable
-    """
-
-    pricegroup      =   models.ForeignKey(PriceGroup)
-    pricetable      =   models.ForeignKey(PriceTable)
-    date_updated    =   models.DateField()
-
-    def __unicode__(self):
-        fields = [self.date_updated]
-        try:
-            fields.append(self.pricegroup)
-            fields.append(self.pricetable)
-        except ObjectDoesNotExist:
-            pass
-        return u','.join([unicode(f) for f in fields])
-
-    class Meta:
-        ordering = ['pricegroup']

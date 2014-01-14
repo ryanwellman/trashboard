@@ -6,7 +6,7 @@
 						<div class="controls controls-row" data-bind="foreach: CLOSERS">
 							<div class="control-group well well-small span3">
 								<label class="control-label checkbox">
-									<input type="checkbox">
+									<input type="checkbox" data-bind="checked: $parent.closing.selected_codes, checkedValue: $data">
 									<h5><span data-bind="text: $data.name"></span></h5>&nbsp;
 									<hr class="muted">
 									<ul>

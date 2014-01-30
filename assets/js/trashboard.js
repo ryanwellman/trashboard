@@ -6,6 +6,39 @@ function formatCurrency(value) {
     return value.toFixed(2);
 };
 
+// fast hash function
+function hashFNV(str) {
+    // implementation of the fnv-1a hashing algorithm
+    // http://www.isthe.com/chongo/tech/comp/fnv/#FNV-1a
+
+    var hash = 0x811C9DC5; // magic 32 bit fnv offset 2166136261 in hex
+    for (i = 0; i < str.length; i++) {
+        char = str.charCodeAt(i); // obtain a byte (ASCII char code 0-255)
+
+        // xor hash with char first as in fnv-1a
+        hash ^= char;
+
+        // 2^24 + 2^8 + 2^7 + 2^4 + 2 = 13777618 plus the copy on the left of the +=
+        // makes the magic 32 bit fnv prime 16777619 you needed to multiply here
+        hash += (hash << 24) + (hash << 8) + (hash << 7) + (hash << 4) + (hash << 1);
+    }
+    return (hash >>> 0); // remove sign from hash
+}
+
+// returns a css-formatted hsla color function deterministically generated from
+// an input string
+function str2hsla(str, alpha) {
+    // obtain last 8 bytes of the hash
+    var hash = (hashFNV(str) & 0x00000000ffffffff) >>> 0;
+
+    // obtain hsl values
+    var h = hash % 360;
+    var s = (hash % 25) + 75; // between 75 and 100
+    var l = (hash % 15) + 55; // between 40 and 70
+
+    return "hsla(" + h + ", " + s + "%, " + l + "%, " + alpha + ")";
+}
+
 // KNOCKOUT VIEW MODELS
 
 // first some utility objects
@@ -107,6 +140,8 @@ UpdatableAndSerializable = function() {
         }
     };
 
+    this._str2hsla = str2hsla;
+
     return this;
 };
 
@@ -125,7 +160,7 @@ JSONHandler = function() {
         // obtain blob from ajax
         var result = $.ajax({
             dataType: "json",
-            url: '/json2/' + agreement_id,
+            url: '/json/' + agreement_id,
             async: false, // asynchronous load means empty blob
         });
 
@@ -155,7 +190,7 @@ JSONHandler = function() {
         var result = $.ajax({
             type: "POST",
             dataType: "json",
-            url: '/json2/' + agreement_id,
+            url: '/json/' + agreement_id,
             async: false, // testing with and without this
             data: payload,
         });
@@ -171,7 +206,7 @@ JSONHandler = function() {
             obj.id = data.id;
             agreement_id = data.id;
             retval = data.id;
-            console.log("saved json" + (agreement_id ? " to agreement " + agreement_id : '') + "\n" + ko.toJSON(self));
+            console.log("saved json" + (agreement_id ? " to agreement " + agreement_id :  '') + "\n" + ko.toJSON(self));
         });
 
         // return the agreement id that was saved
@@ -277,6 +312,60 @@ PackageVM = function(blob) {
         self['selected_package'](package_index[self.selected_package().code]);        
     }
 
+    // if there's no customization lines the customize button doesn't work
+    // the customization lines need to be updated with quantities as well
+    self.prepare_clines = function() {
+        // fill the customization lines with available parts
+        _.map(window.PARTS, function(part) {
+            var cline= {
+                code: part.code,
+                part: part,
+                quantity: ko.observable(0),
+                min_quantity: ko.observable(0),
+            };
+
+            // subscribe this to cust_quantity_changed
+            cline.quantity.subscribe(self.cust_quantity_changed);
+            self.customization_lines.push(cline);
+            cline.quantity.subscribe(self.cust_quantity_changed);
+        });
+
+        // now fill them with the correct quantities
+        if(self.updated_contents().length && self.changed_contents()) {
+            // did we pass in an updated package from the backend?
+            _.each(self.updated_contents(), function(line) {
+                // Find the customization line for that product
+                var cline = _.find(self.customization_lines(), function(cline) {
+                    return cline.code == line.code;
+                });
+                // Set that customization line's quantity and min quantity appropriately.
+                if(cline) {
+                    //console.log("Found matching cline, ", cline.quantity);
+                    cline.quantity(line.quantity);
+                    //TODO: Set min quantity
+                } else {
+                    //console.log("!Found matching cline", cline);
+                }
+            });
+        } else if(self.selected_package().contents && self.selected_package().contents.length && !self.changed_contents()) {
+            // deal with the regular package contents instead if not
+            _.each(self.selected_package().contents, function(line) {
+                // Find the customization line for that product
+                var cline = _.find(self.customization_lines(), function(cline) {
+                    return cline.code == line.code;
+                });
+                // Set that customization line's quantity and min quantity appropriately.
+                if(cline) {
+                    //console.log("Found matching cline, ", line.quantity);
+                    cline.quantity(line.quantity);
+                    //TODO: Set min quantity
+                } else {
+                    //console.log("!Found matching cline", cline);
+                }
+            });            
+        }
+    };
+
     self.select_package = function(package) {
         if(self.done()) {
             return;
@@ -326,6 +415,8 @@ PackageVM = function(blob) {
     };
 
     self.customize = function () {
+        // this needs to unlock the form when you click it
+        self.done(false);
         self.customizing(true);
     };
 
@@ -428,7 +519,8 @@ PackageVM = function(blob) {
         self.done(false);
     };
 
-    self.select_package(package_index[self.selected_package().code]);
+    // this has to be at the bottom if a package is selected (saved in)
+    self.prepare_clines();
 
     return self;
 };
@@ -718,6 +810,7 @@ PromoVM = function(blob) {
         }
     });
 
+    // XXX: ugly
     self.contains = function(param, type) {
         // type | true: promo, false: service
         if(type) {
@@ -734,6 +827,93 @@ PromoVM = function(blob) {
     self.clear = function() {
         self._clear(Object.keys(fields));
         self.done(false);
+    };
+
+    return self;
+};
+
+// contains this agreement's credit response
+CreditDecisionVM = function(blob) {
+    // capture a new copy of UAS and make this thing
+    var self = new UpdatableAndSerializable();
+
+    // make blob a thing if it isn't
+    blob = blob || {};
+
+    // field types
+    var fields = {
+        'decision': ko.observable,
+        'files': ko.observableArray,
+    };
+
+    _.each(fields, function(v, k) {
+        if(blob[k] != undefined) {
+            self[k] = v(blob[k]);
+        }
+    });
+
+    // XXX: additional processing unknown?
+};
+
+// contains invoice lines
+ReviewVM = function(blob) {
+    // capture a new copy of UAS and make this thing
+    var self = new UpdatableAndSerializable();
+
+    // make blob a thing if it isn't
+    blob = blob || {};
+
+    // field types
+    var fields = {
+        'contents': ko.observableArray,
+    };
+
+    _.each(fields, function(v, k) {
+        if(blob[k] != undefined) {
+            self[k] = v(blob[k]);
+        }
+    });
+
+    _.each(self.contents(), function(iline) {
+        if(iline.parent) {
+            iline.parent = iline.parent.id;
+        }
+        iline.indent = 0;
+        if(!iline.monthly_total) {
+            iline.monthly_total = '';
+        }
+        iline.mandatory = (iline.mandatory == 'True') ? true : false;
+    });
+
+    self.treeroots = function() {
+        // return things with no parent
+        return _.filter(self.contents(), function(iline) {
+            return (iline.parent == undefined);
+        });
+    };
+
+    self.populate = function(node) {
+        var buf = [node];
+
+        var children = _.where(self.contents(), { "parent": node.id });
+        if(children.length > 0) {
+            _.each(children, function(iline) {
+                iline.indent += 0.5; // XXX: don't know what's causing this to run twice
+                buf = buf.concat(self.populate(iline)); // but this to run once
+            });
+        }
+
+        return buf;
+    };
+
+    self.tree = function() {
+        var buf = [];
+
+        _.each(self.treeroots(), function(iline) {
+            buf = buf.concat(self.populate(iline));
+        });
+
+        return buf;
     };
 
     return self;
@@ -769,14 +949,13 @@ MasterVM = function(blob) {
         'alacarte': ALaCarteVM,
         'closing': ClosingVM,
         'services_and_promos': PromoVM,
+        'review': ReviewVM,
     };
 
     // try to assign things from blob to fields if they exist
     _.each(fields, function(v, k) {
         if(blob[k] != undefined) {
             self[k] = v(blob[k]);
-        } else {
-            ;
         }
     });
 
@@ -819,6 +998,23 @@ MasterVM = function(blob) {
         return self.package.cb_balance();
     });
 
+    // attempt to figure out what prices to display in the nav
+    self.monthly_cost = ko.computed(function() {
+        // package items
+
+        // monitoring
+
+        // premium items
+
+        // combos
+
+        // alacarte
+
+        // services
+
+        // shipping
+    });
+
     // XXX: add the rest of the variables that need to be pretty
 
     // variables included that are not from json (constants)
@@ -829,10 +1025,23 @@ MasterVM = function(blob) {
 
     // test things that don't have their own viewmodel or have many viewmodels for completeness
 
-    // this function will get the selected monitoring value
+
+    // this function will set the selected monitoring value
     self.selected_monitoring = function(monit) {
         self.monitoring(monit.value);
-    }
+    };
+
+    self.selected_shipping = function(shipp) {
+        self.shipping(shipp.value);
+    };
+
+    self.moncss = function(param) {
+        return (param.value.toLowerCase() == self.monitoring().toLowerCase()) ? 'currently_chosen' : '';
+    };
+
+    self.shipcss = function(param) {
+        return (param.value.toLowerCase() == self.shipping().toLowerCase()) ? 'currently_chosen' : '';
+    };
 
     // initial info section
     self.initial_complete = function() {

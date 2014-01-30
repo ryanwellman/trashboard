@@ -1,35 +1,16 @@
 		<script type="text/html" id="review_">
 			<div class="well">
                 <span class="label label-inverse box-rotate tab-pos">Review</span>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Customer Name: </div>
-                    <div class="span4"><span data-bind="text: applicant.fname"></span> <span data-bind="text: applicant.lname"></span></div>
-                </div>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Address: </div>
-                    <div class="span4"><span data-bind="text: billing_address.address"></span>, <span data-bind="text:citystate"></span> <span data-bind="text:billing_address.zip"></span></div>
-                </div>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Approval Status: </div>
-                    <div class="span4"><span data-bind="text: approved"></span></div>
-                </div>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Package: </div>
-                    <div class="span4"><span data-bind="text: package_nav().split(': ')[1]"></span></div>
-                </div>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Monitoring: </div>
-                    <div class="span4"><span data-bind="text: monitoring_nav().split(': ')[1]"></span></div>
-                </div>
-                <div class="row">
-                    <div class="span1"></div>
-                    <div class="span2">Shipping: </div>
-                    <div class="span4"><span data-bind="text: shipping_nav().split(': ')[1]"></span></div>
+                <div data-bind="foreach: $parent.review.tree()">
+                    <div class="controls controls-row">
+                        <div class="control-group well well-small" data-bind="style: {backgroundColor: $parent._str2hsla(category, 0.5)}, css: {offset1: indent}">
+                            <span data-bind="text: product"></span>
+                            <span data-bind="text: category"></span>
+                            x<span data-bind="text: quantity"></span>
+                            <span class="badge badge-info" data-bind="text: monthly_total"></span>
+                            <span class="badge badge-warning" data-bind="if: mandatory">MANDATORY</span>
+                        </div>
+                    </div>
                 </div>
                 <!--
 				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>

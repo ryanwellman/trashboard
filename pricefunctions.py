@@ -113,13 +113,10 @@ def gen_arrays(campaign):
     pricelist = get_productprice_list(campaign)
 
     # variables
-    parts, packages, closers, services, combos, premiums, incentives = ([], [], [], [], [], [], [])
+    parts, packages, closers, services, combos, premiums, incentives, monitors, shippers = ([], [], [], [], [], [], [], [], [])
 
     # get packages first
     for pack in Package.objects.all():
-        if pack.code=='blank':
-            continue
-
         # cache contents
         contents = []
         for pkgp in pack.pkgproduct_set.all():
@@ -156,9 +153,13 @@ def gen_arrays(campaign):
             combos.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price or 0, '.2f'), description=prod.product.description, category=prod.product.category, contents=citems))
         elif prod.product.category == 'Incentives':
             incentives.append(dict(code=prod.product.code, name=prod.product.name, price=format(prod.monthly_price or 0, '.2f'), reason=prod.product.description))
+        elif prod.product.category == 'Monitoring':
+            monitors.append(dict(name=prod.product.name, value=prod.product.code))
+        elif prod.product.category == 'Shipping':
+            shippers.append(dict(name=prod.product.name, value=prod.product.code))
         else:
             # has not been appended elsewhere
             parts.append(dict(code=str(prod.product.code), name=str(prod.product.name), points=str(prod.cb_points), category=str(prod.product.category), price=format(prod.monthly_price or 0, '.2f')))
 
     # return something our view model can use as context
-    return dict(parts=dumps(parts), packages=dumps(packages), closers=dumps(closers), services=dumps(services), combos=dumps(combos), premiums=dumps(premiums), incentives=dumps(incentives))
+    return dict(parts=dumps(parts), packages=dumps(packages), closers=dumps(closers), services=dumps(services), combos=dumps(combos), premiums=dumps(premiums), incentives=dumps(incentives), monitors=dumps(monitors), shippers=dumps(shippers))

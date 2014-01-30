@@ -50,7 +50,7 @@ class Serializable(models.Model):
 
         # let's make the first one without ignored and without django private items
         # these values are all strings as far as json is concerned
-        plain = dict((k, str(v)) for k, v in self.__dict__.iteritems() if v is not None and k not in ignore and not k.startswith('_'))
+        plain = dict((k, unicode(v)) for k, v in self.__dict__.iteritems() if v is not None and k not in ignore and not k.startswith('_'))
 
         # now get rid of the foreign key ids if you want to
         if ignorefkid:
@@ -60,7 +60,7 @@ class Serializable(models.Model):
         if ignorefk:
             fancy = {}
         else:
-            fancy = dict((k, v.serialize()) for k, v in fkinstances.iteritems() if v is not None and k not in ignore)
+            fancy = dict((k, v.serialize(ignore=ignore)) for k, v in fkinstances.iteritems() if v is not None and k not in ignore)
 
         # the m2m items and their through table items
         # v should be an array since these are m2m
@@ -69,8 +69,8 @@ class Serializable(models.Model):
         if ignorem2m:
             voodoo = {}
         else:
-            voo = dict((k, [a.serialize(ignorem2m=True) for a in v]) for k, v in m2minstances.iteritems() if v is not None and k not in ignore)
-            doo = dict((k, [a.serialize(ignorefk=True, ignorefkid=False) for a in v]) for k, v in throughinstances.iteritems() if v is not None and k not in ignore)
+            voo = dict((k, [a.serialize(ignore=ignore, ignorem2m=True) for a in v]) for k, v in m2minstances.iteritems() if v is not None and k not in ignore)
+            doo = dict((k, [a.serialize(ignore=ignore, ignorefk=True, ignorefkid=False) for a in v]) for k, v in throughinstances.iteritems() if v is not None and k not in ignore)
             voodoo = dict(voo, **doo)
 
         # hax: fastest way to concatenate these

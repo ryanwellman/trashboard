@@ -64,6 +64,7 @@ class ProductPrice(Serializable):
     fromdate        =   models.DateTimeField(null=True)
     todate          =   models.DateTimeField(null=True)
     promo           =   models.BooleanField(default=False)
+    swappable       =   models.BooleanField(default=False)
 
 
     def __unicode__(self):
@@ -210,7 +211,7 @@ class Campaign(Serializable):
     """
 
     pricegroup  =   models.ForeignKey(PriceGroup, blank=True, null=True) # this can be blank but an org must have one
-    name        =   models.CharField(max_length=50)
+    name        =   models.CharField(max_length=80)
     campaign_id =   models.CharField(max_length=32, primary_key=True)
 
     def __unicode__(self):

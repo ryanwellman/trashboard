@@ -17,13 +17,14 @@ from dynamicresponse.response import SerializeOrRedirect
 from agreement.models import *
 from pricefunctions import *
 
-@csrf_exempt
+#@csrf_exempt
 def dyn_json(request, agreement_id=None):
     """
     reads or updates an Agreement and returns it to the caller as json
 
     XXX: eventually this will need to accept a campaign id as well
     XXX: in several places the knockout accepts only one price for an item which for now is monthly_price
+    XXX: this could be refactored as a class-based view with multiple helper methods
     """
 
     # attempts to get or set a specific agreement
@@ -67,6 +68,9 @@ def dyn_json(request, agreement_id=None):
                         'selected_services': [],
                         'done': agreement.done_promos,
                     },
+                    'review': {
+                        'contents': [],
+                    },
                 }
 
         # package is its own can of worms
@@ -76,7 +80,6 @@ def dyn_json(request, agreement_id=None):
             code = ''
 
         # create a context again
-        # XXX: make this load properly in knockout when these values are fed in
         packctx =   {
                     'selected_package': {
                         'code': code,
@@ -102,15 +105,20 @@ def dyn_json(request, agreement_id=None):
         # turn invoice lines into knockout viewmodel blobs and update the context
         # XXX: use product type here rather than the categories?
         for iline in ilines:
-            # skip children invoice lines; they will cascade from the parents
-            if iline.parent:
+            # place all of these things into review as serialized invoice lines
+            ctx['review']['contents'].append(iline.serialize(ignore=['agreement', 'pricetable']))
+
+            # skip combo children invoice lines; they will cascade from the parents
+            if iline.parent and iline.category not in ['Services', 'Incentives']:
                 continue
 
             # XXX: this gets around the packages being fake products in the invoice lines
+            # XXX: probably going to add duped products for the packages anyway so that
+            #      they have prices from the price lists so we can use that here
             if iline.category != 'Package':
-                selected_product = Product.objects.filter(code=iline.product)[0]
+                selected_product = Product.objects.get(code=iline.product)
             else:
-                selected_product = Package.objects.filter(code=iline.product)[0]
+                selected_product = Package.objects.get(code=iline.product)
 
             if iline.category == 'Premium Items':
                 children = ComboLine.objects.filter(parent=selected_product)
@@ -169,6 +177,10 @@ def dyn_json(request, agreement_id=None):
                 ctx['services_and_promos']['selected_services'].append(iline.product)
             elif iline.category == 'Incentives':
                 ctx['services_and_promos']['selected_promos'].append(iline.product)
+            elif iline.category == 'Shipping':
+                response['shipping'] = iline.product # XXX: do something about this being shitty
+            elif iline.category == 'Monitoring':
+                response['monitoring'] = iline.product
             else:
                 # a-la-carte items use a different paradigm
                 partctx = dict(category=iline.category, code=iline.product, name=selected_product.name, price=fantastic_pricelist[iline.product]['monthly_each'], points=fantastic_pricelist[iline.product]['points'])
@@ -217,9 +229,10 @@ def dyn_json(request, agreement_id=None):
             selpkg_code = ''
 
         # XXX: might want to do as brian does here and store just a code and not the package object itself
-        packages = Package.objects.filter(code=selpkg_code)
-        if packages:
-            agreement.package = packages[0]
+        try:
+            agreement.package = Package.objects.get(code=selpkg_code)
+        except Package.DoesNotExist: # ugly
+            pass
 
         packs = incoming.pop('package', None)
 
@@ -374,25 +387,24 @@ def dyn_json(request, agreement_id=None):
 
         # at this point the union of the above 3 lists contains all the services and promos that
         # might match this particular agreement...
-        seen = set()
         for rline in chain(requires, easypromos):
             # test this require line
             if rline.parent.category == 'Incentives':
                 # handle incentives (promos)
                 ilinectx = dict(agreement=agreement, note='', product=rline.parent.code, category=rline.parent.category, quantity=1, pricedate=timezone.now())
-                if rline.child: # this has a requirement
+                if rline.child: # this has a requirement (should not execute ever)
                      ilinectx['parent'] = codedlines[iline.child.code]
                 ilinectx.update(fantastic_pricelist[rline.parent.code])
             else:
                 # handle services
-                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=rline.quantity, pricedate=timezone.now(), parent=codedlines[rline.parent.code])
+                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=rline.quantity, pricedate=timezone.now(), parent=codedlines[rline.parent.code], mandatory=True)
                 ilinectx.update(fantastic_pricelist[rline.child.code])
 
             # actually make this thing
             iline = InvoiceLine(**ilinectx)
             iline.save()
 
-        # ...however, hardpromos contains possibly incomplete promotions so this needs to deal with that
+        # ...however, hardpromos contains possibly incomplete promotions so deal with that now
         # counting the number of require lines for the codes in question and making sure the count in hardpromos
         # matches should work since these values are coming from the database
 
@@ -421,10 +433,23 @@ def dyn_json(request, agreement_id=None):
                     iline = InvoiceLine(**ilinectx)
                     iline.save()
             else:
-                # this a product in our agreement that is required by some other product > skip
+                # this a product in our agreement that is required by some other product so skip it
                 continue
 
             # create the invoice line
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
+
+        # create some invoice lines for shipping and monitoring here
+        # XXX: neither of these are in the products yet so they have no price information
+        if agreement.monitoring:
+            # XXX: again just one for quantity here
+            ilinectx = dict(agreement=agreement, note='', product=agreement.monitoring, category='Monitoring', quantity=1, pricedate=timezone.now())
+            iline = InvoiceLine(**ilinectx)
+            iline.save()
+
+        if agreement.shipping:
+            ilinectx = dict(agreement=agreement, note='', product=agreement.shipping, category='Shipping', quantity=1, pricedate=timezone.now())
             iline = InvoiceLine(**ilinectx)
             iline.save()
 
@@ -441,82 +466,7 @@ def dyn_json(request, agreement_id=None):
     if request.method == 'DELETE':
         pass
 
-    return SerializeOrRedirect(reverse(draw_test), response)
-
-
-def serve_json(request):
-    """
-    gets and returns a random agreement as json (debug)
-    """
-    # returns a random agreement as json
-    agreement = Agreement.objects.order_by('?')[0]
-    # this next one will be better as soon as there are any objects in the database
-    # agreement = Agreement.objects.raw('SELECT * FROM agreement_agreement ORDER BY RAND() LIMIT 1')
-
-    ctx = agreement.serialize()
-    return SerializeOrRedirect(reverse(draw_test), response)
-
-
-def test_json(request):
-    """
-    returns a contrived agreement as json (debug)
-    """
-    # sends json response given in the dictionary below
-    ctx =   {
-                'applicant': {
-                    'fname':    '',
-                    'lname':    '',
-                    'initial':  '',
-                },
-                'billing_address': {
-                    'address':  '',
-                    'city':     '',
-                    'state':    '',
-                    'zip':      '',
-                    'country':  '',
-                },
-                'email':    '',
-                'approved': '',
-                'package':  {
-                    'selected_package': {
-                        'code': '',
-                        'name': '',
-                    },
-                    'customizing': False,
-                    'cb_balance': '0',
-                    'updated_contents': [],
-                    'changed_contents': False,
-                    'customization_lines': [],
-                    'done': False,
-                },
-                'shipping': '',
-                'monitoring': '',
-                'floorplan': '',
-                'promo_code':'',
-                'premium': {
-                    'selected_codes': [],
-                    'contents': [],
-                    'done': False,
-                },
-                'combo': {
-                    'selected_codes': [],
-                    'contents': [],
-                    'done': False,
-                },
-                'alacarte': {
-                    'purchase_lines': [],
-                    'done': False,
-                },
-                'closing': {
-                    'done': False,
-                },
-                'services_and_promos': {
-                    'done': False,
-                },
-            }
-
-    return SerializeOrRedirect(reverse(draw_test), ctx)
-
+    return SerializeOrRedirect(reverse(draw_container), response)
 
 @render_to('container.html')
 def draw_container(request, agreement_id=None):
@@ -533,105 +483,5 @@ def draw_container(request, agreement_id=None):
 
     # a lot of words used to be here but then we wrote pricefunctions.py and got all of it with
     # gen_arrays(), which returns that giant wall of object hierarchy we all know and love... sort of
-
     # XXX: eventually people should be getting these lists of things from somewhere else by campaign
     return dict(gen_arrays(Campaign.objects.all()[0]), agreement_id=dumps(dict(agreement_id=agreement_id)))
-
-
-@render_to('package.html')
-def Packages(request):
-    ko_packages = [{'code':'copper', 'name':'Copper', 'contents':[{'code':'DWSENS', 'quantity':'3' },
-                                                                  {'code':'SIMNXT', 'quantity':'1' },
-                                                                  {'code':'MOTDEC', 'quantity':'2' }
-                                                              ]},
-                {'code':'bronze', 'name':'Bronze', 'contents':[{'code':'DWSENS', 'quantity':'7' },
-                                                               {'code':'SIMNXT', 'quantity':'1' },
-                                                               {'code':'MOTDEC', 'quantity':'2' }
-                                                              ]},
-                {'code':'silver', 'name':'Silver', 'contents':[{'code':'DWSENS', 'quantity':'10' },
-                                                               {'code':'SIMNXT', 'quantity':'1' },
-                                                               {'code':'MOTDEC', 'quantity':'2'  }
-                                                              ]},
-                {'code':'gold', 'name':'Gold', 'contents':[{'code':'DWSENS', 'quantity':'12' },
-                                                           {'code':'SIMNXT', 'quantity':'1' },
-                                                           {'code':'MOTDEC', 'quantity':'2' }
-                                                           ]},
-                {'code':'platinum', 'name':'Platinum', 'contents':[{'code':'DWSENS', 'quantity':'15' },
-                                                                   {'code':'SIMNXT', 'quantity':'1' },
-                                                                   {'code':'MOTDEC', 'quantity':'2' }
-                                                                  ]}]
-
-    ko_parts = [{'code':'DWSENS', 'name':'Door/Window Sensors', 'points':'5', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
-                {'code':'GBSENS', 'name':'Glass Break Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
-                {'code':'LTSENS', 'name':'Low Temperature Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
-                {'code':'MOTDEC', 'name':'Motion Detector', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
-                {'code':'FLSENS', 'name':'Flood Sensor', 'points':'12', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
-                {'code':'GDSENS', 'name':'Garage Door Sensor', 'points':'8', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
-                {'code':'KEYCRC', 'name':'Keychain Remote Control', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'49.50'},
-                {'code':'MEDPNB', 'name':'Medical Panic Bracelet', 'points':'10', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
-                {'code':'MEDPEN', 'name':'Medical Panic Pendant', 'points':'12', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
-                {'code':'MINPNP', 'name':'Mini Pinpad', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'30.00'},
-                {'code':'SOLLGT', 'name':'Solar Light', 'points':'3', 'quantity':'0', 'category':'Accessories', 'price':'19.95'},
-                {'code':'TLKKYP', 'name':'Talking Keypad', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'99.00'},
-                {'code':'TLKTSC', 'name':'XT Talking Touchscreen', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'115.00'},
-                {'code':'SMKDET', 'name':'Smoke Detector', 'points':'15', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
-                {'code':'CRBMDT', 'name':'Carbon Monoxide Detector', 'points':'10', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
-                {'code':'XTNSIR', 'name':'XT Siren', 'points':'10', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                {'code':'XTSRCK', 'name':'X10 Socket Rocket', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                {'code':'XTNAPM', 'name':'X10 Appliance Module', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                {'code':'SIMTHR', 'name':'Simon 3', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
-                {'code':'SIMNXT', 'name':'Simon XT', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
-                {'code':'TLKDEV', 'name':'Talkover Device', 'points':'10', 'quantity':'0', 'category':'Security Panels', 'price':'199.00'}]
-
-    ko_categories = {'Security Sensors':['DWSENS', 'GBSENS', 'LTSENS', 'MOTDEC', 'FLSENS', 'GDSENS'],
-                     'Accessories':['KEYCRC', 'MEDPNB', 'MEDPEN', 'MINPNP', 'SOLLGT', 'TLKKYP', 'TLKTSC'],
-                     'Fire Sensors':['SMKDET', 'CRBMDT'],
-                     'Home Automation':['XTNSIR', 'XTSRCK', 'XTNAPM'],
-                     'Security Panels':['SIMTHR', 'SIMNXT', 'TLKDEV']}
-
-    json_ko_packages = dumps(ko_packages)
-    json_ko_parts = dumps(ko_parts)
-    json_ko_categories = dumps(ko_categories)
-
-    return dict(json_ko_packages=json_ko_packages,
-                json_ko_parts=json_ko_parts,
-                json_ko_categories=json_ko_categories)
-
-
-@render_to('dyntest.html')
-def draw_test(request):
-    return dict()
-
-
-@render_to('purchase.html')
-def Purchase(request):
-    ko_parts = [{'code':'DWSENS', 'name':'Door/Window Sensors', 'points':'5', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
-                {'code':'GBSENS', 'name':'Glass Break Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
-                {'code':'LTSENS', 'name':'Low Temperature Sensor', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
-                {'code':'MOTDEC', 'name':'Motion Detector', 'points':'10', 'quantity':'0', 'category':'Security Sensors', 'price':'99.00'},
-                {'code':'FLSENS', 'name':'Flood Sensor', 'points':'12', 'quantity':'0', 'category':'Security Sensors', 'price':'125.00'},
-                {'code':'GDSENS', 'name':'Garage Door Sensor', 'points':'8', 'quantity':'0', 'category':'Security Sensors', 'price':'39.50'},
-                {'code':'KEYCRC', 'name':'Keychain Remote Control', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'49.50'},
-                {'code':'MEDPNB', 'name':'Medical Panic Bracelet', 'points':'10', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
-                {'code':'MEDPEN', 'name':'Medical Panic Pendant', 'points':'12', 'quantity':'0', 'category':'Accessories', 'price':'95.00'},
-                {'code':'MINPNP', 'name':'Mini Pinpad', 'points':'5', 'quantity':'0', 'category':'Accessories', 'price':'30.00'},
-                {'code':'SOLLGT', 'name':'Solar Light', 'points':'3', 'quantity':'0', 'category':'Accessories', 'price':'19.95'},
-                {'code':'TLKKYP', 'name':'Talking Keypad', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'99.00'},
-                {'code':'TLKTSC', 'name':'XT Talking Touchscreen', 'points':'13', 'quantity':'0', 'category':'Accessories', 'price':'115.00'},
-                {'code':'SMKDET', 'name':'Smoke Detector', 'points':'15', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
-                {'code':'CRBMDT', 'name':'Carbon Monoxide Detector', 'points':'10', 'quantity':'0', 'category':'Fire Sensors', 'price':'99.00'},
-                {'code':'XTNSIR', 'name':'XT Siren', 'points':'10', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                {'code':'XTSRCK', 'name':'X10 Socket Rocket', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                {'code':'XTNAPM', 'name':'X10 Appliance Module', 'points':'9', 'quantity':'0', 'category':'Home Automation', 'price':'79.00'},
-                {'code':'SIMTHR', 'name':'Simon 3', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
-                {'code':'SIMNXT', 'name':'Simon XT', 'points':'25', 'quantity':'0', 'category':'Security Panels', 'price':'299.00'},
-                {'code':'TLKDEV', 'name':'Talkover Device', 'points':'10', 'quantity':'0', 'category':'Security Panels', 'price':'199.00'}]
-
-    json_ko_parts = dumps(ko_parts)
-
-    return dict(json_ko_parts=json_ko_parts)
-
-
-@render_to('initial_info.html')
-def InitialInfo(request):
-    return dict()

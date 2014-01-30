@@ -4,7 +4,7 @@
 				<form id="monitor_form">
 					<fieldset>
 						<div class="controls controls-row" data-bind="foreach:MONITORS">
-							<div class="select_monitoring control-group well well-small span3" data-bind="click: $parent.selected_monitoring">
+							<div class="select_monitoring control-group well well-small span3" data-bind="click: $parent.selected_monitoring, css: $parent.moncss($data)">
 								<center><span data-bind="text: name"></span></center>
 							</div>
 						</div>

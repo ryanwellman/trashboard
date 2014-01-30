@@ -19,7 +19,6 @@ def Warehouse():
     existing = list(Agreement.objects.all().values_list('id', flat=True))
 
     while True:
-        print "grabbing lines"
         merchandise = china_cur.fetch_many()
 
         for m in merchandise:
@@ -32,7 +31,6 @@ def Warehouse():
             agreement = Agreement()
 
             agreement.id = m['agreement_id']
-            print "id", agreement.id
 
             blob_campaign = blob['campaign_id'].upper()
             campaign = campaigns.get(blob_campaign)
@@ -169,7 +167,7 @@ def Warehouse():
                 agreement.monitoring = ''
 
             agreement.floorplan = blob['floorplan']
-            agreement.promo_code = 'None Given'
+            agreement.promo_code = ''
 
             # since these are existing records, we will assume that these things have been done
             agreement.done_premium = '1'

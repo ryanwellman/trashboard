@@ -305,14 +305,14 @@
     "pk": "Base",
     "model": "agreement.pricetable",
     "fields": {
-      
+
     }
   },
   {
     "pk": "Overlay",
     "model": "agreement.pricetable",
     "fields": {
-      
+
     }
   },
   {
@@ -812,6 +812,46 @@
       "address": "1 Snow Way"
     }
   },
+
+  {
+    "pk": "Bronze",
+    "model": "agreement.product",
+    "fields": {
+      "code": "bronze"
+    }
+  },
+  {
+    "pk": "Copper",
+    "model": "agreement.product",
+    "description": "Copper product",
+    "fields": {
+      "code": "copper"
+    }
+  },
+  {
+    "pk": "Gold",
+    "model": "agreement.product",
+    "fields": {
+      "code": "gold"
+    }
+  },
+  {
+    "pk": "Platinum",
+    "model": "agreement.product",
+    "fields": {
+      "code": "platinum"
+    }
+  },
+  {
+    "pk": "Silver",
+    "model": "agreement.product",
+    "fields": {
+      "code": "silver"
+    }
+  },
+
+
+
   {
     "pk": "Bronze",
     "model": "agreement.package",
@@ -822,6 +862,7 @@
   {
     "pk": "Copper",
     "model": "agreement.package",
+    "description": "Copper Package",
     "fields": {
       "code": "copper"
     }
@@ -831,13 +872,6 @@
     "model": "agreement.package",
     "fields": {
       "code": "gold"
-    }
-  },
-  {
-    "pk": "placeholder",
-    "model": "agreement.package",
-    "fields": {
-      "code": "blank"
     }
   },
   {
@@ -856,137 +890,137 @@
   },
   {
     "pk": 1,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "DWSENS",
+      "included_product": "DWSENS",
       "quantity": 3,
-      "package": "Copper"
+      "included_in": "Copper"
     }
   },
   {
     "pk": 2,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "SIMNXT",
+      "included_product": "SIMNXT",
       "quantity": 1,
-      "package": "Copper"
+      "included_in": "Copper"
     }
   },
   {
     "pk": 3,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "MOTDEC",
+      "included_product": "MOTDEC",
       "quantity": 2,
-      "package": "Copper"
+      "included_in": "Copper"
     }
   },
   {
     "pk": 4,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "DWSENS",
+      "included_product": "DWSENS",
       "quantity": 7,
-      "package": "Bronze"
+      "included_in": "Bronze"
     }
   },
   {
     "pk": 5,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "SIMNXT",
+      "included_product": "SIMNXT",
       "quantity": 1,
-      "package": "Bronze"
+      "included_in": "Bronze"
     }
   },
   {
     "pk": 6,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "MOTDEC",
+      "included_product": "MOTDEC",
       "quantity": 2,
-      "package": "Bronze"
+      "included_in": "Bronze"
     }
   },
   {
     "pk": 7,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "DWSENS",
+      "included_product": "DWSENS",
       "quantity": 10,
-      "package": "Silver"
+      "included_in": "Silver"
     }
   },
   {
     "pk": 8,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "SIMNXT",
+      "included_product": "SIMNXT",
       "quantity": 1,
-      "package": "Silver"
+      "included_in": "Silver"
     }
   },
   {
     "pk": 9,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "MOTDEC",
+      "included_product": "MOTDEC",
       "quantity": 2,
-      "package": "Silver"
+      "included_in": "Silver"
     }
   },
   {
     "pk": 10,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "DWSENS",
+      "included_product": "DWSENS",
       "quantity": 12,
-      "package": "Gold"
+      "included_in": "Gold"
     }
   },
   {
     "pk": 11,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "SIMNXT",
+      "included_product": "SIMNXT",
       "quantity": 1,
-      "package": "Gold"
+      "included_in": "Gold"
     }
   },
   {
     "pk": 12,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "MOTDEC",
+      "included_product": "MOTDEC",
       "quantity": 2,
-      "package": "Gold"
+      "included_in": "Gold"
     }
   },
   {
     "pk": 13,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "DWSENS",
+      "included_product": "DWSENS",
       "quantity": 15,
-      "package": "Platinum"
+      "included_in": "Platinum"
     }
   },
   {
     "pk": 14,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "SIMNXT",
+      "included_product": "SIMNXT",
       "quantity": 1,
-      "package": "Platinum"
+      "included_in": "Platinum"
     }
   },
   {
     "pk": 15,
-    "model": "agreement.pkgproduct",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "MOTDEC",
+      "included_product": "MOTDEC",
       "quantity": 2,
-      "package": "Platinum"
+      "included_in": "Platinum"
     }
   },
   {
@@ -1041,28 +1075,29 @@
     "model": "agreement.campaign",
     "fields": {
       "name": "Test Campaign",
-      "pricegroup": 1
+      "pricegroup": 1,
+      "organization": "TEST"
     }
   },
   {
     "pk": 3,
-    "model": "agreement.comboline",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "MINPNP",
+      "included_product": "MINPNP",
       "upfront_strike": null,
       "monthly_strike": null,
-      "parent": "CELLSERV",
+      "included_in": "CELLSERV",
       "quantity": 1
     }
   },
   {
     "pk": 4,
-    "model": "agreement.comboline",
+    "model": "agreement.productcontent",
     "fields": {
-      "product": "GDSENS",
+      "included_product": "GDSENS",
       "upfront_strike": null,
       "monthly_strike": null,
-      "parent": "COMBOTEST",
+      "included_in": "COMBOTEST",
       "quantity": 2
     }
   },

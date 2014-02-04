@@ -1,8 +1,9 @@
-import datetime
+from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from agreement.uas import Updatable, Serializable
+from django.db.models import Q
 
 class Product(Serializable):
     """
@@ -21,6 +22,9 @@ class Product(Serializable):
     category    =   models.CharField(max_length=64)
     name        =   models.CharField(max_length=64)
     description =   models.CharField(max_length=255)
+
+    content_products = models.ManyToManyField("self", through='ProductContent', related_name='included_in', symmetrical=False)
+
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.code, self.name, self.type, self.category]])
@@ -121,14 +125,19 @@ class Address(Updatable):
         verbose_name_plural = "Addresses"
 
 
-class Package(Serializable):
+class Package(Product):
     """
     represents a package we sell
     """
 
-    products   =   models.ManyToManyField(Product, through='PkgProduct', related_name='PkgProducts')
-    name       =   models.CharField(max_length=50, primary_key=True)
-    code       =   models.CharField(max_length=10)
+
+    def __unicode__(self):
+        return u','.join([unicode(f) for f in [self.code, self.name]])
+
+    class Meta:
+        ordering = ['name']
+
+class Combo(Product):
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.code, self.name]])
@@ -137,15 +146,19 @@ class Package(Serializable):
         ordering = ['name']
 
 
-class PkgProduct(Serializable):
+class ProductContent(Serializable):
     """
     represents membership by a product in a package
     through table for Package and Product
     """
 
-    package    =    models.ForeignKey(Package)
-    product    =    models.ForeignKey(Product)
-    quantity   =    models.IntegerField(default=0)
+    included_in         =    models.ForeignKey(Product, related_name='contents')
+    included_product    =    models.ForeignKey(Product, related_name='+')
+    quantity            =    models.IntegerField(default=0)
+
+    upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
+    monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
+
 
     def __unicode__(self):
         fields = []
@@ -158,7 +171,9 @@ class PkgProduct(Serializable):
         return u','.join([unicode(f) for f in fields])
 
     class Meta:
-        ordering = ['package']
+        db_table = 'product_content'
+
+
 
 
 class PriceGroup(Serializable):
@@ -201,54 +216,54 @@ class PGMembership(Serializable):
         ordering = ['pricegroup']
 
 
- class Organization(Serializable):
-     """
-     represents an overarching business entity that may
-     or may not have multiple 'campaigns' which usually means
-     an agent, but is a way of logically separating the
-     members of the business for whatever reason
+class Organization(Serializable):
+    """
+    represents an overarching business entity that may
+    or may not have multiple 'campaigns' which usually means
+    an agent, but is a way of logically separating the
+    members of the business for whatever reason
 
-     each organization also has a price group associated with it
-     that governs what they charge for our products
-     """
+    each organization also has a price group associated with it
+    that governs what they charge for our products
+    """
 
-     pricegroup =    models.ForeignKey(PriceGroup) # must have this
-     #campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
-     name        =   models.CharField(max_length=50)
-     provider_id =   models.CharField(max_length=32, primary_key=True)
+    pricegroup =    models.ForeignKey(PriceGroup) # must have this
+    #campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
+    name        =   models.CharField(max_length=50)
+    provider_id =   models.CharField(max_length=32, primary_key=True)
 
-     def __unicode__(self):
-         return u','.join([unicode(f) for f in [self.name, self.provider_id]])
+    def __unicode__(self):
+        return u','.join([unicode(f) for f in [self.name, self.provider_id]])
 
-     class Meta:
-         ordering = ['name']
+    class Meta:
+        ordering = ['name']
 
- '''
- class OrgCampaign(Serializable):
-     """
-     represents membership by a campaign in an organization
-     through table for Organization and Campaign
+'''
+class OrgCampaign(Serializable):
+    """
+    represents membership by a campaign in an organization
+    through table for Organization and Campaign
 
-     because these things have price groups they need a zorder too
-     """
+    because these things have price groups they need a zorder too
+    """
 
-     organization    =   models.ForeignKey(Organization)
-     campaign        =   models.ForeignKey(Campaign)
-     date_updated    =   models.DateTimeField()
-     zorder          =   models.IntegerField(default=0)
+    organization    =   models.ForeignKey(Organization)
+    campaign        =   models.ForeignKey(Campaign)
+    date_updated    =   models.DateTimeField()
+    zorder          =   models.IntegerField(default=0)
 
-     def __unicode__(self):
-         fields = [self.date_updated]
-         try:
-             fields.append(self.organization)
-             fields.append(self.campaign)
-         except ObjectDoesNotExist:
-             pass
-         return u','.join([unicode(f) for f in fields])
+    def __unicode__(self):
+        fields = [self.date_updated]
+        try:
+            fields.append(self.organization)
+            fields.append(self.campaign)
+        except ObjectDoesNotExist:
+            pass
+        return u','.join([unicode(f) for f in fields])
 
-     class Meta:
-         ordering = ['organization']
- '''
+    class Meta:
+        ordering = ['organization']
+'''
 
 
 
@@ -288,11 +303,38 @@ class Campaign(Serializable):
             asof = datetime.now()
 
         pts = self.get_pricetables()
-        product_prices = dict()
-        for pt in pts:
-            for pp in pt.producprice_set.all():
-                product_prices.setdefault(pp.code, pp)
+        pps = []
 
+        # Valid PPs have bounding dates that include asof
+        after_from = Q(fromdate__isnull=True) | Q(fromdate__lte=asof)
+        before_to = Q(todate__isnull=True) | Q(todate__gt=asof)
+
+        timefilter = after_from & before_to
+
+        # Grab every pp for the pricetables (which are already sorted by zorder)
+        # And insert them into a list (so that they will already be sorted by zorder)
+        for pt in pts:
+            pps.extend(list(pt.productprice_set.filter(timefilter)))
+
+        # Compose two lists of prices
+        promo_prices = dict()
+        normal_prices = dict()
+
+
+        # checking just the promo versions
+        for pp in pps:
+            # For each pp, set it (if it has not already been set) in the appropriate
+            # list.
+            if pp.promo:
+                promo_prices.setdefault(pp.product_id, pp)
+            else:
+                normal_prices.setdefault(pp.product_id, pp)
+
+        # Make a dictionary of both sets, where promo_prices overwrites normal.
+        together_prices = dict(normal_prices, **promo_prices)
+
+        # Return the product prices as a list.  (Each product appears only once.)
+        return together_prices.values()
 
 
     def __unicode__(self):
@@ -416,6 +458,7 @@ class InvoiceLine(Updatable):
         ordering = ['agreement']
 
 
+'''
 class ComboLine(Serializable):
     """
     represents one piece of a combo package
@@ -438,6 +481,7 @@ class ComboLine(Serializable):
 
     class Meta:
         ordering = ['parent']
+'''
 
 
 class RequiresLine(Serializable):

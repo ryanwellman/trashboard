@@ -11,46 +11,15 @@ from agreement.models import *
 from handy import uniq
 
 
-def get_productprice_list(campaign):
-    """
-    get list of product prices and deduplicate it
-    """
-
-    # sort this dictionary by zorder highest first
-    pts = get_zorders(campaign)
-    sorted_pts = sorted(pts, key=lambda i: i.get('zorder'), reverse=True)
-
-    # var scoping
-    price_set = []
-
-    # get all the productprices
-    for obj in sorted_pts:
-        pt = obj.get('pt')
-        for pp in pt.productprice_set.all():
-            # fix the date values from null
-            fromdate = pp.fromdate or timezone.now() - timedelta(days=1)
-            todate = pp.todate or timezone.now() + timedelta(days=1)
-            # insert promo prices at the head of the line
-            if pp.promo:
-                price_set.insert(0, pp)
-            # make sure this price is temporally accurate
-            elif fromdate < timezone.now() < todate:
-                price_set.append(pp)
-            # keep going
-            else:
-                continue
-
-    return uniq(price_set, key=lambda pp: pp.product.code)
 
 def get_global_context(campaign):
     """
     generate the lists that go into the container view
     """
 
-    # XXX: this function and its predecessors use too many queries
-
     # cache product price list
-    pricelist = get_productprice_list(campaign)
+    #pricelist = get_productprice_list(campaign)
+    pricelist = campaign.get_product_prices()
 
     # variables
     parts, packages, closers, services, combos, premiums, incentives, monitors, shippers = ([], [], [], [], [], [], [], [], [])

@@ -95,7 +95,8 @@ def dyn_json(request, agreement_id=None):
 
         # obtain a price list and its associate fantastic version
         # this fantastic pricelist contains cb points instead of price table names
-        pricelist = get_productprice_list(agreement.campaign)
+        pricelist = agreement.campaign.get_product_prices()
+        #pricelist = get_productprice_list(agreement.campaign)
         fantastic_pricelist = {}
         for pp in pricelist:
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), points=pp.cb_points)
@@ -238,10 +239,13 @@ def dyn_json(request, agreement_id=None):
 
         # handle invoice lines by first deleting them all and obtaining a price list
         InvoiceLine.objects.filter(agreement=agreement).delete()
-        pricelist = get_productprice_list(agreement.campaign)
+
+        pricelist = agreement.campaign.get_product_prices()
+        #get_productprice_list(agreement.campaign)
 
         # obtain the list of active price tables
-        activepts = [obj['pt'] for obj in get_zorders(agreement.campaign)]
+        activepts = agreement.campaign.get_pricetables()
+        #activepts = [obj['pt'] for obj in get_zorders(agreement.campaign)]
 
         # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
@@ -487,4 +491,4 @@ def create_and_redirect(request):
     agreement.update_from_dict(dict(applicant=applicant_default, billing_address=address_default, system_address=address_default))
 
     # run the other view and pass in the gen_arrays of it and the agreement we just made
-    return redirect('draw_container2', agreement_id=agreement.id)
+    return redirect('draw_container', agreement_id=agreement.id)

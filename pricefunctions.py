@@ -8,67 +8,8 @@ from json import dumps, loads
 from datetime import datetime, timedelta
 from django.utils import timezone
 from agreement.models import *
+from handy import uniq
 
-def uniqifier(seq):
-    # uniqifier from peterbe.com/plog/uniqifiers-benchmark
-    # alleges to preserve order and works based off of productprice codes
-    seen = set()
-    seen_add = seen.add
-    return [ x for x in seq if x.product.code not in seen and not seen_add(x.product.code)]
-
-def find_campaign_by_id(campaign_id):
-    """
-    get a campaign by its id
-    """
-
-    # relies on each id having only one campaign
-    campaign = Campaign.objects.get(pk=campaign_id)
-    return campaign
-
-def find_parent_orgs(campaign):
-    """
-    figure out what a given campaign's parent organizations are
-    """
-
-    # return list of orgs
-    found = []
-
-    # loop over through tables
-    for oc in campaign.orgcampaign_set.all():
-        found.append(oc.organization)
-
-    return found
-
-def get_zorders(campaign):
-    """
-    get zorders for a given campaign
-    """
-
-    # obtain orgs
-    organizations = find_parent_orgs(campaign=campaign)
-
-    # var scoping
-    z_list = []
-
-    # obtain the price group first, campaign ones dominate
-    if campaign.pricegroup:
-        pricegroup = campaign.pricegroup
-    else:
-        # use the list here once to calculate the price group
-        for org in organizations:
-            z_list.append(dict(pg=org.pricegroup, zorder=org.zorder))
-
-        # sort this list and take the top item
-        z_sort = sorted(z_list, key=lambda i: i.get('zorder'), reverse=True)
-        pricegroup = z_sort[0].pricegroup
-
-    # search for the price table objects in the price group through table and obtain the zorders
-    z_list = [] # clear
-    for pt in PGMembership.objects.filter(pricegroup=pricegroup):
-        z_list.append(dict(pt=pt.pricetable, zorder=pt.zorder))
-
-    # return a list of dictionaries
-    return z_list
 
 def get_productprice_list(campaign):
     """
@@ -99,10 +40,9 @@ def get_productprice_list(campaign):
             else:
                 continue
 
-    # deduplicate with a slightly modified f7 uniqifier
-    return uniqifier(price_set)
+    return uniq(price_set, key=lambda pp: pp.product.code)
 
-def gen_arrays(campaign):
+def get_global_context(campaign):
     """
     generate the lists that go into the container view
     """

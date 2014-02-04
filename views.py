@@ -11,11 +11,13 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from dynamicresponse.response import SerializeOrRedirect
 
 # import from self (models)
 from agreement.models import *
 from pricefunctions import *
+from handy import intor
+from handy.jsonstuff import dumps
+from handy.controller import JsonResponse
 
 #@csrf_exempt
 def dyn_json(request, agreement_id=None):
@@ -454,31 +456,8 @@ def dyn_json(request, agreement_id=None):
     if request.method == 'DELETE':
         pass
 
-    return SerializeOrRedirect(reverse(draw_container), response)
-
-@render_to('container.html')
-def draw_container(request, agreement_id=None):
-    """
-    renders an agreement form container to the caller along with its parts
-    """
-    # no agreement id means someone tried to access the root-level site
-    # this means there's no campaign so the view will fail below
-    if agreement_id is None:
-        agreement_id = ''
-        arrays = None
-
-    # 404 non-existent ones
-    if agreement_id:
-        agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
-        arrays = gen_arrays(agreement.campaign)
-
-    # a lot of words used to be here but then we wrote pricefunctions.py and got all of it with
-    # gen_arrays(), which returns that giant wall of object hierarchy we all know and love... sort of
-    assert arrays is not None, "Create agreements using the create URL and a Campaign ID."
-
-
-
-    return dict(arrays, agreement_id=agreement_id)
+    return JsonResponse(content=response)
+    return SerializeOrRedirect(reverse('draw_container'), response)
 
 
 def create_and_redirect(request):

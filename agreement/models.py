@@ -201,6 +201,57 @@ class PGMembership(Serializable):
         ordering = ['pricegroup']
 
 
+ class Organization(Serializable):
+     """
+     represents an overarching business entity that may
+     or may not have multiple 'campaigns' which usually means
+     an agent, but is a way of logically separating the
+     members of the business for whatever reason
+
+     each organization also has a price group associated with it
+     that governs what they charge for our products
+     """
+
+     pricegroup =    models.ForeignKey(PriceGroup) # must have this
+     #campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
+     name        =   models.CharField(max_length=50)
+     provider_id =   models.CharField(max_length=32, primary_key=True)
+
+     def __unicode__(self):
+         return u','.join([unicode(f) for f in [self.name, self.provider_id]])
+
+     class Meta:
+         ordering = ['name']
+
+ '''
+ class OrgCampaign(Serializable):
+     """
+     represents membership by a campaign in an organization
+     through table for Organization and Campaign
+
+     because these things have price groups they need a zorder too
+     """
+
+     organization    =   models.ForeignKey(Organization)
+     campaign        =   models.ForeignKey(Campaign)
+     date_updated    =   models.DateTimeField()
+     zorder          =   models.IntegerField(default=0)
+
+     def __unicode__(self):
+         fields = [self.date_updated]
+         try:
+             fields.append(self.organization)
+             fields.append(self.campaign)
+         except ObjectDoesNotExist:
+             pass
+         return u','.join([unicode(f) for f in fields])
+
+     class Meta:
+         ordering = ['organization']
+ '''
+
+
+
 class Campaign(Serializable):
     """
     represents a campaign within an organization.
@@ -213,6 +264,36 @@ class Campaign(Serializable):
     pricegroup  =   models.ForeignKey(PriceGroup, blank=True, null=True) # this can be blank but an org must have one
     name        =   models.CharField(max_length=80)
     campaign_id =   models.CharField(max_length=32, primary_key=True)
+    organization = models.ForeignKey(Organization, related_name='campaigns')
+
+    def get_pricetables(self):
+        """
+        get zorders for a given campaign
+        """
+
+        # Find the pricegroup for this campaign
+        pg = self.pricegroup or self.organization.pricegroup
+
+        # Find all subscribed pricetables (PGMs, ordered by zorder)
+        pgms = list(PGMembership.objects.filter(pricegroup=pg).order_by('-zorder'))
+
+        # Get just the pricetables
+        pts = [pgm.pricetable for pgm in pgms]
+
+        # Return them.
+        return pts
+
+    def get_product_prices(self, asof=None):
+        if asof is None:
+            asof = datetime.now()
+
+        pts = self.get_pricetables()
+        product_prices = dict()
+        for pt in pts:
+            for pp in pt.producprice_set.all():
+                product_prices.setdefault(pp.code, pp)
+
+
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.campaign_id, self.name]])
@@ -390,54 +471,6 @@ class RequiresLine(Serializable):
     class Meta:
         ordering = ['pricetable']
 
-
-class Organization(Serializable):
-    """
-    represents an overarching business entity that may
-    or may not have multiple 'campaigns' which usually means
-    an agent, but is a way of logically separating the
-    members of the business for whatever reason
-
-    each organization also has a price group associated with it
-    that governs what they charge for our products
-    """
-
-    pricegroup =    models.ForeignKey(PriceGroup) # must have this
-    campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
-    name        =   models.CharField(max_length=50)
-    provider_id =   models.CharField(max_length=32, primary_key=True)
-
-    def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.name, self.provider_id]])
-
-    class Meta:
-        ordering = ['name']
-
-
-class OrgCampaign(Serializable):
-    """
-    represents membership by a campaign in an organization
-    through table for Organization and Campaign
-
-    because these things have price groups they need a zorder too
-    """
-
-    organization    =   models.ForeignKey(Organization)
-    campaign        =   models.ForeignKey(Campaign)
-    date_updated    =   models.DateTimeField()
-    zorder          =   models.IntegerField(default=0)
-
-    def __unicode__(self):
-        fields = [self.date_updated]
-        try:
-            fields.append(self.organization)
-            fields.append(self.campaign)
-        except ObjectDoesNotExist:
-            pass
-        return u','.join([unicode(f) for f in fields])
-
-    class Meta:
-        ordering = ['organization']
 
 
 class Credit(Serializable):

@@ -34,11 +34,11 @@ class Serializable(models.Model):
         assert type(ignore) is list
 
         # obtain the following lists of types and instances
-        
+
         # forward foreign key
         fktypes = dict((f.name, f.rel.to) for f in self._meta.fields if f.get_internal_type() == 'ForeignKey')
         fkinstances = dict((f, getattr(self, f)) for f in fktypes)
-        
+
         # forward m2m
         m2mtypes = dict((f.name, f.rel.to) for f in self._meta.many_to_many)
         m2minstances = dict((f, getattr(self, f).all()) for f in m2mtypes)
@@ -75,6 +75,16 @@ class Serializable(models.Model):
 
         # hax: fastest way to concatenate these
         return dict(dict(plain, **fancy), **voodoo)
+
+    def as_jsonable(self):
+        copy = self.__dict__.copy()
+        del copy['_state']
+        return copy
+
+    def as_json(self):
+        from handy.jsonstuff import dumps
+        return dumps(self.as_jsonable())
+
 
     class Meta:
         abstract = True
@@ -128,13 +138,13 @@ class Updatable(Serializable):
         for k in enumerator:
             if hasattr(self, k):
                 if k is 'id':
-                    continue    
+                    continue
                 # check to see if this requires recursion
                 if k in fkinstances:
                     # now check to see if this thing is None
                     if fkinstances[k] is None:
                         # if it is, then we create one of the right type
-                        new_field = fktypes[k]()                        
+                        new_field = fktypes[k]()
                     else:
                         # if isn't then we need to use that one
                         new_field = fkinstances[k]

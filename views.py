@@ -7,7 +7,7 @@ from collections import defaultdict
 from annoying.decorators import render_to, ajax_request
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.http import QueryDict
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -22,23 +22,19 @@ def dyn_json(request, agreement_id=None):
     """
     reads or updates an Agreement and returns it to the caller as json
 
-    XXX: eventually this will need to accept a campaign id as well
     XXX: in several places the knockout accepts only one price for an item which for now is monthly_price
-    XXX: this could be refactored as a class-based view with multiple helper methods
+    XXX: this could be refactored as a controller with multiple helper methods
     """
 
     # attempts to get or set a specific agreement
     agreement = None
     response = None
-    campaign = Campaign.objects.all()[0]
 
-    # handle obtaining an agreement object
+    # handle obtaining an agreement object and fail if there is no id present
     if agreement_id:
-        # user wants a specific agreement
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
     else:
-        # make a new agreement with non-optional blank child models included (foreign keys)
-        agreement = Agreement(campaign=campaign, applicant=Applicant(), billing_address=Address(), system_address=Address())
+        raise Agreement.DoesNotExist
 
     # handle outgoing data
     if request.method == 'GET':
@@ -97,7 +93,7 @@ def dyn_json(request, agreement_id=None):
 
         # obtain a price list and its associate fantastic version
         # this fantastic pricelist contains cb points instead of price table names
-        pricelist = get_productprice_list(campaign)
+        pricelist = get_productprice_list(agreement.campaign)
         fantastic_pricelist = {}
         for pp in pricelist:
             fantastic_pricelist[pp.product.code] = dict(monthly_each=int(pp.monthly_price or 0), upfront_each=int(pp.upfront_price or 0), points=pp.cb_points)
@@ -237,21 +233,13 @@ def dyn_json(request, agreement_id=None):
         packs = incoming.pop('package', None)
 
         # from this point on we need to have a saved agreement to do anything
-        # XXX: remove ugly hax
-        if not agreement_id: # if the id is present we have something that's been saved
-            # define some defaults
-            applicant_default = {'lname': '', 'phone': '', 'initial': '', 'fname': '', 'last4': ''}
-            address_default = {'city': '', 'state': '', 'address': '', 'zip': '', 'country': ''}
-
-            # populate the agreement and save it
-            agreement.update_from_dict(dict(applicant=incoming.get('applicant', applicant_default), billing_address=incoming.get('billing_address', address_default), system_address=incoming.get('system_address', address_default)))
 
         # handle invoice lines by first deleting them all and obtaining a price list
         InvoiceLine.objects.filter(agreement=agreement).delete()
-        pricelist = get_productprice_list(campaign)
+        pricelist = get_productprice_list(agreement.campaign)
 
         # obtain the list of active price tables
-        activepts = [obj['pt'] for obj in get_zorders(campaign)]
+        activepts = [obj['pt'] for obj in get_zorders(agreement.campaign)]
 
         # pricelist returns a bunch of productprice objects so let's make this easier with something fantastic
         fantastic_pricelist = {}
@@ -397,7 +385,7 @@ def dyn_json(request, agreement_id=None):
                 ilinectx.update(fantastic_pricelist[rline.parent.code])
             else:
                 # handle services
-                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=rline.quantity, pricedate=timezone.now(), parent=codedlines[rline.parent.code], mandatory=True)
+                ilinectx = dict(agreement=agreement, note='', product=rline.child.code, category=rline.child.category, quantity=rline.quantity, pricedate=timezone.now(), mandatory=True)
                 ilinectx.update(fantastic_pricelist[rline.child.code])
 
             # actually make this thing
@@ -473,15 +461,49 @@ def draw_container(request, agreement_id=None):
     """
     renders an agreement form container to the caller along with its parts
     """
-    # fix agreement_id
+    # no agreement id means someone tried to access the root-level site
+    # this means there's no campaign so the view will fail below
     if agreement_id is None:
         agreement_id = ''
+        arrays = None
 
     # 404 non-existent ones
     if agreement_id:
         agreement = get_object_or_404(Agreement.objects.all(), pk=agreement_id)
+        arrays = gen_arrays(agreement.campaign)
 
     # a lot of words used to be here but then we wrote pricefunctions.py and got all of it with
     # gen_arrays(), which returns that giant wall of object hierarchy we all know and love... sort of
-    # XXX: eventually people should be getting these lists of things from somewhere else by campaign
-    return dict(gen_arrays(Campaign.objects.all()[0]), agreement_id=dumps(dict(agreement_id=agreement_id)))
+    assert arrays is not None, "Create agreements using the create URL and a Campaign ID."
+
+    return dict(arrays, agreement_id=dumps(dict(agreement_id=agreement_id)))
+
+
+def create_and_redirect(request):
+    """
+    creates a new, blank agreement with the parameters from whatever campaign was passed in
+    then it redirects you to that agreement by its id and passes in the output from gen_arrays
+    """
+
+    # attempt to capture the campaign id from the url
+    campaign_id = request.GET.get('campaign_id', None)
+    assert campaign_id is not None
+
+    # obtain the campaign object
+    try:
+        campaign = Campaign.objects.get(campaign_id=campaign_id)
+    except Campaign.DoesNotExist:
+        campaign = Campaign.objects.all()[0] # XXX: bad
+
+    # some defaults
+    applicant_default = {'lname': '', 'phone': '', 'initial': '', 'fname': '', 'last4': ''}
+    address_default = {'city': '', 'state': '', 'address': '', 'zip': '', 'country': ''}
+
+    # create a new agreement
+    agreement = Agreement(campaign=campaign, applicant=Applicant(), billing_address=Address(), system_address=Address())
+
+    # now update and save this blank agreement
+    agreement.update_from_dict(dict(applicant=applicant_default, billing_address=address_default, system_address=address_default))
+
+    # run the other view and pass in the gen_arrays of it and the agreement we just made
+    return redirect('draw_container2', agreement_id=agreement.id)

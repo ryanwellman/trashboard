@@ -14,8 +14,9 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/?', include(admin.site.urls)),
-    url(r'^(?P<agreement_id>\d+)$', 'views.draw_container', name='draw_container'),
-    url(r'^$', 'views.draw_container', name='draw_container2'),
+    url(r'create/$', 'views.create_and_redirect', name='create_and_redirect'),
+    url(r'^(?P<agreement_id>\d+)$', 'views.draw_container', name='draw_container2'),
+    url(r'^$', 'views.draw_container', name='draw_container'),
     url(r'^json/(?P<agreement_id>\d+)$', 'views.dyn_json', name='dyn_json2'),
     url(r'^json/?$', 'views.dyn_json', name='dyn_json'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

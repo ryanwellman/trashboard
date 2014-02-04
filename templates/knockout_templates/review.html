@@ -1,17 +1,41 @@
 		<script type="text/html" id="review_">
 			<div class="well">
                 <span class="label label-inverse box-rotate tab-pos">Review</span>
-                <div data-bind="foreach: $parent.review.tree()">
-                    <div class="controls controls-row">
-                        <div class="control-group well well-small" data-bind="style: {backgroundColor: $parent._str2hsla(category, 0.5)}, css: {offset1: indent}">
-                            <span data-bind="text: product"></span>
-                            <span data-bind="text: category"></span>
-                            x<span data-bind="text: quantity"></span>
-                            <span class="badge badge-info" data-bind="text: monthly_total"></span>
-                            <span class="badge badge-warning" data-bind="if: mandatory">MANDATORY</span>
-                        </div>
-                    </div>
+                <div class="well well-small">
+                    Name: <span data-bind="css: {muted: $parent.name().length == 0}, text: $parent.name() ? $parent.name : 'First M. Last'"></span><br>
+                    Billing Address: <span data-bind="css: {muted: $parent.billing_address.address().length == 0}, text: $parent.billing_address.address() ? $parent.billing_address.address : 'Billing Address'"></span> <span data-bind="css: {muted: $parent.citystate().length == 0}, text: $parent.citystate() ? $parent.citystate : 'City, State'"></span> <span data-bind="css: {muted: $parent.billing_address.zip().length == 0}, text: $parent.billing_address.zip() ? $parent.billing_address.zip : 'ZIP'"></span><br>
+                    Package: <span data-bind="text: $parent.package_nav"></span><br>
                 </div>
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total Price</th>
+                            <th>Flags</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: $parent.review.tree()">
+                        <tr data-bind="style: {backgroundColor: $parent._str2hsla(category, 0.5)}">
+                            <td><i data-bind="css: {fa: indent, 'fa-inverse': indent, 'fa-arrow-circle-o-right': indent}"></i></td>
+                            <td data-bind="text: product"></td>
+                            <td data-bind="text: category"></td>
+                            <td data-bind="text: quantity"></td>
+                            <td>
+                              <span class="badge badge-info" data-bind="text: monthly_each ? '$' + formatCurrency(monthly_each) : ''"></span>
+                            </td>
+                            <td>
+                                <span class="badge badge-info" data-bind="text: monthly_total ? '$' + formatCurrency(monthly_total) : ''"></span>
+                            </td>
+                            <td>
+                                <span class="badge badge-warning" data-bind="if: mandatory">MANDATORY</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
                 <!--
 				<pre data-bind="text: ko.toJSON($root, null, 2)"></pre>
                 -->

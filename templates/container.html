@@ -50,7 +50,7 @@
                 <li class="divider"></li>
                 <li class="hyde" id="nav_publish"><a class="green_nav complete" href="#publish">Publish</a></li>
                 <li class="divider"></li>
-                <li><span class="btn btn-success">Save Agreement</span></li>
+                <li><span id="global_save_btn" class="btn btn-success">Save Agreement</span></li>
             </ul>
         </div>
         <div class="container">
@@ -59,7 +59,7 @@
                     <ul>
                         <li class="span2">
                             <b>Customer Info:</b><br>
-                            <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First M. Last'"></span><br>
+                            <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First Last'"></span><br>
                             <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
                             <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span>
                             <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span>
@@ -95,7 +95,7 @@
                             <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
                         </li>
                         <li class="span2">
-                            <b>Approval Status:</b><br>
+                            <b>Credit Status:</b><br>
                             <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
                         </li>
                         <li class="span2 pull-right">

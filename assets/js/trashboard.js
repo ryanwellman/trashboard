@@ -3,7 +3,7 @@ var agreement_id = window.AID.agreement_id;
 
 // money formatting function
 function formatCurrency(value) {
-    return value.toFixed(2);
+    return Number(value).toFixed(2);
 };
 
 // fast hash function
@@ -34,7 +34,7 @@ function str2hsla(str, alpha) {
     // obtain hsl values
     var h = hash % 360;
     var s = (hash % 25) + 75; // between 75 and 100
-    var l = (hash % 15) + 55; // between 40 and 70
+    var l = (hash % 30) + 40; // between 40 and 70
 
     return "hsla(" + h + ", " + s + "%, " + l + "%, " + alpha + ")";
 }
@@ -140,6 +140,14 @@ UpdatableAndSerializable = function() {
         }
     };
 
+    // generic function to hide the next and clear buttons
+    this._hide = function(form) {
+        if(form) {
+            $(form + ' .form-actions').addClass('hyde');
+        }
+    };
+
+    // give everyone the color generator
     this._str2hsla = str2hsla;
 
     return this;
@@ -203,7 +211,7 @@ JSONHandler = function() {
         result.done(function(data) {
             // obtain that agreement id from the json response
             console.log(data);
-            obj.id = data.id;
+            obj.id = data.id;  // scope spam
             agreement_id = data.id;
             retval = data.id;
             console.log("saved json" + (agreement_id ? " to agreement " + agreement_id :  '') + "\n" + ko.toJSON(self));
@@ -874,6 +882,8 @@ ReviewVM = function(blob) {
         }
     });
 
+    // strip out parent objects and guarantee the existence/parsing of certain properties
+    // to make the knockout easier
     _.each(self.contents(), function(iline) {
         if(iline.parent) {
             iline.parent = iline.parent.id;
@@ -881,6 +891,9 @@ ReviewVM = function(blob) {
         iline.indent = 0;
         if(!iline.monthly_total) {
             iline.monthly_total = '';
+        }
+        if(!iline.monthly_each) {
+            iline.monthly_each = '';
         }
         iline.mandatory = (iline.mandatory == 'True') ? true : false;
     });
@@ -906,6 +919,8 @@ ReviewVM = function(blob) {
         return buf;
     };
 
+    // returns the invoice lines in such an order that all the children are right under
+    // their immediate parent along with their siblings
     self.tree = function() {
         var buf = [];
 
@@ -962,7 +977,7 @@ MasterVM = function(blob) {
     // variables computed from json responses
     // most of these are sugar for their return values
     self.name = ko.computed(function() {
-        return self.applicant.fname() + (self.applicant.initial && self.applicant.initial() ? ' ' + self.applicant.initial() + '.' : '') + (self.applicant.lname() ? ' ' + self.applicant.lname() : '');
+        return self.applicant.fname() + (self.applicant.lname() ? ' ' + self.applicant.lname() : '');
     });
 
     self.citystate = ko.computed(function() {
@@ -999,6 +1014,7 @@ MasterVM = function(blob) {
     });
 
     // attempt to figure out what prices to display in the nav
+    // XXX: get this out of ReviewVM
     self.monthly_cost = ko.computed(function() {
         // package items
 
@@ -1206,21 +1222,81 @@ $(function() {
 
     // FORM LOGIC
 
-    // fire all the test functions to see which sections
-    // have already been completed as per the input json
-    // these test functions should show the next section
-    // if all of their properties are present in the json
-    // received from the server
-    master_settings.test_initialinfo();
-    master_settings.test_pkgsel();
-    master_settings.test_monitor();
-    master_settings.test_premium();
-    master_settings.test_combo();
-    master_settings.test_alacarte();
-    master_settings.test_services_and_promos();
-    master_settings.test_cinfo();
-    master_settings.test_shipping();
-    master_settings.test_closing();
+    // test all the sections for completeness and move us to the correct spot
+    checklist = [master_settings.initial_complete(), master_settings.package.complete(), master_settings.cinfo_complete(), master_settings.monitoring(), master_settings.premium.complete(), master_settings.combo.complete(), master_settings.alacarte.complete(), master_settings.services_and_promos.done(), master_settings.shipping(), master_settings.closing.complete()];
+    first_incomplete = _.reduce(checklist, function(memo, value) { return (value) ? memo + 1 : memo; }, 0); // cannot complete a section w/o clicking next on the one above it
+
+    // reveal the sections up to whichever one is behind
+    switch(first_incomplete) {
+        case 10:
+            master_settings._next('#closing', '#review, #nav_review, #publish, #nav_publish, #scroller');
+            master_settings._hide('#closing_form');
+        case 9:
+            master_settings._next('#shipping', '#closing, #nav_closing');
+            master_settings._hide('#shipping_form');
+        case 8:
+            master_settings._next('#cinfo', '#shipping, #nav_shipping');
+            master_settings._hide('#cinfo_form');
+        case 7:
+            master_settings._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo');
+            master_settings._hide('#promo_form');
+        case 6:
+            master_settings._next('#a_la_carte', '#services, #nav_services, #promos, #nav_promos');
+            master_settings._hide('#alacarte_form');
+        case 5:
+            master_settings._next('#combos', '#a_la_carte, #nav_a_la_carte');
+            master_settings._hide('#combo_form');
+        case 4:
+            master_settings._next('#premium', '#combos, #nav_combos');
+            master_settings._hide('#premium_form');
+        case 3:
+            master_settings._next('#monitor', '#premium, #nav_premium');
+            master_settings._hide('#monitor_form');
+        case 2:
+            master_settings._next('#pkgsel', '#monitor, #nav_monitor');
+            master_settings._hide('#pkgsel_form');
+        case 1:
+            master_settings._next('#initial_info', '#pkgsel, #nav_pkgsel');
+            master_settings._hide('#initialinfo_form');
+        default:
+            break;
+    }
+
+    // now do the actual animation
+    switch(first_incomplete) {
+        default:
+            break;
+        case 1: // initial info
+            master_settings._next('#initial_info', '#pkgsel, #nav_pkgsel', '#pkgsel');
+            break;
+        case 2: // package select
+            master_settings._next('#pkgsel', '#monitor, #nav_monitor', '#monitor');
+            break;
+        case 3: // monitoring
+            master_settings._next('#monitor', '#premium, #nav_premium', '#premium');
+            break;
+        case 4: // premium items
+            master_settings._next('#premium', '#combos, #nav_combos', '#combos');
+            break;
+        case 5: // combos
+            master_settings._next('#combos', '#a_la_carte, #nav_a_la_carte', '#a_la_carte');
+            break;
+        case 6: // a la carte
+            master_settings._next('#a_la_carte', '#services, #nav_services, #promos, #nav_promos', '#services');
+            break;
+        case 7: // services and promos
+            master_settings._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo', '#cinfo');
+            break;
+        case 8: // customer info
+            master_settings._next('#cinfo', '#shipping, #nav_shipping', '#shipping');
+            break;
+        case 9: // shipping
+            master_settings._next('#shipping', '#closing, #nav_closing', '#closing');
+            break;
+        case 10: // closing
+            master_settings._next('#closing', '#review, #nav_review, #publish, #nav_publish, #scroller', '#review');
+            break;
+    }
 
     // form section button handlers
 
@@ -1233,11 +1309,14 @@ $(function() {
         master_settings.test_initialinfo();
         json_handler._save(master_settings);
 
+        // hide the buttons
+        master_settings._hide('#initialinfo_form');
+
         // at this point an agreement id has been assigned, so obtain it
         // XXX: get the entire thing loaded into master_settings
-        //      using the update_from_dict() in UAS
+        //      using the _update_from_dict() in UAS
         //blob = json_handler._load(master_settings);
-        //master_settings.update_from_dict(blob);
+        //master_settings._update_from_dict(blob); // doesn't actually work for some reason
     });
     $('#initialinfo_form').on('reset', function(evt) {
         // knockout does not refresh observables on a reset
@@ -1254,6 +1333,9 @@ $(function() {
         // fire test and save the viewmodel contents
         master_settings.test_cinfo();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#cinfo_form');        
     });
     $('#cinfo_form').on('reset', function(evt) {
         // knockout does not refresh observables on a reset
@@ -1271,6 +1353,9 @@ $(function() {
         master_settings.package.done(true);
         master_settings.test_pkgsel();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#pkgsel_form');
     });
     $('#pkgsel_form').on('reset', function(evt) {
         // blank out package selection
@@ -1285,6 +1370,9 @@ $(function() {
         // save contents of viewmodel as json blob and fire test
         master_settings.test_monitor();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#monitor_form');
     });
     $('#monitor_form').on('reset', function(evt) {
         // blank out monitoring selection
@@ -1300,6 +1388,9 @@ $(function() {
         master_settings.premium.done(true);
         master_settings.test_premium();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#premium_form');
     });
 
     $('#premium_form').on('reset', function(evt) {
@@ -1316,6 +1407,9 @@ $(function() {
         master_settings.combo.done(true);
         master_settings.test_combo();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#combo_form');
     });
     $('#combo_form').on('reset', function(evt) {
         // blank out combo selection
@@ -1331,6 +1425,9 @@ $(function() {
         master_settings.alacarte.done(true);
         master_settings.test_alacarte();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#alacarte_form');
     });
 
     $('#alacarte_form').on('reset', function(evt) {
@@ -1344,6 +1441,9 @@ $(function() {
 
         master_settings.services_and_promos.done(true);
         master_settings.test_services_and_promos();
+
+        // hide the buttons
+        master_settings._hide('#promo_form');
     });
 
     // shipping
@@ -1354,6 +1454,9 @@ $(function() {
         // save contents of viewmodel as json blob and fire test
         master_settings.test_shipping();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#shipping_form');
     });
     $('#shipping_form').on('reset', function(evt) {
         // blank out shipping selection
@@ -1369,9 +1472,16 @@ $(function() {
         master_settings.closing.done(true);
         master_settings.test_closing();
         json_handler._save(master_settings);
+
+        // hide the buttons
+        master_settings._hide('#closing_form');
     });
     $('#closing_form').on('reset', function(evt) {
         // blank out closing selection
         master_settings.clear_closing();
+    });
+    $('#global_save_btn').on('click', function(evt) {
+        // just save without checking anything
+        json_handler._save(master_settings);
     });
 });

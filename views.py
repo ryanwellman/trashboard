@@ -165,7 +165,7 @@ def dyn_json(request, agreement_id=None):
                     clist.append(dict(code=child.product, quantity=child.quantity, part=dict(category=child_product.category, price=fantastic_pricelist[child.product]['monthly_each'], points=fantastic_pricelist[child.product]['points'], name=child_product.name, code=child.product)))
 
                 # put changes into packctx
-                packctx['changed_contents'] = not reduce(lambda i, j: i and j, changes.values()) # a false here will make the whole thing false 
+                packctx['changed_contents'] = not reduce(lambda i, j: i and j, changes.values()) # a false here will make the whole thing false
                 packctx['cb_balance'] = cbp
                 packctx['updated_contents'] = clist
             elif iline.category == 'Services':
@@ -294,7 +294,7 @@ def dyn_json(request, agreement_id=None):
             # assemble a context
             # XXX: no quantities are associated in the form for this object so they are 1
             ilinectx = dict(agreement=agreement, note='', product=selected.get('code'), category=selected_product.category, quantity=1, pricedate=timezone.now())
-            # XXX: no prices yet 
+            # XXX: no prices yet
 
             # create it
             iline = InvoiceLine(**ilinectx)
@@ -352,7 +352,7 @@ def dyn_json(request, agreement_id=None):
         # XXX: detect changes to this and skip unchanged?
         # XXX: way too many round trips to the database
         # XXX: way too many loops
-        # XXX: ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly  
+        # XXX: ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly ugly
 
         # key all the invoice lines now in this agreement to their product codes
         # they were blanked out before dealing with the products so that's all that should be there
@@ -476,7 +476,9 @@ def draw_container(request, agreement_id=None):
     # gen_arrays(), which returns that giant wall of object hierarchy we all know and love... sort of
     assert arrays is not None, "Create agreements using the create URL and a Campaign ID."
 
-    return dict(arrays, agreement_id=dumps(dict(agreement_id=agreement_id)))
+
+
+    return dict(arrays, agreement_id=agreement_id)
 
 
 def create_and_redirect(request):

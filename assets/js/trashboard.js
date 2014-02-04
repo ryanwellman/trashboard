@@ -1,5 +1,5 @@
-// capture agreement_id from django if it was passed in
-var agreement_id = window.AID.agreement_id;
+// capture window.agreement_id from django if it was passed in
+
 
 // money formatting function
 function formatCurrency(value) {
@@ -168,7 +168,7 @@ JSONHandler = function() {
         // obtain blob from ajax
         var result = $.ajax({
             dataType: "json",
-            url: '/json/' + agreement_id,
+            url: '/json/' + window.agreement_id,
             async: false, // asynchronous load means empty blob
         });
 
@@ -181,7 +181,7 @@ JSONHandler = function() {
         // log success
         result.done(function(data) {
             payload = data;
-            console.log("loaded json" + (agreement_id ? " from agreement " + agreement_id : ''));
+            console.log("loaded json" + (window.agreement_id ? " from agreement " + window.agreement_id : ''));
             console.log(ko.toJSON(data))
         });
 
@@ -198,7 +198,7 @@ JSONHandler = function() {
         var result = $.ajax({
             type: "POST",
             dataType: "json",
-            url: '/json/' + agreement_id,
+            url: '/json/' + window.agreement_id,
             async: false, // testing with and without this
             data: payload,
         });
@@ -212,9 +212,9 @@ JSONHandler = function() {
             // obtain that agreement id from the json response
             console.log(data);
             obj.id = data.id;  // scope spam
-            agreement_id = data.id;
+            window.agreement_id = data.id;
             retval = data.id;
-            console.log("saved json" + (agreement_id ? " to agreement " + agreement_id :  '') + "\n" + ko.toJSON(self));
+            console.log("saved json" + (window.agreement_id ? " to agreement " + window.agreement_id :  '') + "\n" + ko.toJSON(self));
         });
 
         // return the agreement id that was saved
@@ -314,10 +314,10 @@ PackageVM = function(blob) {
         }
     });
 
-    // selected_package is another one of those special things that has 
+    // selected_package is another one of those special things that has
     // to come out of one of the window variables
     if(self.selected_package().code) {
-        self['selected_package'](package_index[self.selected_package().code]);        
+        self['selected_package'](package_index[self.selected_package().code]);
     }
 
     // if there's no customization lines the customize button doesn't work
@@ -370,7 +370,7 @@ PackageVM = function(blob) {
                 } else {
                     //console.log("!Found matching cline", cline);
                 }
-            });            
+            });
         }
     };
 
@@ -1335,7 +1335,7 @@ $(function() {
         json_handler._save(master_settings);
 
         // hide the buttons
-        master_settings._hide('#cinfo_form');        
+        master_settings._hide('#cinfo_form');
     });
     $('#cinfo_form').on('reset', function(evt) {
         // knockout does not refresh observables on a reset

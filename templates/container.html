@@ -1,201 +1,159 @@
-<!DOCTYPE html>
-{% load compress %}
+{% extends "base.html" %}
 
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="chrome=1">
-        <title>{% block title %}Protect America Intranet{% endblock %}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="">
-        <meta name="author" content="">
+{% block javascript_nocompress %}
 
-        {% compress css %}
-        <link type="text/less" rel="stylesheet" href="{% static "less/style.less" %}">
-        {% block stylesheets %}{% endblock %}
-        {% endcompress %}
 
-        <link rel="shortcut icon" href="{% static "images/favicon.ico" %}">
-        {% include 'knockout_templates.html' %}
-    </head>
-    <body>
-        <div class="affix" style="top:40px;left:0px;z-index:1000">
-            <!-- this is intentionally left blank for future expansion -->
-        </div>
-        <div class="well" id="right_sidebar" data-target="right_sidebar">
-            <ul class="nav nav-list">
-                <li id="nav_initial_info"><a data-bind="css: { 'complete': initial_complete(), 'incomplete': !initial_complete() }" href="#initial_info">Initial Info</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': !!package.selected_package(), 'incomplete': !package.selected_package() }" href="#pkgsel">Package</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_monitor"><a data-bind="css: { 'complete': monitoring(), 'incomplete': !monitoring() }" href="#monitor">Monitoring</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_premium"><a data-bind="css: { 'complete': premium.done(), 'incomplete': !premium.done() }" href="#premium">Premium</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_combos"><a data-bind="css: { 'complete': combo.done(), 'incomplete': !combo.done() }" href="#combos">Combos</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_a_la_carte"><a data-bind="css: { 'complete': alacarte.complete(), 'incomplete': !alacarte.complete() }" href="#a_la_carte">A La Carte</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_services"><a class="green_nav complete" href="#services">Services</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_promos"><a class="green_nav complete" href="#promos">Promos</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_cinfo"><a data-bind="css: { 'complete': cinfo_complete(), 'incomplete': !cinfo_complete() }" href="#cinfo">Customer Info</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_shipping"><a data-bind="css: { 'complete': shipping(), 'incomplete': !shipping() }" href="#shipping">Shipping</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_closing"><a data-bind="css: { 'complete': closing.done(), 'incomplete': !closing.done() }" href="#closing">Closing</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_review"><a class="green_nav complete" href="#review">Review</a></li>
-                <li class="divider"></li>
-                <li class="hyde" id="nav_publish"><a class="green_nav complete" href="#publish">Publish</a></li>
-                <li class="divider"></li>
-                <li><span id="global_save_btn" class="btn btn-success">Save Agreement</span></li>
+<script type="text/javascript">
+    window.PACKAGES = {{packages|safe}};
+    window.PARTS = {{parts|safe}};
+    window.PREMIUM = {{premiums|safe}};
+    window.COMBOS = {{combos|safe}};
+    window.agreement_id = {{agreement_id|safe}}
+    window.SERVICES = {{services|safe}};
+    window.CLOSERS = {{closers|safe}};
+    window.INCENTIVES = {{incentives|safe}};
+    window.MONITORS = {{monitors|safe}};
+    window.SHIPPERS = {{shippers|safe}};
+</script>
+
+<script type="text/javascript" src="{% static 'js/trashboard.js' %}"></script>
+
+
+
+{% endblock %}
+
+
+{% block content %}
+<div class="affix" style="top:40px;left:0px;z-index:1000">
+    <!-- this is intentionally left blank for future expansion -->
+</div>
+<div class="well" id="right_sidebar" data-target="right_sidebar">
+    <ul class="nav nav-list">
+        <li id="nav_initial_info"><a data-bind="css: { 'complete': initial_complete(), 'incomplete': !initial_complete() }" href="#initial_info">Initial Info</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': !!package.selected_package(), 'incomplete': !package.selected_package() }" href="#pkgsel">Package</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_monitor"><a data-bind="css: { 'complete': monitoring(), 'incomplete': !monitoring() }" href="#monitor">Monitoring</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_premium"><a data-bind="css: { 'complete': premium.done(), 'incomplete': !premium.done() }" href="#premium">Premium</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_combos"><a data-bind="css: { 'complete': combo.done(), 'incomplete': !combo.done() }" href="#combos">Combos</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_a_la_carte"><a data-bind="css: { 'complete': alacarte.complete(), 'incomplete': !alacarte.complete() }" href="#a_la_carte">A La Carte</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_services"><a class="green_nav complete" href="#services">Services</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_promos"><a class="green_nav complete" href="#promos">Promos</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_cinfo"><a data-bind="css: { 'complete': cinfo_complete(), 'incomplete': !cinfo_complete() }" href="#cinfo">Customer Info</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_shipping"><a data-bind="css: { 'complete': shipping(), 'incomplete': !shipping() }" href="#shipping">Shipping</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_closing"><a data-bind="css: { 'complete': closing.done(), 'incomplete': !closing.done() }" href="#closing">Closing</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_review"><a class="green_nav complete" href="#review">Review</a></li>
+        <li class="divider"></li>
+        <li class="hyde" id="nav_publish"><a class="green_nav complete" href="#publish">Publish</a></li>
+        <li class="divider"></li>
+        <li><span id="global_save_btn" class="btn btn-success">Save Agreement</span></li>
+    </ul>
+</div>
+<div class="container">
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <ul>
+                <li class="span2">
+                    <b>Customer Info:</b><br>
+                    <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First Last'"></span><br>
+                    <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
+                    <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span>
+                    <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span>
+                </li>
+                <li class="span1.5">
+                    <b>Package:</b><br>
+                    <h4><span data-bind="text: package_nav"></span></h4>
+                </li>
+                <li class="span1.5">
+                    <b>Monthly Cost:</b>
+                    <center><h4>$0.00</h4></center>
+                </li>
+                <li class="span1.5">
+                    <b>Upfront Cost:</b><br>
+                    <center><h4>$0.00</h4></center>
+                </li>
+                <li class="span1.5">
+                    <b>Chargeback:</b><br>
+                    <!-- ko if: chargeback_nav() >= 0 -->
+                    <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
+                    <!-- /ko -->
+                    <!-- ko if: chargeback_nav() < 0 -->
+                    <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-important"></span></center>
+                    <!-- /ko -->
+                </li>
+                <li class="span2.5">
+                    <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>
+                    <b>Monitoring:</b> <span data-bind="text: monitoring_nav"></span><br>
+                    <b>Promotions:</b> promotions
+                </li>
+                <li class="span2.5">
+                    <b>Combos:</b> combos<br>
+                    <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
+                </li>
+                <li class="span2">
+                    <b>Credit Status:</b><br>
+                    <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
+                </li>
+                <li class="span2 pull-right">
+                    <b>Logged in as:</b><br>
+                    <i class="fa fa-user"></i> {{ user }}
+                </li>
             </ul>
         </div>
-        <div class="container">
-            <div class="navbar navbar-fixed-top">
-                <div class="navbar-inner">
-                    <ul>
-                        <li class="span2">
-                            <b>Customer Info:</b><br>
-                            <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First Last'"></span><br>
-                            <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
-                            <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span>
-                            <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span>
-                        </li>
-                        <li class="span1.5">
-                            <b>Package:</b><br>
-                            <h4><span data-bind="text: package_nav"></span></h4>
-                        </li>
-                        <li class="span1.5">
-                            <b>Monthly Cost:</b>
-                            <center><h4>$0.00</h4></center>
-                        </li>
-                        <li class="span1.5">
-                            <b>Upfront Cost:</b><br>
-                            <center><h4>$0.00</h4></center>
-                        </li>
-                        <li class="span1.5">
-                            <b>Chargeback:</b><br>
-                            <!-- ko if: chargeback_nav() >= 0 -->
-                            <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
-                            <!-- /ko -->
-                            <!-- ko if: chargeback_nav() < 0 -->
-                            <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-important"></span></center>
-                            <!-- /ko -->
-                        </li>
-                        <li class="span2.5">
-                            <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>
-                            <b>Monitoring:</b> <span data-bind="text: monitoring_nav"></span><br>
-                            <b>Promotions:</b> promotions
-                        </li>
-                        <li class="span2.5">
-                            <b>Combos:</b> combos<br>
-                            <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
-                        </li>
-                        <li class="span2">
-                            <b>Credit Status:</b><br>
-                            <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
-                        </li>
-                        <li class="span2 pull-right">
-                            <b>Logged in as:</b><br>
-                            <i class="fa fa-user"></i> {{ user }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="content">
-                <section id="initial_info">
-                    <div data-bind="template: { name: 'initial_info', data: $data }">Initial Info Form</div>
-                </section>
-                <section id="pkgsel" class="hyde">
-                    <div data-bind="template: { name: 'packages', data: $data }">Package Select Form</div>
-                </section>
-                <section id="monitor" class="hyde">
-                    <div data-bind="template: { name: 'monitor_', data: $data }">Monitoring Form</div>
-                </section>
-                <section id="premium" class="hyde">
-                    <div data-bind="template: { name: 'premiums', data: $data }">Premium Form</div>
-                </section>
-                <section id="combos" class="hyde">
-                    <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
-                </section>
-                <section id="a_la_carte" class="hyde">
-                    <div data-bind="template: { name: 'alacarte_', data: $data }">A La Carte Form</div>
-                    </section>
-                <section id="services" class="hyde">
-                    <div data-bind="template: { name: 'services_', data: $data }">Services Form</div>
-                </section>
-                <section id="promos" class="hyde">
-                    <div data-bind="template: { name: 'promos_', data: $data }">Promo Form</p>
-                </section>
-                <section id="cinfo" class="hyde">
-                    <div data-bind="template: { name: 'customer_info', data: $data }">Customer Info Form</div>
-                </section>
-                <section id="shipping" class="hyde">
-                    <div data-bind="template: { name: 'shipping_', data: $data }">Shipping Form</div>
-                </section>
-                <section id="closing" class="hyde">
-                    <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
-                </section>
-                <section id="review" class="hyde">
-                    <div data-bind="template: { name: 'review_', data: $data }">Review Form</div>
-                </section>
-                <section id="publish" class="hyde">
-                    <div data-bind="template: { name: 'publish_', data: $data }">Publish Form</div>
-                </section>
-                <section id="scroller" class="hyde">
-                     <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -->
-                    <p>&nbsp;</p>
-                </section>
-            </div>
-        </div>
-
-        {% block javascript_nocompress %}{% endblock %}
-
-        <script type="text/javascript">
-            window.PACKAGES = {{packages|safe}};
-            window.PARTS = {{parts|safe}};
-            window.PREMIUM = {{premiums|safe}};
-            window.COMBOS = {{combos|safe}};
-            window.AID = {{agreement_id|safe}};
-            window.SERVICES = {{services|safe}};
-            window.CLOSERS = {{closers|safe}};
-            window.INCENTIVES = {{incentives|safe}};
-            window.MONITORS = {{monitors|safe}};
-            window.SHIPPERS = {{shippers|safe}};
-            {% block javascript_variables_nocompress %}{% endblock %}
-        </script>
-
-        {% compress js %}
-        <script type="text/javascript" src="{% static 'js/jquery-1.10.1.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/undrescore-1.5.2.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/knockout-3.0.0.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/jquery.cookie-1.3.1.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/trashboard.js' %}"></script>
-
-        <script type="text/javascript">
-            $(function(){
-                // https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax
-                function csrfSafeMethod(method) {
-                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-                }
-
-                $.ajaxSetup({
-                    crossDomain: false,
-                    cache: false,
-                    beforeSend: function(xhr, settings) {
-                        if (!csrfSafeMethod(settings.type)) {
-                            xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
-                        }
-                    }
-                });
-            });
-        </script>
-        {% block javascript_compress %}{% endblock %}
-        {% endcompress %}
-
-    </body>
-</html>
+    </div>
+    <div class="content">
+        <section id="initial_info">
+            <div data-bind="template: { name: 'initial_info', data: $data }">Initial Info Form</div>
+        </section>
+        <section id="pkgsel" class="hyde">
+            <div data-bind="template: { name: 'packages', data: $data }">Package Select Form</div>
+        </section>
+        <section id="monitor" class="hyde">
+            <div data-bind="template: { name: 'monitor_', data: $data }">Monitoring Form</div>
+        </section>
+        <section id="premium" class="hyde">
+            <div data-bind="template: { name: 'premiums', data: $data }">Premium Form</div>
+        </section>
+        <section id="combos" class="hyde">
+            <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
+        </section>
+        <section id="a_la_carte" class="hyde">
+            <div data-bind="template: { name: 'alacarte_', data: $data }">A La Carte Form</div>
+            </section>
+        <section id="services" class="hyde">
+            <div data-bind="template: { name: 'services_', data: $data }">Services Form</div>
+        </section>
+        <section id="promos" class="hyde">
+            <div data-bind="template: { name: 'promos_', data: $data }">Promo Form</p>
+        </section>
+        <section id="cinfo" class="hyde">
+            <div data-bind="template: { name: 'customer_info', data: $data }">Customer Info Form</div>
+        </section>
+        <section id="shipping" class="hyde">
+            <div data-bind="template: { name: 'shipping_', data: $data }">Shipping Form</div>
+        </section>
+        <section id="closing" class="hyde">
+            <div data-bind="template: { name: 'closing_', data: $data }">Closing Form</p>
+        </section>
+        <section id="review" class="hyde">
+            <div data-bind="template: { name: 'review_', data: $data }">Review Form</div>
+        </section>
+        <section id="publish" class="hyde">
+            <div data-bind="template: { name: 'publish_', data: $data }">Publish Form</div>
+        </section>
+        <section id="scroller" class="hyde">
+             <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -->
+            <p>&nbsp;</p>
+        </section>
+    </div>
+</div>
+{% endblock %}

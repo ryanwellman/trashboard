@@ -1229,7 +1229,10 @@
     "pk": "Bronze",
     "model": "agreement.package",
     "fields": {
-      "code": "bronze"
+      "code": "bronze",
+      "category": "Packages",
+      "product_type": "Package"
+
     }
   },
   {
@@ -1237,28 +1240,37 @@
     "model": "agreement.package",
     "description": "Copper Package",
     "fields": {
-      "code": "copper"
+      "code": "copper",
+      "category": "Packages",
+      "product_type": "Package"
     }
   },
   {
     "pk": "Gold",
     "model": "agreement.package",
     "fields": {
-      "code": "gold"
+      "code": "gold",
+      "category": "Packages",
+      "product_type": "Package"
     }
   },
   {
     "pk": "Platinum",
     "model": "agreement.package",
     "fields": {
-      "code": "platinum"
+      "code": "platinum",
+      "category": "Packages",
+      "product_type": "Package"
     }
   },
   {
     "pk": "Silver",
     "model": "agreement.package",
     "fields": {
-      "code": "silver"
+      "code": "silver",
+      "category": "Packages",
+      "product_type": "Package"
+
     }
   },
   {

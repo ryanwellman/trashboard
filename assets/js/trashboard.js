@@ -413,7 +413,7 @@ PackageVM = function(blob) {
         self.customizing(false);
 
         if(!self.customization_lines().length) {
-            _.map(window.PARTS, function(part) {
+            _.map(window.PRODUCTS_BY_TYPE.Part, function(part) {
                 var cline= {
                     code: part.code,
                     part: part,

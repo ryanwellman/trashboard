@@ -146,7 +146,7 @@ def dyn_json(request, agreement_id=None):
 
                 # go through the contents and update packctx and pkgcontents while adding up total cb points for this package
                 cbp = 0
-                for pp in agreement.package.pkgproduct_set.all():
+                for pp in agreement.package.contents.all():
                     pkgcontents[pp.product.code] = pp.quantity
                     packctx['selected_package']['contents'].append(dict(code=pp.product.code, quantity=pp.quantity, part=dict(category=pp.product.category, price=fantastic_pricelist[pp.product.code]['monthly_each'], points=fantastic_pricelist[pp.product.code]['points'], name=pp.product.name, code=pp.product.code)))
                     cbp += int(fantastic_pricelist[pp.product.code]['points']) * pp.quantity
@@ -260,8 +260,8 @@ def dyn_json(request, agreement_id=None):
         # get the contents of the package as a hash of codes:quantities
         pkgcontents = {}
         if agreement.package:
-            for pp in agreement.package.pkgproduct_set.all():
-                pkgcontents[pp.product.code] = pp.quantity
+            for pc in agreement.package.contents.all():
+                pkgcontents[pc.included_product_id] = pc.quantity
 
             # create a parent invoice line for the package contents
             # this context is constructed a little differently than ones with an actual product;
@@ -319,7 +319,7 @@ def dyn_json(request, agreement_id=None):
             iline.save()
 
         # premium items (actually combos) and combos
-        for selected in chain(premiums.get('selected_codes'), combos.get('selected_codes')):
+        for selected in combos.get('selected_codes'):
             # obtain the orm product associated with this code
             selected_product = Product.objects.get(code=selected.get('code'))
 

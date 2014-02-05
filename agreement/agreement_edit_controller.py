@@ -53,3 +53,31 @@ class AgreementEditController(GenericController):
         # Translate to json.
         self.products_json = dumps({code: p.as_jsonable() for code, p in products.iteritems()})
         self.pricelist_json = dumps({code: pp.as_jsonable() for code, pp in pricelist.iteritems()})
+
+
+class AgreementJsonController(GenericController):
+    def render():
+        return JsonResponse(dict(
+            agreement=self.agreement.as_jsonable(),
+            errors=self.errors
+        ))
+
+    def fetch_objects(self):
+        self.agreement_id = intor(self.agreement_id)
+        self.agreement = get_object_or_404(Agreement.objects.all(), pk=self.agreement_id)
+
+        self.campaign = self.agreement.campaign if self.agreement else None
+
+        self.errors = []
+
+    def dispatch(request):
+        if request.method == 'POST':
+            incoming_blob = request.POST.get('update_agreement_blob')
+            incoming = loads(incoming_blob)
+
+            self.errors = agreement.update_with_blob(incoming_blob) or []
+
+        return self.render()
+
+
+

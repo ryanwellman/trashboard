@@ -46,7 +46,8 @@ class Serializable(models.Model):
         # m2m through tables
         throughtypes = dict((f.name, f.rel.through) for f in self._meta.many_to_many)
         throughnames = dict((f.name, str(f.m2m_db_table().rsplit('_')[1])) for f in self._meta.many_to_many)
-        throughinstances = dict((throughnames[f], getattr(self, throughnames[f] + "_set").all()) for f in throughnames)
+        throughinstances = {f.name: getattr(self, f.name).all() for f in self._meta.many_to_many}
+        #throughinstances = dict((throughnames[f], getattr(self, throughnames[f] + "_set").all()) for f in throughnames)
 
         # let's make the first one without ignored and without django private items
         # these values are all strings as far as json is concerned

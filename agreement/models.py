@@ -45,7 +45,7 @@ class Product(Serializable):
     name        =   models.CharField(max_length=64)
     description =   models.CharField(max_length=255)
 
-    content_products = models.ManyToManyField("self", through='ProductContent', related_name='included_in', symmetrical=False)
+    contentproducts = models.ManyToManyField("self", through='ProductContent', related_name='included_in', symmetrical=False)
 
 
     def concrete(self):
@@ -56,8 +56,24 @@ class Product(Serializable):
 
         return self
 
+    def as_jsonable(self):
+        contents = [];
+        jsonable = dict(
+            code=self.code,
+            product_type=self.product_type,
+            category=self.category,
+            name=self.name,
+            description=self.description,
+            contents=contents,
+        )
+        for pc in self.contents.all():
+            contents.append(pc.as_jsonable())
+
+        return jsonable
+
+
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.code, self.name, self.type, self.category]])
+        return u','.join([unicode(f) for f in [self.code, self.name, self.product_type, self.category]])
 
     class Meta:
         ordering = ['code']
@@ -103,6 +119,20 @@ class ProductPrice(Serializable):
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.pricetable, self.product, self.monthly_price, self.upfront_price]])
+
+    def as_jsonable(self):
+        d = dict(
+            code=self.product_id,
+            max_quantity=self.max_quantity,
+            monthly_price=self.monthly_price,
+            upfront_price=self.upfront_price,
+            cb_points=self.cb_points,
+            fromdate=self.fromdate,
+            todate=self.todate,
+            promo=self.promo,
+            swappable=self.swappable,
+
+        )
 
     class Meta:
         ordering = ['pricetable']
@@ -163,6 +193,14 @@ class Package(Product):
     class Meta:
         db_table = 'packages'
 
+class Monitoring(Product):
+    """
+    represents a package we sell
+    """
+
+    class Meta:
+        db_table = 'monitorings'
+
 class Combo(Product):
 
     class Meta:
@@ -211,6 +249,15 @@ class ProductContent(Serializable):
             pass
 
         return u','.join([unicode(f) for f in fields])
+
+    def as_jsonable(self):
+        jsonable = dict(
+            code=self.included_product_id,
+            quantity=self.quantity,
+            upfront_strike=self.upfront_strike,
+            monthly_strike=self.monthly_strike,
+        )
+        return jsonable
 
     class Meta:
         db_table = 'product_content'

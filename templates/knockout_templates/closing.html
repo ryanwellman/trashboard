@@ -3,7 +3,7 @@
 				<span class="label label-inverse box-rotate tab-pos">Closing</span>
 				<form id="closing_form">
 					<fieldset>
-						<div class="controls controls-row" data-bind="foreach: CLOSERS">
+						<div class="controls controls-row" data-bind="foreach: PRODUCTS_BY_TYPE.Closing">
 							<div class="control-group well well-small span3">
 								<label class="control-label checkbox">
 									<input type="checkbox" data-bind="checked: $parent.closing.selected_codes, checkedValue: $data">

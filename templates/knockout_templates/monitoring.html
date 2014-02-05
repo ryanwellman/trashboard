@@ -3,7 +3,7 @@
 				<span class="label label-inverse box-rotate tab-pos">Monitoring</span>
 				<form id="monitor_form">
 					<fieldset>
-						<div class="controls controls-row" data-bind="foreach:MONITORS">
+						<div class="controls controls-row" data-bind="foreach:PRODUCTS_BY_TYPE.Monitoring">
 							<div class="select_monitoring control-group well well-small span3" data-bind="click: $parent.selected_monitoring, css: $parent.moncss($data)">
 								<center><span data-bind="text: name"></span></center>
 							</div>

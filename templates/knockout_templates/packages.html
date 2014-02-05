@@ -1,10 +1,11 @@
         <script type="text/html" id="packages">
             <div class="well">
                 <span class="label label-inverse box-rotate tab-pos">Packages</span>
-                <div class="controls controls-row" data-bind="foreach:PACKAGES">
+                <div class="controls controls-row" data-bind="foreach:PRODUCTS_BY_TYPE.Package">
                     <div class="select_package span2 " data-bind="css: $parent.package.select_package_classes($data), click: $parent.package.select_package">
                         <div class="package_name row">
                             <div class="span2">
+
                                 <span data-bind="text: $data.name"></span>
                                 Package
                             </div>
@@ -13,7 +14,7 @@
                             <div class="span2">
                                 <ul data-bind="foreach: $data.contents">
                                     <li>
-                                        <span data-bind="text: $data.part.name"></span>
+                                        <span data-bind="text: $data.product.name"></span>
                                         x<span data-bind="text: $data.quantity"></span>
                                     </li>
                                 </ul>
@@ -36,7 +37,7 @@
                         <tbody data-bind="foreach: package.selected_package_contents()">
                             <tr>
                                 <td data-bind="text: $data.code"></td>
-                                <td data-bind="text: $data.part.name"></td>
+                                <td data-bind="text: $data.product.name"></td>
                                 <td data-bind="text: $data.quantity"></td>
 
                             </tr>
@@ -104,8 +105,8 @@
                         <tbody data-bind="foreach: package.customization_lines">
                             <tr>
                                 <td data-bind="text: $data.code"></td>
-                                <td data-bind="text: $data.part.name"></td>
-                                <td><center><span data-bind="text: $data.part.points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
+                                <td data-bind="text: $data.product.name"></td>
+                                <td><center><span data-bind="text: $data.product.cb_points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
                                 <td data-bind="text: $data.min_quantity" style="text-align:center;"></td>
                                 <td><input class="input-mini" type="text" data-bind="value: $data.quantity" style="text-align:center;" /></td>
                             </tr>

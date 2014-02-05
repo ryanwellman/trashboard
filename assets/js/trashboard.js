@@ -1,3 +1,38 @@
+
+// fix the window level vars for this to work
+_.each(window.PRODUCTS, function(prod) {
+    // There is a price in the pricetable for this object so it is purchasable.
+    // XXX: This might need to check that the price is not null, but I'm not sure just yet.
+
+    prod.product_price = window.PRICES[prod.code];
+    prod.available = !!prod.product_price;
+
+});
+
+window.PRODUCTS_BY_TYPE = _.groupBy(window.PRODUCTS, function(prod) {
+    return prod.product_type;
+});
+
+// All products with subproducts need to be merged in appropriately.
+_.each(window.PRODUCTS, function(prod) {
+    if(!prod.contents || !prod.contents.length) {
+        return; // Skip anything that has no contents.
+    }
+
+    // Then go over each productcontent in it.
+    _.each(prod.contents, function(pc) {
+        // This has quantity, maybe some price info, but specifically a product that
+        // is included.  Replace the product with a reference.
+
+        pc.product = window.PRODUCTS[pc.code];
+    });
+
+});
+
+//window.package_index = _.object(_.pluck(window.PACKAGES, 'code'), window.PACKAGES);
+//window.part_index = _.object(_.pluck(window.PARTS, 'code'), window.PARTS);
+
+
 // capture window.agreement_id from django if it was passed in
 
 
@@ -282,16 +317,6 @@ AddressVM = function(blob) {
 };
 
 // this is ryan's vm for packages translated to the new style
-
-// fix the window level vars for this to work
-window.package_index = _.object(_.pluck(window.PACKAGES, 'code'), window.PACKAGES);
-window.part_index = _.object(_.pluck(window.PARTS, 'code'), window.PARTS);
-
-_.each(window.PACKAGES, function(package) {
-    _.each(package.contents, function(line) {
-        line.part = window.part_index[line.code];
-    });
-});
 
 PackageVM = function(blob) {
     var self = new UpdatableAndSerializable();
@@ -1052,11 +1077,11 @@ MasterVM = function(blob) {
     };
 
     self.moncss = function(param) {
-        return (param.value.toLowerCase() == self.monitoring().toLowerCase()) ? 'currently_chosen' : '';
+        return param.code == self.monitoring() ? 'currently_chosen' : '';
     };
 
     self.shipcss = function(param) {
-        return (param.value.toLowerCase() == self.shipping().toLowerCase()) ? 'currently_chosen' : '';
+        return param.code == self.shipping() ? 'currently_chosen' : '';
     };
 
     // initial info section

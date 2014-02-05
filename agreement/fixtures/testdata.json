@@ -604,6 +604,69 @@
   },
 
 
+  {
+    "pk": "BROADBAND",
+    "model": "agreement.product",
+    "fields": {
+      "category": "Connection Method",
+      "product_type": "Monitoring",
+      "name": "Broadband",
+      "description": "broadband monitoring"
+    }
+  },
+  {
+    "pk": "LANDLINE",
+    "model": "agreement.product",
+    "fields": {
+      "category": "Connection Method",
+      "product_type": "Monitoring",
+      "name": "Landline",
+      "description": "Landline monitoring"
+    }
+  },
+  {
+    "pk": "Cellular",
+    "model": "agreement.product",
+    "fields": {
+      "category": "Connection Method",
+      "product_type": "Monitoring",
+      "name": "Cellular",
+      "description": "cellular monitoring"
+    }
+  },
+
+  {
+    "pk": "BROADBAND",
+    "model": "agreement.monitoring",
+    "fields": {
+      "category": "Connection Method",
+      "product_type": "Monitoring",
+      "name": "Broadband",
+      "description": "broadband monitoring"
+    }
+  },
+  {
+    "pk": "LANDLINE",
+    "model": "agreement.monitoring",
+    "fields": {
+      "category": "Connection Method",
+      "product_type": "Monitoring",
+      "name": "Landline",
+      "description": "Landline monitoring"
+    }
+  },
+  {
+    "pk": "Cellular",
+    "model": "agreement.monitoring",
+    "fields": {
+      "category": "Connection Method",
+      "product_type": "Monitoring",
+      "name": "Cellular",
+      "description": "cellular monitoring"
+    }
+  },
+
+
 
 
   {

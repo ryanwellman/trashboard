@@ -4,16 +4,20 @@
 
 
 <script type="text/javascript">
-    window.PACKAGES = {{packages|safe}};
+    window.PRODUCTS = {{products_json|safe}};
+    window.PRICES = {{pricelist_json|safe}};
+    window.agreement_id = {{agreement_id|safe}}
+
+    /*window.PACKAGES = {{packages|safe}};
     window.PARTS = {{parts|safe}};
     window.PREMIUM = {{premiums|safe}};
     window.COMBOS = {{combos|safe}};
-    window.agreement_id = {{agreement_id|safe}}
     window.SERVICES = {{services|safe}};
     window.CLOSERS = {{closers|safe}};
     window.INCENTIVES = {{incentives|safe}};
     window.MONITORS = {{monitors|safe}};
     window.SHIPPERS = {{shippers|safe}};
+    */
 </script>
 
 <script type="text/javascript" src="{% static 'js/trashboard.js' %}"></script>
@@ -120,9 +124,11 @@
         <section id="monitor" class="hyde">
             <div data-bind="template: { name: 'monitor_', data: $data }">Monitoring Form</div>
         </section>
+        <!--
         <section id="premium" class="hyde">
             <div data-bind="template: { name: 'premiums', data: $data }">Premium Form</div>
         </section>
+    -->
         <section id="combos" class="hyde">
             <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
         </section>

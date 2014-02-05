@@ -1,12 +1,14 @@
         <script type="text/html" id="services_">
             <div class="well">
                 <span class="label label-inverse box-rotate tab-pos">Services</span>
-                <div class="controls controls-row" data-bind="foreach:SERVICES">
+                <div class="controls controls-row" data-bind="foreach:PRODUCTS_BY_TYPE.Service">
                     <div class="control-group well well-small span3" data-bind="visible: $parent.services_and_promos.contains($data, false)">
                         <label class="control-label checkbox">
                             <input type="checkbox" disabled="true" checked>
                             <h5><span data-bind="text: $data.name"></span></h5>&nbsp;
-                            <span class="badge badge-info" data-bind="text: $data.price"></span>
+                            <!-- ko if: $data.product_price -->
+                            <span class="badge badge-info" data-bind="text: $data.product_price.upfront_price"></span>
+                            <!-- /ko -->
                             <hr class="muted">
                             <ul>
                                 <li><small><span data-bind="text: $data.reason"></span>

@@ -3,13 +3,15 @@
 				<span class="label label-inverse box-rotate tab-pos">Combos</span>
 				<form id="combo_form">
 					<fieldset>
-						<div class="controls controls-row" data-bind="foreach:COMBOS">
+						<div class="controls controls-row" data-bind="foreach:PRODUCTS_BY_TYPE.Combo">
 							<!-- <legend>Combos</legend> -->
 							<div class="control-group well well-small span3">
 								<label class="control-label checkbox">
 									<input type="checkbox" data-bind="checked: $parent.combo.selected_codes, checkedValue: $data, click: $parent.combo.select_item">
 									<h5 data-bind="text: name"></h5>&nbsp;
-									<span class="badge badge-info" data-bind="text: price"></span>
+									<!-- ko if: $data.product_price -->
+									<span class="badge badge-info" data-bind="text: $data.product_price.upfront_price"></span>
+									<!-- /ko -->
 									<hr class="muted">
 									<small data-bind="text: $data.description"></small>
 									<ul data-bind="foreach: $data.contents">

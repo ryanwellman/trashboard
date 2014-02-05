@@ -19,7 +19,7 @@ from handy import intor
 from handy.jsonstuff import dumps
 from handy.controller import JsonResponse
 
-#@csrf_exempt
+@csrf_exempt
 def dyn_json(request, agreement_id=None):
     """
     reads or updates an Agreement and returns it to the caller as json

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from agreement.models import *
 from handy import uniq
-
+from collections import defaultdict
 
 
 def get_global_context(campaign):
@@ -23,6 +23,13 @@ def get_global_context(campaign):
 
     # variables
     parts, packages, closers, services, combos, premiums, incentives, monitors, shippers = ([], [], [], [], [], [], [], [], [])
+
+    available_products_by_category = defaultdict(list)
+    for pp in pricelist:
+        available_products_by_category[pp.product.category].append(pp)
+
+    PACKAGES = [pp.as_jsonable() for pp in available_products_by_category['package']]
+
 
     # get packages first
     for pack in Package.objects.all():

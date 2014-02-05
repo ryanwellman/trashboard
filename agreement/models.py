@@ -5,7 +5,29 @@ from django.utils import timezone
 from agreement.uas import Updatable, Serializable
 from django.db.models import Q
 
+
+__typemap__ = dict()
+class ProductRegistry(models.base.ModelBase):
+    def __init__(cls, name, bases, dct):
+        # When a workorder model is created
+        # Let modelbase do its django-magic
+        super(ProductRegistry, cls).__init__(name, bases, dct)
+
+        # Grab the type_code off the class and store it in __typemap__
+        type_code = getattr(cls, 'type_code', cls.__name__)
+        __typemap__[type_code] = cls
+        __typemap__[type_code.lower()] = cls
+
+    @staticmethod
+    def get_workorder_type(code):
+        return __typemap__.get(code)
+
+
+
+
 class Product(Serializable):
+    __metaclass__ = ProductRegistry
+
     """
     conceptually represents a sort-of upc for anything we sell
 
@@ -18,13 +40,21 @@ class Product(Serializable):
     #          'part', 'service', 'monitoring']
 
     code        =   models.CharField(max_length=64, primary_key=True)
-    type        =   models.CharField(max_length=64)
+    product_type =   models.CharField(max_length=64)
     category    =   models.CharField(max_length=64)
     name        =   models.CharField(max_length=64)
     description =   models.CharField(max_length=255)
 
     content_products = models.ManyToManyField("self", through='ProductContent', related_name='included_in', symmetrical=False)
 
+
+    def concrete(self):
+        # Get type_code off of self's class (however this instance was currently loaded)
+        type_code = getattr(self.__class__, 'type_code', self.__class__.__name__)
+        if type_code != self.product_type:
+            return __typemap__[self.product_type].objects.get(pk=self.pk)
+
+        return self
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.code, self.name, self.type, self.category]])
@@ -130,20 +160,32 @@ class Package(Product):
     represents a package we sell
     """
 
-
-    def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.code, self.name]])
-
     class Meta:
-        ordering = ['name']
+        db_table = 'packages'
 
 class Combo(Product):
 
-    def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.code, self.name]])
+    class Meta:
+        db_table = 'combos'
+
+class Closer(Product):
 
     class Meta:
-        ordering = ['name']
+        db_table = 'closers'
+
+
+class Service(Product):
+    class Meta:
+        db_table = 'services'
+
+class Shipping(Product):
+    class Meta:
+        db_table = 'shipping_methods'
+
+class Part(Product):
+    class Meta:
+        db_table = 'parts'
+
 
 
 class ProductContent(Serializable):

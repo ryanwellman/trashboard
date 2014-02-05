@@ -6,7 +6,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Rate Drops",
-      "type": "closer",
+      "product_type": "Closer",
       "name": "$10\/mo rate drop",
       "description": "Removes $10 (requires manager approval)"
     }
@@ -16,7 +16,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Rate Drops",
-      "type": "closer",
+      "product_type": "Closer",
       "name": "$5\/mo rate drop",
       "description": "Removes $5 from the monthly monitoring rate"
     }
@@ -26,17 +26,17 @@
     "model": "agreement.product",
     "fields": {
       "category": "Services",
-      "type": "service",
+      "product_type": "Service",
       "name": "Alpaca Rental Service",
       "description": "alpaca shears"
     }
   },
   {
-    "pk": "CELLSERV",
+    "pk": "ANTENNA",
     "model": "agreement.product",
     "fields": {
       "category": "Premium Items",
-      "type": "equipment",
+      "product_type": "Part",
       "name": "Cellular Antenna",
       "description": "Cut the wires and it still works!"
     }
@@ -46,7 +46,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Combos",
-      "type": "combo",
+      "product_type": "Combo",
       "name": "Test Combo",
       "description": "so combo wow much products"
     }
@@ -56,7 +56,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Fire Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Carbon Monoxide Detector",
       "description": ""
     }
@@ -66,7 +66,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Door\/Window Sensors",
       "description": ""
     }
@@ -76,7 +76,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Flood Sensor",
       "description": ""
     }
@@ -86,7 +86,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Rate Drops",
-      "type": "closer",
+      "product_type": "Closer",
       "name": "Free Keychains",
       "description": "Give away some of our famous disposable keychains"
     }
@@ -96,7 +96,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Rate Drops",
-      "type": "closer",
+      "product_type": "Closer",
       "name": "Free Shipping",
       "description": "Cancels out shipping cost for the customer"
     }
@@ -106,7 +106,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Glass Break Sensor",
       "description": ""
     }
@@ -116,7 +116,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Garage Door Sensor",
       "description": ""
     }
@@ -126,7 +126,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "Keychain Remote Control",
       "description": ""
     }
@@ -136,7 +136,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Low Temperature Sensor",
       "description": ""
     }
@@ -146,7 +146,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "Medical Panic Pendant",
       "description": ""
     }
@@ -156,7 +156,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "Medical Panic Bracelet",
       "description": ""
     }
@@ -166,7 +166,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "Mini Pinpad",
       "description": ""
     }
@@ -176,7 +176,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Motion Detector",
       "description": ""
     }
@@ -186,7 +186,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Panels",
-      "type": "part",
+      "product_type": "Part",
       "name": "Simon XT",
       "description": ""
     }
@@ -196,7 +196,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Panels",
-      "type": "part",
+      "product_type": "Part",
       "name": "Simon 3",
       "description": ""
     }
@@ -206,7 +206,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Fire Sensors",
-      "type": "part",
+      "product_type": "Part",
       "name": "Smoke Detector",
       "description": ""
     }
@@ -216,7 +216,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Services",
-      "type": "service",
+      "product_type": "Service",
       "name": "Smoke Service",
       "description": "smoke detector(s)"
     }
@@ -226,7 +226,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "Solar Light",
       "description": ""
     }
@@ -236,7 +236,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Security Panels",
-      "type": "part",
+      "product_type": "Part",
       "name": "Talkover Device",
       "description": ""
     }
@@ -246,7 +246,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "Talking Keypad",
       "description": ""
     }
@@ -256,7 +256,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Accessories",
-      "type": "part",
+      "product_type": "Part",
       "name": "XT Talking Touchscreen",
       "description": ""
     }
@@ -266,7 +266,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Services",
-      "type": "service",
+      "product_type": "Service",
       "name": "Video Service",
       "description": "cameras"
     }
@@ -276,7 +276,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Home Automation",
-      "type": "part",
+      "product_type": "Part",
       "name": "X10 Appliance Module",
       "description": ""
     }
@@ -286,7 +286,7 @@
     "model": "agreement.product",
     "fields": {
       "category": "Home Automation",
-      "type": "part",
+      "product_type": "Part",
       "name": "XT Siren",
       "description": ""
     }
@@ -296,11 +296,316 @@
     "model": "agreement.product",
     "fields": {
       "category": "Home Automation",
-      "type": "part",
+      "product_type": "Part",
       "name": "X10 Socket Rocket",
       "description": ""
     }
   },
+
+  {
+    "pk": "10RTDROP",
+    "model": "agreement.closer",
+    "fields": {
+      "category": "Rate Drops",
+      "product_type": "Closer",
+      "name": "$10\/mo rate drop",
+      "description": "Removes $10 (requires manager approval)"
+    }
+  },
+  {
+    "pk": "5RTDROP",
+    "model": "agreement.closer",
+    "fields": {
+      "category": "Rate Drops",
+      "product_type": "Closer",
+      "name": "$5\/mo rate drop",
+      "description": "Removes $5 from the monthly monitoring rate"
+    }
+  },
+  {
+    "pk": "ALPACASRV",
+    "model": "agreement.service",
+    "fields": {
+      "category": "Services",
+      "product_type": "Service",
+      "name": "Alpaca Rental Service",
+      "description": "alpaca shears"
+    }
+  },
+  {
+    "pk": "ANTENNA",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Premium Items",
+      "product_type": "Part",
+      "name": "Cellular Antenna",
+      "description": "Cut the wires and it still works!"
+    }
+  },
+  {
+    "pk": "COMBOTEST",
+    "model": "agreement.combo",
+    "fields": {
+      "category": "Combos",
+      "product_type": "Combo",
+      "name": "Test Combo",
+      "description": "so combo wow much products"
+    }
+  },
+  {
+    "pk": "CRBMDT",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Fire Sensors",
+      "product_type": "Part",
+      "name": "Carbon Monoxide Detector",
+      "description": ""
+    }
+  },
+  {
+    "pk": "DWSENS",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Sensors",
+      "product_type": "Part",
+      "name": "Door\/Window Sensors",
+      "description": ""
+    }
+  },
+  {
+    "pk": "FLSENS",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Sensors",
+      "product_type": "Part",
+      "name": "Flood Sensor",
+      "description": ""
+    }
+  },
+  {
+    "pk": "FREEKEY",
+    "model": "agreement.closer",
+    "fields": {
+      "category": "Rate Drops",
+      "product_type": "Closer",
+      "name": "Free Keychains",
+      "description": "Give away some of our famous disposable keychains"
+    }
+  },
+  {
+    "pk": "FREESHIP",
+    "model": "agreement.closer",
+    "fields": {
+      "category": "Rate Drops",
+      "product_type": "Closer",
+      "name": "Free Shipping",
+      "description": "Cancels out shipping cost for the customer"
+    }
+  },
+  {
+    "pk": "GBSENS",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Sensors",
+      "product_type": "Part",
+      "name": "Glass Break Sensor",
+      "description": ""
+    }
+  },
+  {
+    "pk": "GDSENS",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Sensors",
+      "product_type": "Part",
+      "name": "Garage Door Sensor",
+      "description": ""
+    }
+  },
+  {
+    "pk": "KEYCRC",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "Keychain Remote Control",
+      "description": ""
+    }
+  },
+  {
+    "pk": "LTSENS",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Sensors",
+      "product_type": "Part",
+      "name": "Low Temperature Sensor",
+      "description": ""
+    }
+  },
+  {
+    "pk": "MEDPEN",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "Medical Panic Pendant",
+      "description": ""
+    }
+  },
+  {
+    "pk": "MEDPNB",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "Medical Panic Bracelet",
+      "description": ""
+    }
+  },
+  {
+    "pk": "MINPNP",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "Mini Pinpad",
+      "description": ""
+    }
+  },
+  {
+    "pk": "MOTDEC",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Sensors",
+      "product_type": "Part",
+      "name": "Motion Detector",
+      "description": ""
+    }
+  },
+  {
+    "pk": "SIMNXT",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Panels",
+      "product_type": "Part",
+      "name": "Simon XT",
+      "description": ""
+    }
+  },
+  {
+    "pk": "SIMTHR",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Panels",
+      "product_type": "Part",
+      "name": "Simon 3",
+      "description": ""
+    }
+  },
+  {
+    "pk": "SMKDET",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Fire Sensors",
+      "product_type": "Part",
+      "name": "Smoke Detector",
+      "description": ""
+    }
+  },
+  {
+    "pk": "SMOKESRV",
+    "model": "agreement.service",
+    "fields": {
+      "category": "Services",
+      "product_type": "Service",
+      "name": "Smoke Service",
+      "description": "smoke detector(s)"
+    }
+  },
+  {
+    "pk": "SOLLGT",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "Solar Light",
+      "description": ""
+    }
+  },
+  {
+    "pk": "TLKDEV",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Security Panels",
+      "product_type": "Part",
+      "name": "Talkover Device",
+      "description": ""
+    }
+  },
+  {
+    "pk": "TLKKYP",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "Talking Keypad",
+      "description": ""
+    }
+  },
+  {
+    "pk": "TLKTSC",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Accessories",
+      "product_type": "Part",
+      "name": "XT Talking Touchscreen",
+      "description": ""
+    }
+  },
+  {
+    "pk": "VIDEOSRV",
+    "model": "agreement.service",
+    "fields": {
+      "category": "Services",
+      "product_type": "Service",
+      "name": "Video Service",
+      "description": "cameras"
+    }
+  },
+  {
+    "pk": "XTNAPM",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Home Automation",
+      "product_type": "Part",
+      "name": "X10 Appliance Module",
+      "description": ""
+    }
+  },
+  {
+    "pk": "XTNSIR",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Home Automation",
+      "product_type": "Part",
+      "name": "XT Siren",
+      "description": ""
+    }
+  },
+  {
+    "pk": "XTSRCK",
+    "model": "agreement.part",
+    "fields": {
+      "category": "Home Automation",
+      "product_type": "Part",
+      "name": "X10 Socket Rocket",
+      "description": ""
+    }
+  },
+
+
+
+
   {
     "pk": "Base",
     "model": "agreement.pricetable",
@@ -366,7 +671,7 @@
     "fields": {
       "monthly_price": "5.0000",
       "todate": null,
-      "product": "CELLSERV",
+      "product": "ANTENNA",
       "cb_points": 5,
       "pricetable": "Base",
       "promo": false,
@@ -824,6 +1129,8 @@
     "pk": "Copper",
     "model": "agreement.product",
     "description": "Copper product",
+    "category": "package",
+
     "fields": {
       "code": "copper"
     }
@@ -831,6 +1138,7 @@
   {
     "pk": "Gold",
     "model": "agreement.product",
+    "category": "package",
     "fields": {
       "code": "gold"
     }
@@ -838,6 +1146,7 @@
   {
     "pk": "Platinum",
     "model": "agreement.product",
+    "category": "package",
     "fields": {
       "code": "platinum"
     }
@@ -845,6 +1154,7 @@
   {
     "pk": "Silver",
     "model": "agreement.product",
+    "category": "package",
     "fields": {
       "code": "silver"
     }
@@ -1079,17 +1389,7 @@
       "organization": "TEST"
     }
   },
-  {
-    "pk": 3,
-    "model": "agreement.productcontent",
-    "fields": {
-      "included_product": "MINPNP",
-      "upfront_strike": null,
-      "monthly_strike": null,
-      "included_in": "CELLSERV",
-      "quantity": 1
-    }
-  },
+
   {
     "pk": 4,
     "model": "agreement.productcontent",

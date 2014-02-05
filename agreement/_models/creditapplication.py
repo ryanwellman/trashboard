@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
 from django.utils import timezone
-from agreement.uas import Serializable, Updatable
+from ..uas import Serializable, Updatable
 
 from applicant import Applicant
 

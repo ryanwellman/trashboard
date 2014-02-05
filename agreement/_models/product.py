@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import datetime
-from agreement.uas import Serializable
+from ..uas import Serializable
 
 __typemap__ = dict()
 class ProductRegistry(models.base.ModelBase):

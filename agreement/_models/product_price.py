@@ -1,8 +1,8 @@
 from django.db import models
 from datetime import datetime
-from agreement.uas import Serializable
-
-
+from ..uas import Serializable
+from pricetable import PriceTable
+from product import Product
 
 
 class ProductPrice(Serializable):

@@ -14,8 +14,6 @@ def TypesFromModule(package, kls):
     found = []
     for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
         last_modname = modname.split('.')[-1]
-        if last_modname not in allowed_mods and not getattr(settings, 'USE_ALL_WORKORDERS', False):
-            continue
 
         module = __import__(modname, fromlist="dummy")
 

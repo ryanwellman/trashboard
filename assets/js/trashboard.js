@@ -349,7 +349,7 @@ PackageVM = function(blob) {
     // the customization lines need to be updated with quantities as well
     self.prepare_clines = function() {
         // fill the customization lines with available parts
-        _.map(window.PARTS, function(part) {
+        _.map(window.PRODUCTS_BY_TYPE.Part, function(part) {
             var cline= {
                 code: part.code,
                 part: part,

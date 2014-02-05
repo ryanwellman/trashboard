@@ -1186,6 +1186,7 @@
     "model": "agreement.product",
     "fields": {
       "code": "bronze",
+      "name": "Bronze Package",
       "category": "Packages",
       "product_type": "Package"
 
@@ -1199,6 +1200,7 @@
 
     "fields": {
       "code": "copper",
+      "name": "Copper Package",
       "category": "Packages",
       "product_type": "Package"
 
@@ -1210,6 +1212,7 @@
     "category": "package",
     "fields": {
       "code": "gold",
+      "name": "Gold Package",
       "category": "Packages",
       "product_type": "Package"
 
@@ -1221,6 +1224,7 @@
     "category": "package",
     "fields": {
       "code": "platinum",
+      "name": "Platinum Package",
       "category": "Packages",
       "product_type": "Package"
 
@@ -1232,6 +1236,7 @@
     "category": "package",
     "fields": {
       "code": "silver",
+      "name": "Silver Package",
       "category": "Packages",
       "product_type": "Package"
 

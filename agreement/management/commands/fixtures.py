@@ -1,60 +1,74 @@
-#!/usr/bin/env python
 """
 this program attempts to create the database entries required for trashboard to run
 """
-# system imports
-import sys, re
 
 # std imports
-from argparse import ArgumentParser
 from datetime import datetime
 from itertools import chain
-from math import exp
-from socket import gethostbyaddr
-from time import time, sleep
-from pprint import pprint as p
+from time import time
+
+# django imports
+from django.core.management.base import BaseCommand, CommandError
 
 # my imports
 from agreement.models import *
 
-VERSION = '0.1 alpha'
+NAME = 'fixtures'
+VERSION = '0.2 alpha'
 
 def CreateDBEntries():
     """this thing calls all the others"""
 
+    # a timers
+    global_timer = time()
+    global_counter = 0
+
     # price things
-    CreatePriceGroups()
-    CreatePriceTables()
-    CreatePGMemberships()
+    global_counter += CreatePriceGroups()
+    global_counter += CreatePriceTables()
+    global_counter += CreatePGMemberships()
 
     # business entity things
-    CreateOrganizations()
-    CreateCampaigns()
+    global_counter += CreateOrganizations()
+    global_counter += CreateCampaigns()
 
     # producty things
-    CreateProducts()
-    CreateProductContents()
+    global_counter += CreateProducts()
+    global_counter += CreateProductContents()
 
     # actual price lists
-    CreateProductPrices()
+    global_counter += CreateProductPrices()
+
+    global_timer = time() - global_timer
+    return global_timer, global_counter
 
 
 def CreatePriceGroups():
     """make all the price groups"""
 
+    object_counter = PriceGroup.objects.count()
+
     PriceGroup(name='Fake PG').save()
     PriceGroup(name='PG Thirteen').save() # lel
+
+    return PriceGroup.objects.count() - object_counter
 
 
 def CreatePriceTables():
     """make all the price tables"""
 
+    object_counter = PriceTable.objects.count()
+
     PriceTable(name='Base').save()
     PriceTable(name='Overlay').save()
+
+    return PriceTable.objects.count() - object_counter
 
 
 def CreatePGMemberships():
     """attach the price tables to price groups with this through table"""
+
+    object_counter = PGMembership.objects.count()
 
     # obtain the pts
     base = PriceTable.objects.get(name='Base')
@@ -68,9 +82,13 @@ def CreatePGMemberships():
     PGMembership(pricegroup=fakepg, pricetable=base, notes='sxh wuz here too', zorder=0, date_updated=datetime.now()).save()
     PGMembership(pricegroup=pgthirteen, pricetable=base, notes='totally real yo', zorder=0, date_updated=datetime.now()).save()
 
+    return PGMembership.objects.count() - object_counter
+
 
 def CreateCampaigns():
     """make all the campaigns"""
+
+    object_counter = Campaign.objects.count()
 
     # obtain an organization
     test = Organization.objects.get(provider_id='TEST')
@@ -80,18 +98,27 @@ def CreateCampaigns():
 
     Campaign(campaign_id='X00000', name='Test Campaign', pricegroup=fakepg, organization=test).save()
 
+    return Campaign.objects.count() - object_counter
+
 
 def CreateOrganizations():
     """make all the organizations"""
+
+    object_counter = Organization.objects.count()
 
     # obtain a price group
     pgthirteen = PriceGroup.objects.get(name='PG Thirteen')
 
     Organization(provider_id='TEST', name='Test Organization', pricegroup=pgthirteen).save()
 
+    return Organization.objects.count() - object_counter
+
 
 def CreateProducts():
     """make all the products by their child models"""
+
+    # cheat with the inheritance
+    object_counter = Product.objects.count()
 
     Closer(code='10RTDROP', product_type='Closer', category='Rate Drops', name='$10/mo rate drop', description='Removes $10 per month (requires manager approval)').save()
     Closer(code='5RTDROP', product_type='Closer', category='Rate Drops', name='$5/mo rate drop', description='Removes $5 from the monthly monitoring').save()
@@ -143,9 +170,13 @@ def CreateProducts():
     Package(code='PLATINUM', product_type='Package', category='Packages', name='Platinum', description='Platinum package').save()
     Package(code='BUSINESS', product_type='Package', category='Packages', name='Business', description='Business package').save()
 
+    return Product.objects.count() - object_counter
+
 
 def CreateProductContents():
     """add contents to those products that require it"""
+
+    object_counter = ProductContent.objects.count()
 
     # stuff we put in all packages
     dwsens = Part.objects.get(code='DWSENS')
@@ -178,9 +209,13 @@ def CreateProductContents():
     # put stuff in the combos with fake upfront strike prices
     ProductContent(included_in=testcombo, included_product=gdsens, quantity=2, upfront_strike=5.5, monthly_strike=None).save()
 
+    return ProductContent.objects.count() - object_counter
+
 
 def CreateProductPrices():
     """give prices to products on price tables without which they would not exist"""
+
+    object_counter = ProductPrice.objects.count()
 
     # obtain the pts
     base = PriceTable.objects.get(name='Base')
@@ -218,20 +253,13 @@ def CreateProductPrices():
     ProductPrice(pricetable=base, product=Closer.objects.get(code='10RTDROP'), max_quantity=1, monthly_price=-10.0, upfront_price=None, cb_points=None, fromdate=None, todate=None, promo=False, swappable=False).save()
     ProductPrice(pricetable=base, product=Closer.objects.get(code='5RTDROP'), max_quantity=1, monthly_price=-5.0, upfront_price=None, cb_points=None, fromdate=None, todate=None, promo=False, swappable=False).save()
 
-def MainLoop():
-    """handles the execution of this program"""
+    return ProductPrice.objects.count() - object_counter
 
-    # set up an argument parser
-    parser = ArgumentParser(description='a fake fixture for django models that inherit from other models', epilog='under construction')
-    parser.add_argument('-v', '--version', action='version', version='\033[94m%(prog)s\033[0m v' + VERSION)
+class Command(BaseCommand):
+    help = 'adds trashboard\'s data fixtures to the database'
 
-    # obtain command line arguments
-    args = parser.parse_args()
-
-    # advertise to stdout
-    print '\033[94m' + sys.argv[0] + '\033[0m'
-
-    CreateDBEntries()
-
-if __name__ == '__main__':
-    MainLoop()
+    def handle(self, *args, **kwargs):
+        # advertise, create, and return
+        self.stdout.write('[\033[94m{}\033[0m] adding fixtures...'.format(NAME))
+        timer, counter = CreateDBEntries()
+        self.stdout.write('[\033[94m{}\033[0m] \033[01m{}\033[0m models created in \033[01m{}\033[0m second(s)'.format(NAME, counter, timer))

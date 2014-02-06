@@ -15,7 +15,7 @@ from time import time, sleep
 from pprint import pprint as p
 
 # my imports
-import agreement.models
+from agreement.models import *
 
 VERSION = '0.1 alpha'
 
@@ -152,7 +152,6 @@ def CreateProductContents():
     simnxt = Part.objects.get(code='SIMNXT')
     motdec = Part.objects.get(code='MOTDEC')
 
-
     # how many dwsens are in each package
     dwsens_qtys =  {
                 'COPPER': 3,
@@ -178,9 +177,6 @@ def CreateProductContents():
 
     # put stuff in the combos with fake upfront strike prices
     ProductContent(included_in=testcombo, included_product=gdsens, quantity=2, upfront_strike=5.5, monthly_strike=None).save()
-
-    # stuff that goes in closers
-
 
 
 def CreateProductPrices():

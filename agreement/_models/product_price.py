@@ -19,7 +19,7 @@ class ProductPrice(Serializable):
     max_quantity    =   models.IntegerField(blank=True, null=True)
     monthly_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
-    cb_points       =   models.IntegerField(default=0)
+    cb_points       =   models.IntegerField(default=0, blank=True, null=True)
     fromdate        =   models.DateTimeField(null=True)
     todate          =   models.DateTimeField(null=True)
     promo           =   models.BooleanField(default=False)

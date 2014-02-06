@@ -192,7 +192,7 @@ def CreateProductPrices():
         ProductPrice(pricetable=base, product=part, max_quantity=99, monthly_price=None, upfront_price=6.0, cb_points=5, fromdate=None, todate=None, promo=False, swappable=True).save()
 
     # now assign a fake, but different upfront pp to the dwsens part on the overlay pricetable
-    ProductPrice(pricetable=overlay, product=Part.objects.get(code='DWSENS'), max_quantity=99, monthly_price=None, upfront_price=4.0, cb_points=None, fromdate=None, todate=None, promo=False, swappable=True).save()
+    ProductPrice(pricetable=overlay, product=Part.objects.get(code='DWSENS'), max_quantity=99, monthly_price=None, upfront_price=4.0, cb_points=10, fromdate=None, todate=None, promo=False, swappable=True).save()
 
     # do the same thing for the combo products
     for combo in Combo.objects.all():

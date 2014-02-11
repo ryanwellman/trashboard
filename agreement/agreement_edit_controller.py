@@ -1,7 +1,7 @@
 from handy.controller import GenericController
 from handy import intor
 from handy.jsonstuff import dumps
-from agreement.models import Agreement
+from agreement.models import Agreement, Product
 from pricefunctions import get_global_context
 from django.shortcuts import get_object_or_404, redirect
 
@@ -31,28 +31,13 @@ class AgreementEditController(GenericController):
 
     def set_global_context(self):
         # Get the valid prices
-        pricelist = self.campaign.get_product_prices()
+        self.products = Product.get_all_products()
+        self.pricelist = self.campaign.get_product_prices()
 
-        # index pricelist by product_id
-        pricelist = {pp.product_id: pp for pp in pricelist}
-
-        products = []
-
-        # Get all Package objects with type 'package', all Part objects with type 'part',
-        # etc etc.  (Already concreted)
-        from agreement.models import __typemap__
-        for product_type, product_kls in __typemap__.iteritems():
-            products.extend(list(product_kls.objects.filter(product_type=product_type)))
-
-        # Index all the products.
-        products = {p.code: p for p in products}
-
-        self.products = products
-        self.pricelist = pricelist
 
         # Translate to json.
-        self.products_json = dumps({code: p.as_jsonable() for code, p in products.iteritems()})
-        self.pricelist_json = dumps({code: pp.as_jsonable() for code, pp in pricelist.iteritems()})
+        self.products_json = dumps({code: p.as_jsonable() for code, p in self.products.iteritems()})
+        self.pricelist_json = dumps({code: pp.as_jsonable() for code, pp in self.pricelist.iteritems()})
 
 
 class AgreementJsonController(GenericController):

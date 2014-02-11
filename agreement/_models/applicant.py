@@ -27,7 +27,16 @@ class Applicant(Updatable):
             mid = ''
         return "{0} {1}{2}".format(self.fname, mid, self.lname)
 
+    def as_jsonable(self):
+        jsonable = {
+            field: getattr(self, field)
+            for field in ('fname', 'lname', 'initial', 'phone', 'last4')
+        }
+        return jsonable
+
+
     class Meta:
         verbose_name = "Applicant"
         app_label = 'agreement'
+
 

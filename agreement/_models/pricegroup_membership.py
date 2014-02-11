@@ -15,7 +15,7 @@ class PGMembership(Serializable):
 
     pricegroup      =   models.ForeignKey(PriceGroup)
     pricetable      =   models.ForeignKey(PriceTable)
-    date_updated    =   models.DateField()
+    date_updated    =   models.DateTimeField()
     notes           =   models.CharField(max_length=200, blank=True)
     zorder          =   models.IntegerField(default=0)
 

@@ -4,6 +4,8 @@ from ..uas import Serializable, Updatable
 from product import Product
 from pricegroup import PriceGroup
 from organization import Organization
+from pricegroup_membership import PGMembership
+from django.db.models import Q
 
 class Campaign(Serializable):
     """
@@ -18,6 +20,13 @@ class Campaign(Serializable):
     name        =   models.CharField(max_length=80)
     campaign_id =   models.CharField(max_length=32, primary_key=True)
     organization = models.ForeignKey(Organization, related_name='campaigns')
+
+    def as_jsonable(self):
+        jsonable = {
+            field: getattr(self, field)
+            for field in ('pricegroup_id', 'name', 'campaign_id', 'organization_id')
+        }
+        return jsonable
 
     def get_pricetables(self):
         """
@@ -72,7 +81,7 @@ class Campaign(Serializable):
         together_prices = dict(normal_prices, **promo_prices)
 
         # Return the product prices as a list.  (Each product appears only once.)
-        return together_prices.values()
+        return together_prices
 
 
     def __unicode__(self):

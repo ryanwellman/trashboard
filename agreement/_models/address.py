@@ -19,6 +19,13 @@ class Address(Updatable):
     zip = models.CharField(max_length=10)
     country = models.CharField(max_length=10)
 
+    def as_jsonable(self):
+        jsonable = {
+            field: getattr(self, field)
+            for field in ('address', 'city', 'state', 'zip', 'country')
+        }
+        return jsonable
+
     def __unicode__(self):
         # address city, state, country zip
         # postal codes should go last (?)

@@ -16,7 +16,7 @@ class CreditFile(Serializable):
     beacon = models.IntegerField(default=0)
     bureau = models.CharField(max_length=20)
     decision = models.CharField(max_length=20)
-    date_created = models.DateField(default=timezone.now)
+    date_created = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=64)
     person_id = models.CharField(max_length=128)
     transaction_id = models.CharField(max_length=64)

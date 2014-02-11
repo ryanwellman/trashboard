@@ -67,6 +67,21 @@ class Product(Serializable):
 
         return jsonable
 
+    @staticmethod
+    def get_all_products():
+
+        products = []
+
+        # Get all Package objects with type 'package', all Part objects with type 'part',
+        # etc etc.  (Already concreted)
+        for product_type, product_kls in __typemap__.iteritems():
+            products.extend(list(product_kls.objects.filter(product_type=product_type)))
+
+        # Index all the products.
+        products = {p.code: p for p in products}
+
+        return products
+
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.code, self.name, self.product_type, self.category]])

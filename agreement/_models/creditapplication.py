@@ -14,7 +14,7 @@ class CreditApplication(Serializable):
     applicant = models.ForeignKey(Applicant)
     decision = models.CharField(max_length=20)
     override_by = models.CharField(max_length=64, blank=True, null=True)
-    override_date = models.DateField(default=timezone.now, blank=True, null=True)
+    override_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
     reference_id = models.IntegerField(default=0)
 
     class Meta:

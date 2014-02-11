@@ -19,6 +19,9 @@ class ProductContent(Serializable):
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
 
+    @property
+    def code(self):
+        return self.included_product_id
 
     def __unicode__(self):
         fields = []

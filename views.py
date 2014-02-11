@@ -40,6 +40,22 @@ def dyn_json(request, agreement_id=None):
 
     # handle outgoing data
     if request.method == 'GET':
+        jsonable = agreement.as_jsonable()
+        print jsonable
+
+        return JsonResponse(content={'agreement': agreement.as_jsonable()})
+
+    # If we're posting, then get the JSON out of the post data
+    post_data = request.POST.get('update_blob_json')
+    update_blob = loads(post_data)
+    agreement.update_from_blob(update_blob)
+
+    jsonable = agreement.as_jsonable()
+    print jsonable
+    return JsonResponse(content={'agreement': agreement.as_jsonable()})
+
+    if False:
+
         response = agreement.serialize(ignore=['campaign', 'pricetable_date'])
         # create a context of sorts
         ctx =   {

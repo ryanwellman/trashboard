@@ -127,6 +127,8 @@ class Agreement(Updatable):
                 self.update_invoice_lines(update_blob['invoice_lines'])
             )
 
+        return errors
+
 
     def update_invoice_lines(self, new_invoice_lines):
         # begin building a list of errors to return.
@@ -260,6 +262,7 @@ class Agreement(Updatable):
         while pos < len(lines_to_sync):
             line = lines_to_sync[pos]
             sync_child_lines(line)
+            pos += 1
 
         # Anything left in child_lines is junk now.
         for bad_child in child_lines:

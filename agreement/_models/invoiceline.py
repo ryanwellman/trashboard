@@ -20,9 +20,11 @@ class InvoiceLine(Updatable):
     import locale
     locale.setlocale(locale.LC_ALL, '')
 
-    agreement       =   models.ForeignKey(Agreement, related_name='invoice_lines')
-    note            =   models.CharField(max_length=50)
+    agreement       =   models.ForeignKey(Agreement, related_name='invoic _lines')
+    note            =   models.CharField(max_length=128)
+    tag             =   models.CharField(max_length=50)
     product         =   models.CharField(max_length=20)
+    product_type    =   models.CharField(max_length=20)
     category        =   models.CharField(max_length=64)
     pricetable      =   models.CharField(max_length=20)
     quantity        =   models.IntegerField(default=0)
@@ -35,10 +37,12 @@ class InvoiceLine(Updatable):
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     parent          =   models.ForeignKey('self', blank=True, null=True)
     mandatory       =   models.BooleanField(default=False)
+    traded          =   models.BooleanField(default=False)
 
     def update(self, quantity, product, price, pricedate):
         self.quantity = quantity
         self.product = product.code
+        self.product_type = product.type
         self.category = product.category
         self.pricetable = price.pricetable_id
         self.note = ''
@@ -52,7 +56,7 @@ class InvoiceLine(Updatable):
 
     @property
     def code(self):
-        return self.product_id
+        return self.product
 
     @property
     def upfront_display(self):

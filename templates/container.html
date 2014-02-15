@@ -20,19 +20,54 @@
     */
 </script>
 
+<script type="text/javascript" src="{% static 'js/trashboard/master_vm.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/trashboard.js' %}"></script>
 
 
+<script type="text/javascript" src="{% static 'js/trashboard/address_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/agreement_endpoint.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/alacarte_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/applicant_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/base_section_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/closing_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/combo_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/constants.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/creditdecision_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/initial_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/master_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/monitoring_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/navbar_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/package_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/review_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/shipping_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/uas.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/trashboard/utils.js' %}"></script>
 
 {% endblock %}
 
 
 {% block content %}
-<div class="affix" style="top:40px;left:0px;z-index:1000">
+<div class="left_sidebar">
     <!-- this is intentionally left blank for future expansion -->
 </div>
 <div class="well" id="right_sidebar" data-target="right_sidebar">
     <ul class="nav nav-list">
+        <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
+            <li data-bind="
+               attr: {
+                   id: vm.name+'_id'
+               },
+               css: {
+                   'complete': vm.complete(),
+                   'incomplete': !vm.complete()
+               },
+               template: {
+                    name: vm.nav_template_name(),
+                    data:vm,
+               } "></li>
+        <!-- /ko -->
+
+        <!--
         <li id="nav_initial_info"><a data-bind="css: { 'complete': initial_complete(), 'incomplete': !initial_complete() }" href="#initial_info">Initial Info</a></li>
         <li class="divider"></li>
         <li class="hyde" id="nav_pkgsel"><a data-bind="css: { 'complete': !!package.selected_package(), 'incomplete': !package.selected_package() }" href="#pkgsel">Package</a></li>
@@ -60,62 +95,31 @@
         <li class="hyde" id="nav_publish"><a class="green_nav complete" href="#publish">Publish</a></li>
         <li class="divider"></li>
         <li><span id="global_save_btn" class="btn btn-success">Save Agreement</span></li>
+    -->
     </ul>
 </div>
 <div class="container">
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <ul>
-                <li class="span2">
-                    <b>Customer Info:</b><br>
-                    <span data-bind="css: {muted: name().length == 0}, text: name() ? name : 'First Last'"></span><br>
-                    <span data-bind="css: {muted: billing_address.address().length == 0}, text: billing_address.address() ? billing_address.address : 'Billing Address'"></span><br>
-                    <span data-bind="css: {muted: citystate().length == 0}, text: citystate() ? citystate : 'City, State'"></span>
-                    <span data-bind="css: {muted: billing_address.zip().length == 0}, text: billing_address.zip() ? billing_address.zip : 'ZIP'"></span>
-                </li>
-                <li class="span1.5">
-                    <b>Package:</b><br>
-                    <h4><span data-bind="text: package_nav"></span></h4>
-                </li>
-                <li class="span1.5">
-                    <b>Monthly Cost:</b>
-                    <center><h4>$0.00</h4></center>
-                </li>
-                <li class="span1.5">
-                    <b>Upfront Cost:</b><br>
-                    <center><h4>$0.00</h4></center>
-                </li>
-                <li class="span1.5">
-                    <b>Chargeback:</b><br>
-                    <!-- ko if: chargeback_nav() >= 0 -->
-                    <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
-                    <!-- /ko -->
-                    <!-- ko if: chargeback_nav() < 0 -->
-                    <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-important"></span></center>
-                    <!-- /ko -->
-                </li>
-                <li class="span2.5">
-                    <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>
-                    <b>Monitoring:</b> <span data-bind="text: monitoring_nav"></span><br>
-                    <b>Promotions:</b> promotions
-                </li>
-                <li class="span2.5">
-                    <b>Combos:</b> combos<br>
-                    <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
-                </li>
-                <li class="span2">
-                    <b>Credit Status:</b><br>
-                    <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
-                </li>
-                <li class="span2 pull-right">
-                    <b>Logged in as:</b><br>
-                    <i class="fa fa-user"></i> {{ user }}
-                </li>
-            </ul>
-        </div>
-    </div>
+    <div data-bind="template: {name: 'navbar', data: $data.vms.navbar}"></div>
     <div class="content">
-        <section id="initial_info">
+        <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
+            <section data-bind="
+               attr: {
+                   id: vm.name+'_id'
+               },
+               css: {
+                   'complete': vm.complete(),
+                   'incomplete': !vm.complete()
+               },
+               'template': {
+                    name: vm.nav_template_name(),
+                    data:vm,
+               } "></section>
+        <!-- /ko -->
+
+        <!--
+        <section data-bind="
+
+        "></section>
             <div data-bind="template: { name: 'initial_info', data: $data }">Initial Info Form</div>
         </section>
         <section id="pkgsel" class="hyde">
@@ -124,11 +128,11 @@
         <section id="monitor" class="hyde">
             <div data-bind="template: { name: 'monitor_', data: $data }">Monitoring Form</div>
         </section>
-        <!--
+
         <section id="premium" class="hyde">
             <div data-bind="template: { name: 'premiums', data: $data }">Premium Form</div>
         </section>
-    -->
+
         <section id="combos" class="hyde">
             <div data-bind="template: { name: 'combos_', data: $data }">Combo Select Form</div>
         </section>
@@ -156,10 +160,13 @@
         <section id="publish" class="hyde">
             <div data-bind="template: { name: 'publish_', data: $data }">Publish Form</div>
         </section>
+
+
         <section id="scroller" class="hyde">
-             <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -->
+             <!-- this scroll buffer makes sure publish is at the top of the page when the scroll is all the way at the bottom -/->
             <p>&nbsp;</p>
         </section>
+    -->
     </div>
 </div>
 {% endblock %}

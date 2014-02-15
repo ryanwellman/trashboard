@@ -1,0 +1,61 @@
+<script type="text/html" id="navbar">
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <ul>
+            <li class="span2">
+                <b>Customer Info:</b><br>
+                <span data-bind="
+                	css: {
+                		muted: !vm.master.applicant.full_name()
+                	},
+                	text: master.vms.applicant.full_name() || 'First Last'
+                "></span>
+                <br>
+                <span data-bind="css: {muted: !master.vms.billing_address.address()}, text: master.vms.billing_address.address() || 'Billing Address'"></span><br>
+                <span data-bind="css: {muted: !$data.citystate()}, text: $data.citystate() || 'City, State'"></span>
+                <span data-bind="css: {muted: !master.vms.billing_address.zip()}, text: master.vms.billing_address.zip() || 'ZIP'"></span>
+            </li>
+            <li class="span1.5">
+                <b>Package:</b><br>
+                <h4>
+                	<span id="package_link">data-bind="text: master.vms.package.package ? master.vms.package.package.name : 'No Package'"></span>
+                </h4>
+            </li>
+            <li class="span1.5">
+                <b>Monthly Cost:</b>
+                <center><h4>$0.00</h4></center>
+            </li>
+            <li class="span1.5">
+                <b>Upfront Cost:</b><br>
+                <center><h4>$0.00</h4></center>
+            </li>
+            <li class="span1.5">
+                <b>Chargeback:</b><br>
+                <!-- ko if: chargeback_nav() >= 0 -->
+                <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
+                <!-- /ko -->
+                <!-- ko if: chargeback_nav() < 0 -->
+                <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-important"></span></center>
+                <!-- /ko -->
+            </li>
+            <li class="span2.5">
+                <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>
+                <b>Monitoring:</b> <span data-bind="text: monitoring_nav"></span><br>
+                <b>Promotions:</b> promotions
+            </li>
+            <li class="span2.5">
+                <b>Combos:</b> combos<br>
+                <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
+            </li>
+            <li class="span2">
+                <b>Credit Status:</b><br>
+                <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
+            </li>
+            <li class="span2 pull-right">
+                <b>Logged in as:</b><br>
+                <i class="fa fa-user"></i> {{ user }}
+            </li>
+        </ul>
+    </div>
+</div>
+</script>

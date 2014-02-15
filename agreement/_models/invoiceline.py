@@ -20,7 +20,7 @@ class InvoiceLine(Updatable):
     import locale
     locale.setlocale(locale.LC_ALL, '')
 
-    agreement       =   models.ForeignKey(Agreement, related_name='invoic _lines')
+    agreement       =   models.ForeignKey(Agreement, related_name='invoice_lines')
     note            =   models.CharField(max_length=128)
     tag             =   models.CharField(max_length=50)
     product         =   models.CharField(max_length=20)

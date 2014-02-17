@@ -1,14 +1,13 @@
 function NavBarVM(master) {
-    var self = new BaseSectionVM();
-    self.master = master;
+    var self = new BaseSectionVM(master);
 
     self.name = 'navbar';
 
+    console.log("Is window", self === window);
+    return self;
 
 
-
-
-
+    /*
     self.citystate = ko.computed(function() {
         return self.vms.billing_address.city() + (self.billing_address.state() ? ', ' + self.billing_address.state() : '');
     });
@@ -52,6 +51,8 @@ function NavBarVM(master) {
     self.cb_balance = ko.computed(function() {
         return self.master.package.cb_balance();
     });
+
+    */
 
 
 }

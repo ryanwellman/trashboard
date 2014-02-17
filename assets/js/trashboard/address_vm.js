@@ -1,30 +1,43 @@
 
-AddressVM = function(blob) {
-    var self = new UpdatableAndSerializable();
-    blob = blob || {};
+AddressVM = function(master, which) {
+    var self = new BaseSectionVM(master);
+    self.which = which;
+
+    self.name = which;
 
     var fields = {
-        'address': ko.observable,
-        'city': ko.observable,
-        'state': ko.observable,
-        'country': ko.observable,
-        'zip': ko.observable,
+        'street1': ko.observable(),
+        'street2': ko.observable(),
+        'city': ko.observable(),
+        'state': ko.observable(),
+        'country': ko.observable(),
+        'zip': ko.observable()
     };
 
-    _.each(fields, function(v, k) {
-        if(blob[k] != undefined) {
-            self[k] = v(blob[k]);
-        }
+    _.each(fields, function(v,k) {
+        self[k] = v;
     });
 
-    self.complete = function() {
-        // we can figure out what country you're in from the state
-        return self._test([self.address(), self.city(), self.state(), self.zip()]);
-    };
 
-    self.clear = function() {
-        self._clear(Object.keys(fields));
-    };
+    self.is_completed = ko.computed(function() {
+        return self.street1() && self.city() && self.state() && self.zip();
+        // we can figure out what country you're in from the state
+    });
+
+    self.city_and_state = ko.computed(function() {
+        var city = self.city();
+        var state = self.state();
+
+        var cs = city || '';
+        if(state) {
+            if(cs) {
+                cs += ', ';
+            }
+            cs += state;
+        }
+        return state;
+    });
+
 
     return self;
 };

@@ -6,19 +6,36 @@
                 <b>Customer Info:</b><br>
                 <span data-bind="
                 	css: {
-                		muted: !vm.master.applicant.full_name()
+                		muted: !vm.master.vms.applicant.full_name()
                 	},
                 	text: master.vms.applicant.full_name() || 'First Last'
                 "></span>
                 <br>
-                <span data-bind="css: {muted: !master.vms.billing_address.address()}, text: master.vms.billing_address.address() || 'Billing Address'"></span><br>
-                <span data-bind="css: {muted: !$data.citystate()}, text: $data.citystate() || 'City, State'"></span>
-                <span data-bind="css: {muted: !master.vms.billing_address.zip()}, text: master.vms.billing_address.zip() || 'ZIP'"></span>
+                <span class="nav_street1" data-bind="
+	                css: {
+	                	muted: !vm.master.vms.system_address.street1()
+	                },
+	                text: master.vms.system_address.street1() || '(System Address)'
+                "></span>
+                <br>
+	            <span class="nav_street2" data-bind="
+	                css: {
+	                	muted: !vm.master.vms.system_address.street2()
+	                },
+	                text: master.vms.system_address.street2() || ''
+	            "></span>
+	            <span class="nav_city_and_state" data-bind="
+	                css: {
+	                	muted: !vm.master.vms.system_address.city_and_state()
+	                },
+	                text: master.vms.system_address.city_and_state() || 'City, State'
+	            "></span>
+	            <br>
             </li>
             <li class="span1.5">
                 <b>Package:</b><br>
                 <h4>
-                	<span id="package_link">data-bind="text: master.vms.package.package ? master.vms.package.package.name : 'No Package'"></span>
+                	<!-- <span id="package_link" data-bind="text: master.vms.package.package ? master.vms.package.package.name : 'No Package'"></span>--> &nbsp;
                 </h4>
             </li>
             <li class="span1.5">
@@ -31,21 +48,35 @@
             </li>
             <li class="span1.5">
                 <b>Chargeback:</b><br>
-                <!-- ko if: chargeback_nav() >= 0 -->
-                <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-success"></span></center>
-                <!-- /ko -->
-                <!-- ko if: chargeback_nav() < 0 -->
-                <center><span data-bind="text: chargeback_nav" class="navbadge badge badge-important"></span></center>
-                <!-- /ko -->
+
+                <center><span class="navbadge badge" data-bind="
+                	text: vm.master.cb_balance(),
+                	css: {
+                		'badge-success': vm.master.cb_balance() >= 0,
+                		'badge-important': vm.master.cb_balance() < 0
+                	}
+               	"></span>
             </li>
             <li class="span2.5">
-                <b>Agreement ID:</b> <span data-bind="text: agreement_id_nav"></span><br>
-                <b>Monitoring:</b> <span data-bind="text: monitoring_nav"></span><br>
+                <b>Agreement ID:</b>
+                <span data-bind="text: vm.master.agreement_id()"></span><br>
+                <b>Monitoring:</b>
+                <span data-bind="
+                	text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected_monitoring()
+                		  ? vm.master.vms.monitoring.selected_monitoring().name
+                		  : 'None Selected'
+                "></span><br>
                 <b>Promotions:</b> promotions
             </li>
             <li class="span2.5">
                 <b>Combos:</b> combos<br>
-                <b>Shipping:</b> <span data-bind="text: shipping_nav"</span><br>
+                <b>Shipping:</b>
+                <span data-bind="
+                	text: vm.master.vms.shipping && vm.master.vms.shipping.selected_shipping()
+                	      ?	vm.master.vms.shipping.selected_shipping().name
+                	      : 'None Selected'
+                "</span>
+                <br>
             </li>
             <li class="span2">
                 <b>Credit Status:</b><br>

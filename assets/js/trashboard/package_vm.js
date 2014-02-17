@@ -1,30 +1,22 @@
 
-PackageVM = function(blob) {
-    var self = new BaseSectionVM();
-    blob = blob || {};
+PackageVM = function(master) {
+    var self = new BaseSectionVM(master);
 
     var fields = {
-        'selected_package': ko.observable,
-        'customizing': ko.observable,
-        'custom_quantities': Object,
-        'cb_balance': ko.observable,
-        'updated_contents': ko.observableArray,
-        'changed_contents': ko.observable,
-        'customization_lines': ko.observableArray,
-        'done': ko.observable,
+        'selected_package': ko.observable(),
+        'customizing': ko.observable(),
+        'custom_quantities': {},
+        'cb_balance': ko.observable(),
+        'updated_contents': ko.observableArray(),
+        'changed_contents': ko.observable(),
+        'customization_lines': ko.observableArray(),
+        'done': ko.observable(),
     };
 
+    // copy them out of fields onto this itself.
     _.each(fields, function(v, k) {
-        if(blob[k] != undefined) {
-            self[k] = v(blob[k]);
-        }
+         self[k] = v;
     });
-
-    // selected_package is another one of those special things that has
-    // to come out of one of the window variables
-    if(self.selected_package().code) {
-        self['selected_package'](package_index[self.selected_package().code]);
-    }
 
     // if there's no customization lines the customize button doesn't work
     // the customization lines need to be updated with quantities as well
@@ -234,7 +226,7 @@ PackageVM = function(blob) {
     };
 
     // this has to be at the bottom if a package is selected (saved in)
-    self.prepare_clines();
+    //self.prepare_clines();
 
     return self;
 };

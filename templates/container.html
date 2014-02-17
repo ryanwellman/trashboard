@@ -58,8 +58,8 @@
                    id: vm.name+'_id'
                },
                css: {
-                   'complete': vm.complete(),
-                   'incomplete': !vm.complete()
+                   'complete': vm.is_completed(),
+                   'incomplete': !vm.is_completed()
                },
                template: {
                     name: vm.nav_template_name(),
@@ -99,7 +99,7 @@
     </ul>
 </div>
 <div class="container">
-    <div data-bind="template: {name: 'navbar', data: $data.vms.navbar}"></div>
+    <div data-bind="template: {name: 'navbar', data: $data.navbar, as: 'vm'}"></div>
     <div class="content">
         <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
             <section data-bind="
@@ -107,11 +107,11 @@
                    id: vm.name+'_id'
                },
                css: {
-                   'complete': vm.complete(),
-                   'incomplete': !vm.complete()
+                   'complete': vm.is_completed(),
+                   'incomplete': !vm.is_completed()
                },
                'template': {
-                    name: vm.nav_template_name(),
+                    name: vm.template_name(),
                     data:vm,
                } "></section>
         <!-- /ko -->

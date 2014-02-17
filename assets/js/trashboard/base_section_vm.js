@@ -3,7 +3,7 @@
 /* Every VM needs this stuff. */
 
 function BaseSectionVM(master) {
-    var self = UpdatableAndSerializable();
+    var self = new UpdatableAndSerializable();
 
     self.master = master;
 
@@ -28,15 +28,22 @@ function BaseSectionVM(master) {
            on this vm. */
     };
 
-    self.nav_template_name = function(agreement) {
+    self.nav_template_name = function() {
         return 'default_nav_template';
     }
 
-    self.template_name = function(agreement) {
+    self.template_name = function() {
         return self.name+'_vm';
     }
 
-    self.completed = ko.computed(function() {
+    self.display_label = function() {
+        if(self.name) {
+            return (self.name.substr(0,1).toUpperCase() + self.name.substr(1)).replace('_', ' ');
+        }
+        return 'Unknown section';
+    }
+
+    self.is_completed = ko.computed(function() {
 
     });
 
@@ -57,5 +64,6 @@ function BaseSectionVM(master) {
         }
     }
 
+    console.log("is window", self === window)
     return self;
 }

@@ -2,13 +2,11 @@
 
 
 // initialize a view model from a blob
-MasterVM = function(blob) {
+MasterVM = function() {
     // capture a new copy of UAS into MasterVM's closure
     var self = new UpdatableAndSerializable();
 
     // make blob a thing if it isn't one
-    blob = blob || {};
-
     // field types
     self.fields = {
         'agreement_id': ko.observable(),
@@ -33,19 +31,24 @@ MasterVM = function(blob) {
 
     self.vms = {
         'initial_info': InitialInfoVM(self),
-        'shipping': ShippingVM(self),
+        /*'shipping': ShippingVM(self), */
         'applicant': ApplicantVM(self, 'applicant'),
+        'system_address': AddressVM(self, 'system_address'),
+
+        /*
         'coapplicant': ApplicantVM(self, 'coapplicant'),
         'monitoring': MonitoringVM(self),
         'package': PackageVM(self),
-        'system_address': AddressVM(self, 'system_address'),
         'combo': ComboVM(self),
         'alacarte': ALaCarteVM(self),
         'closing': ClosingVM(self),
-        'review': ReviewVM(self)
+        'review': ReviewVM(self)*/
     };
 
-    self.vms['navbar'] = NavBarVM(self);
+    self.navbar = new NavBarVM(self);
+    console.log("Is window ", self.navbar === window)
+
+
 
 
 
@@ -77,6 +80,10 @@ MasterVM = function(blob) {
 
         return agreement;
     };
+
+    self.cb_balance = ko.computed(function() {
+        return 0;
+    });
 
 
 

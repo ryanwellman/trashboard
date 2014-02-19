@@ -13,8 +13,6 @@ MasterVM = function() {
         'pricetable_date': ko.observable(),
         'email': ko.observable(),
         'approved': ko.observable(),
-        'shipping': ko.observable(),
-        'monitoring': ko.observable(),
         'email': ko.observable(),
         'floorplan': ko.observable(),
         'promo_code': ko.observable(),

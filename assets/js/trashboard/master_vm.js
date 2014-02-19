@@ -18,6 +18,7 @@ MasterVM = function() {
         'email': ko.observable(),
         'floorplan': ko.observable(),
         'promo_code': ko.observable(),
+        'ssn': ko.observable('')
     };
 
     _.each(self.fields, function(obs, fieldname) {
@@ -30,23 +31,50 @@ MasterVM = function() {
     // XXX: get this out of ReviewVM
 
     self.vms = {
-        'initial_info': InitialInfoVM(self),
+        //'initial_info': InitialInfoVM(self),
         /*'shipping': ShippingVM(self), */
         'applicant': ApplicantVM(self, 'applicant'),
+        'coapplicant': ApplicantVM(self, 'coapplicant'),
+
         'system_address': AddressVM(self, 'system_address'),
 
-        /*
-        'coapplicant': ApplicantVM(self, 'coapplicant'),
         'monitoring': MonitoringVM(self),
+
         'package': PackageVM(self),
-        'combo': ComboVM(self),
         'alacarte': ALaCarteVM(self),
         'closing': ClosingVM(self),
+
+        /*
+        'combo': ComboVM(self),
         'review': ReviewVM(self)*/
     };
 
     self.navbar = new NavBarVM(self);
-    console.log("Is window ", self.navbar === window)
+
+    self.cb_balance = ko.computed(function() {
+        var total_balance = 0;
+        _.each(self.vms, function(vm) {
+            total_balance += vm.cb_balance();
+        });
+        return total_balance;
+    });
+
+    self.upfront_subtotal = ko.computed(function() {
+        var total_balance = 0;
+        _.each(self.vms, function(vm) {
+            total_balance += vm.upfront_subtotal();
+
+        });
+        return total_balance;
+    });
+
+    self.monthly_subtotal = ko.computed(function() {
+        var total_balance = 0;
+        _.each(self.vms, function(vm) {
+            total_balance += vm.monthly_subtotal();
+        });
+        return total_balance;
+    });
 
 
 
@@ -80,129 +108,6 @@ MasterVM = function() {
 
         return agreement;
     };
-
-    self.cb_balance = ko.computed(function() {
-        return 0;
-    });
-
-
-
-
-/*
-    self.test_initialinfo = function() {
-        // test completeness and set flag
-        if(self.initial_complete()) {
-            self._next('#initial_info', '#pkgsel, #nav_pkgsel', '#pkgsel');
-        }
-    };
-
-
-self.clear_initialinfo = function() {
-    // clear initial info fields in viewmodel
-    self.billing_address.zip('');
-    self.floorplan('');
-    self.promo_code('');
-};
-
-self.test_cinfo = function() {
-    // test completeness and set flag
-    if(self.cinfo_complete()) {
-        self._next('#cinfo', '#shipping, #nav_shipping', '#shipping');
-    }
-};
-
-self.clear_cinfo = function() {
-    // clear cinfo fields in viewmodel
-    self.applicant.clear();
-    self.billing_address.clear();
-    self.email('');
-};
-
-self.test_pkgsel = function() {
-    // test completeness and set flag
-    if(self.package.complete()) {
-        self._next('#pkgsel', '#monitor, #nav_monitor', '#monitor');
-    }
-};
-
-self.clear_pkgsel = function() {
-    // clear package field in viewmodel
-    self.package.clear();
-};
-
-self.test_monitor = function() {
-    // test completeness and set flag
-    if(self.monitoring()) {
-        self._next('#monitor', '#premium, #nav_premium', '#premium');
-    }
-};
-
-self.clear_monitor = function() {
-    // clear monitoring field in viewmodel
-    self.monitoring('');
-};
-
-self.test_premium = function() {
-    // test completeness with flag since this is open-ended
-    if(self.premium.complete()) {
-        self._next('#premium', '#combos, #nav_combos', '#combos');
-    }
-};
-
-self.clear_premium = function() {
-    self.premium.clear();
-};
-
-self.test_combo = function() {
-    // test completeness with flag since this is open-ended
-    if(self.combo.complete()) {
-        self._next('#combos', '#a_la_carte, #nav_a_la_carte', '#a_la_carte');
-    }
-};
-
-self.clear_combo = function() {
-    self.combo.clear();
-};
-
-self.test_alacarte = function() {
-    // test completeness with flag since this is open-ended
-    if(self.alacarte.complete()) {
-        self._next('#a_la_carte', '#services, #nav_services, #promos, #nav_promos', '#services');
-    }
-};
-
-self.clear_alacarte = function() {
-    self.alacarte.clear();
-};
-
-self.test_services_and_promos = function() {
-    if(self.services_and_promos.done()) {
-        self._next('#services span.tab-pos, #promos', '#cinfo, #nav_cinfo', '#cinfo');
-    }
-};
-
-self.test_shipping = function() {
-    // test completeness and set flag
-    if(self.shipping()) {
-        self._next('#shipping', '#closing, #nav_closing', '#closing');
-    }
-};
-
-self.clear_shipping = function() {
-    self.shipping('');
-};
-
-self.test_closing = function() {
-    // test completeness with flag since this is open-ended
-    if(self.closing.complete()) {
-        self._next('#closing', '#review, #nav_review, #publish, #nav_publish, #scroller', '#review');
-    }
-};
-
-self.clear_closing = function() {
-    self.closing.clear();
-};
-    */
 
 
 

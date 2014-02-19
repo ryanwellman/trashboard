@@ -1,19 +1,20 @@
 function MonitoringVM(master) {
-    var self = new UpdatableAndSerializable();
+    var self = new BaseSectionVM(master);
+    self.name = 'monitoring';
 
-    self.master = master;
-
-    // this function will set the selected monitoring value
-    self.selected_monitoring = function(monit) {
-        self.monitoring(monit.value);
+    var fields = {
+        'selected': ko.observable(null),
     };
 
-    self.moncss = function(param) {
-        return param.code == self.monitoring() ? 'currently_chosen' : '';
-    };
+    _.each(fields, function(v, k) {
+        self[k] = v;
+    });
 
-        self.selected_shipping = function(shipp) {
-        self.shipping(shipp.value);
-    };
+    self.is_completed = ko.computed(function() {
+        return !!self.selected();
+    });
+
+
+    return self;
 
 }

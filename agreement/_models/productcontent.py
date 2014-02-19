@@ -15,6 +15,7 @@ class ProductContent(Serializable):
     included_in         =    models.ForeignKey(Product, related_name='contents')
     included_product    =    models.ForeignKey(Product, related_name='+')
     quantity            =    models.IntegerField(default=0)
+    min_quantity        =    models.IntegerField(default=0) # Only used for package contents.
 
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
@@ -37,6 +38,7 @@ class ProductContent(Serializable):
         jsonable = dict(
             code=self.included_product_id,
             quantity=self.quantity,
+            min_quantity=self.min_quantity,
             upfront_strike=self.upfront_strike,
             monthly_strike=self.monthly_strike,
         )

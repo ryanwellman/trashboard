@@ -37,7 +37,7 @@ $(function() {
 
 
     // apply bindings for knockout
-    ko.applyBindings(window.master);
+    ko.applyBindings(window.master, $('#master_vm')[0]);
 
     // SCROLL SPY
 

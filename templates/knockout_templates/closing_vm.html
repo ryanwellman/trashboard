@@ -1,0 +1,63 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block vm_id %}alacarte{% endblock %}
+{% block section_content %}
+<div class="row" data-bind="
+
+"><div class="span11">
+    <table class="package_customization table">
+        <thead>
+            <tr>
+                <th colspan="3">Part</th>
+                <th>Upfront ea.</th>
+                <th>Monthly ea.</th>
+                <th>&times;</th>
+                <th>Quantity</th>
+                <th>=</th>
+                <th>Upfront</th>
+                <th>Monthly</th>
+            </tr>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers,
+                as: 'cust'
+            }
+            ">
+            <tr data-bind="
+                style: {
+                    backgroundColor: cust.one_or_none() ? '#ddffdd' : ''
+                }
+            ">
+                <td>
+                    <input type="checkbox" data-bind="
+                        checked: cust.one_or_none
+                    ">
+                </td>
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+
+                <td data-bind="text: !cust.price.upfront_price ? '' : formatCurrency(cust.price.upfront_price)"></td>
+                <td data-bind="text: !cust.price.monthly_price ? '' : formatCurrency(cust.price.monthly_price) + '/mo'"></td>
+                <td>&times;</td>
+                <td data-bind="text: cust.quantity()" style="text-align:center;" /></td>
+                <td>=</td>
+                <td data-bind="text: !(cust.quantity() && cust.price.upfront_price) ? '' :
+                                     formatCurrency(cust.quantity() * cust.price.upfront_price)"></td>
+                 <td data-bind="text: !(cust.quantity() && cust.price.monthly_price) ? '' :
+                                      formatCurrency(cust.quantity() * cust.price.monthly_price) + '/mo'"></td>
+            </tr>
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="8"></th>
+                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+            </tr>
+        </tfoot>
+    </table>
+
+</div></div>
+
+
+{% endblock %}

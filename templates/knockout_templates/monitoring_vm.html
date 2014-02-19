@@ -1,0 +1,20 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block vm_id %}monitoring{% endblock %}
+{% block section_content %}
+
+<div class="row" data-bind="
+foreach: {
+	data: PRODUCTS_BY_TYPE.Monitoring,
+	as:'mon'
+}">
+	<div class="select_monitoring control-group well well-small span3" data-bind="
+		click: function(mon) { vm.selected(mon); },
+		css: {
+			'selected': vm.selected() === mon,
+			'not-selected': vm.selected() !== mon
+		}">
+		<center><span data-bind="text: mon.name"></span></center>
+	</div>
+</div>
+
+{% endblock %}

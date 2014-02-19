@@ -15,10 +15,20 @@ ApplicantVM = function(master, which) {
         self[k] = v;
     });
 
+    self.template_name = function() {
+        return 'applicant_vm';
+    };
+
+    self.name = which;
     self.which = which; // Which is the field I am working with on the agreement (applicant, coapplicant)
+    self.has_coapplicant = ko.observable(false);
+
 
     self.is_completed = ko.computed(function() {
-        return self.fname() && self.lname() && self.phone();
+        if(self.which === 'coapplicant' && !self.has_coapplicant()) {
+            return true;
+        }
+        return self.fname() && self.lname() && self.phone() && self.master.email() && self.master.ssn();
     });
 
     self.full_name = ko.computed(function() {
@@ -29,6 +39,12 @@ ApplicantVM = function(master, which) {
         }
         return full_name;
     });
+
+
+    self.display_label = function() {
+        return self.which === 'applicant' ?
+            'Applicant' : 'Coapplicant';
+    };
 
     return self;
 }

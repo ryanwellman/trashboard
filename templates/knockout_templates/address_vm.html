@@ -1,0 +1,34 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block section_content %}
+<div class="control-group">
+	<label class="control-label">System Address:</label>
+	<div class="controls">
+		<input type="text" placeholder="Street 1" data-bind="value: vm.master.vms.system_address.street1">
+		<input type="text" placeholder="Street 2" data-bind="value: vm.master.vms.system_address.street2">
+
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="controls">
+
+		<input class="input-small" type="text" placeholder="City" data-bind="value: vm.master.vms.system_address.city">
+		<select class="input-small" data-bind="options: STATES, optionsCaption: 'State', value: vm.master.vms.system_address.state"></select>
+		<input class="input-small" type="text" placeholder="ZIP" data-bind="value: vm.master.vms.system_address.zip">
+
+	</div>
+	<!--<span class="help-inline">This must be the address where the system will be installed and monitored.</span>-->
+</div>
+
+<div class="control-group">
+	<label class="control-label">Dwelling Type:</label>
+	<div class="controls">
+		<select data-bind="
+		    options: window.DWELLINGS,
+		    optionsCaption: 'Please select...',
+		    value: vm.master.floorplan
+		"></select>
+	</div>
+</div>
+
+{% endblock %}

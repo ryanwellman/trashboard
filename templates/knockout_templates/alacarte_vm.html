@@ -1,0 +1,109 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block vm_id %}alacarte{% endblock %}
+{% block section_content %}
+<div class="row" data-bind="
+    visible: !vm.customizing()
+"><div class="span11">
+    <table class="package_customization table">
+        <thead>
+            <tr>
+                <th colspan="2">Part</th>
+                <th>Upfront ea.</th>
+                <th>Monthly ea.</th>
+                <th>&times;</th>
+                <th>Quantity</th>
+                <th>=</th>
+                <th>Upfront</th>
+                <th>Monthly</th>
+            </tr>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers,
+                as: 'cust'
+            }
+            ">
+            <!-- ko if: cust.quantity() -->
+            <tr>
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+
+                <td data-bind="text: !cust.price.upfront_price ? '' : formatCurrency(cust.price.upfront_price)"></td>
+                <td data-bind="text: !cust.price.monthly_price ? '' : formatCurrency(cust.price.monthly_price) + '/mo'"></td>
+                <td>&times;</td>
+                <td data-bind="text: cust.quantity()" style="text-align:center;" /></td>
+                <td>=</td>
+                <td data-bind="text: !(cust.quantity() && cust.price.upfront_price) ? '' :
+                                     formatCurrency(cust.quantity() * cust.price.upfront_price)"></td>
+                 <td data-bind="text: !(cust.quantity() && cust.price.monthly_price) ? '' :
+                                      formatCurrency(cust.quantity() * cust.price.monthly_price) + '/mo'"></td>
+            </tr>
+            <!-- /ko -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="7"></th>
+                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+            </tr>
+        </tfoot>
+    </table>
+
+</div></div>
+
+
+<div class="row" data-bind="
+    visible: vm.customizing()
+"><div class="span10">
+    <table class="table">
+        <thead>
+            <tr>
+                <th colspan="2">Part</th>
+                <th>Upfront ea.</th>
+                <th>Monthly ea.</th>
+                <th>&times;</th>
+                <th>Quantity</th>
+                <th>=</th>
+                <th>Upfront</th>
+                <th>Monthly</th>
+            </tr>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers,
+                as: 'cust'
+            }">
+            <tr>
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+
+                <td data-bind="text: !cust.price.upfront_price ? '' : formatCurrency(cust.price.upfront_price)"></td>
+                <td data-bind="text: !cust.price.monthly_price ? '' : formatCurrency(cust.price.monthly_price) + '/mo'"></td>
+                <td>&times;</td>
+                <td><input class="input-mini" type="text" data-bind="value: cust.quantity" style="text-align:center;" /></td>
+                <td>=</td>
+                <td data-bind="text: !(cust.quantity() && cust.price.upfront_price) ? '' :
+                                     formatCurrency(cust.quantity() * cust.price.upfront_price)"></td>
+                 <td data-bind="text: !(cust.quantity() && cust.price.monthly_price) ? '' :
+                                      formatCurrency(cust.quantity() * cust.price.monthly_price) + '/mo'"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="7"></th>
+                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+            </tr>
+        </tfoot>
+    </table>
+</div></div>
+
+<div class="row"><div class="span12">
+    <button class="btn btn-success" data-bind="
+        text:  vm.customizing() ? 'Done Adding' : 'Add Equipment',
+        click: vm.customizing() ? vm.finish_customizing :
+                                  vm.start_customizing,
+    ">Customize</button>
+</div></div>
+
+{% endblock %}

@@ -1,22 +1,35 @@
 
 PackageVM = function(master) {
     var self = new BaseSectionVM(master);
-
+    self.name = 'package';
     var fields = {
-        'selected_package': ko.observable(),
-        'customizing': ko.observable(),
+        'selected': ko.observable(null),
+
         'custom_quantities': {},
-        'cb_balance': ko.observable(),
         'updated_contents': ko.observableArray(),
         'changed_contents': ko.observable(),
         'customization_lines': ko.observableArray(),
-        'done': ko.observable(),
     };
+
+
 
     // copy them out of fields onto this itself.
     _.each(fields, function(v, k) {
          self[k] = v;
     });
+
+
+    self.is_completed = ko.computed(function() {
+        return !!self.selected() && !self.customizing();
+    });
+
+    self.available_products = function() {
+        return window.PRODUCTS_BY_TYPE.Part;
+    }
+
+    self.generate_customizers();
+
+    /*
 
     // if there's no customization lines the customize button doesn't work
     // the customization lines need to be updated with quantities as well
@@ -70,59 +83,67 @@ PackageVM = function(master) {
                 }
             });
         }
-    };
+    };*/
 
     self.select_package = function(package) {
-        if(self.done()) {
-            return;
-        }
 
-        self.selected_package(package);
-        self.custom_quantities = {};
-        self.customization_lines.removeAll();
-        // clear out any updated contents when selected package changes
-        self.updated_contents([]);
-        self.changed_contents(false);
-        self.customizing(false);
+    self.selected(package);
 
-        if(!self.customization_lines().length) {
-            _.map(window.PRODUCTS_BY_TYPE.Part, function(part) {
-                var cline= {
-                    code: part.code,
-                    part: part,
-                    quantity: ko.observable(0),
-                    min_quantity: ko.observable(0),
-                };
-                cline.quantity.subscribe(self.cust_quantity_changed);
-                //console.log("Pushing new cline ", cline);
-                self.customization_lines.push(cline);
-
-                cline.quantity.subscribe(self.cust_quantity_changed);
-            });
-        }
-
-        if(package) {
-            // For each line of stuff that comes in the package normally,
-            _.each(self.selected_package().contents, function(line) {
-                // Find the customization line for that product
-                var cline = _.find(self.customization_lines(), function(cline) {
-                    return cline.code == line.code;
-                });
-                // Set that customization line's quantity and min quantity appropriately.
-                if(cline) {
-                    //console.log("Found matching cline, ", line.quantity);
-                    cline.quantity(line.quantity);
-                    //TODO: Set min quantity
-                } else {
-                    //console.log("!Found matching cline", cline);
-                }
-            });
-        }
+        self.reset_customizations();
     };
+
+    self.reset_customizations = function() {
+        var package = self.selected();
+        var contents = {};
+        if(package) {
+            contents = _.indexBy(package.contents, function(pc) {
+                return pc.code;
+            });
+        }
+
+        _.each(self.customizers(), function(cust) {
+            var pc = contents[cust.code];
+            if(!pc) {
+                cust.min_quantity(0);
+                cust.base_quantity(0);
+                cust.quantity(0);
+            } else {
+                console.log('updating a cust');
+                cust.min_quantity(pc.min_quantity);
+                cust.base_quantity(pc.quantity);
+                cust.quantity(cust.base_quantity());
+            }
+
+        });
+    };
+
+
+    // Package is priced differently than most things.
+    self.monthly_subtotal = ko.computed(function() {
+        if(!self.selected())
+            return 0;
+        return self.selected().product_price.monthly_price;
+    });
+
+    self.upfront_subtotal = ko.computed(function() {
+        if(!self.selected())
+            return 0;
+        return self.selected().product_price.upfront_price;
+    });
+
+    self.cb_balance = ko.computed(function() {
+        var total_balance = 0;
+        _.each(self.customizers(), function(cust) {
+            total_balance += (cust.base_quantity() - cust.quantity()) * cust.price.cb_points;
+        });
+        return total_balance;
+    });
+
+
+    self.choose_package = self.select_package;
 
     self.customize = function () {
         // this needs to unlock the form when you click it
-        self.done(false);
         self.customizing(true);
     };
 
@@ -166,7 +187,11 @@ PackageVM = function(master) {
             return [];
         }
         return self.selected_package().contents;
-    }
+    };
+
+    self.current_package_contents = function() {
+
+    };
 
     self.select_package_classes = function(param) {
         var classes = param.code;

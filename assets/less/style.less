@@ -74,6 +74,15 @@ section {
     text-align: center;
 }
 
+section.vm {
+    &.complete .section-tab {
+        background-color: green;
+    }
+    &.incomplete .section-tab {
+        background-color: firebrick;
+    }
+}
+
 .copper {
     background-color: @copper;
 }
@@ -143,9 +152,16 @@ section {
     font-weight: bold;
     text-align: center;
 }
-.currently_chosen {
-    border: 5px dashed green;
+
+.monitoring {
+    .selected {
+        border: 5px dashed green;
+    }
+    .not-selected {
+        border: 5px dashed rgba(0,0,0,0);
+    }
 }
+
 .purchase_items {
     width: 140px;
 }
@@ -176,13 +192,15 @@ ul {
 .green_nav {
     color: green;
 }
-.complete {
-    color: green;
-}
-.incomplete {
-    color: black;
-}
 
+#right_sidebar {
+    .complete {
+        color: green;
+    }
+    .incomplete {
+        color: black;
+    }
+}
 .affix {
     top:        40px;
     left:       0px;

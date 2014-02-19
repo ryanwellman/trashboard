@@ -1,0 +1,22 @@
+<script type="text/html" id="{{vm_id}}_vm">
+<div class="well">
+	<span class="label label-inverse box-rotate tab-pos section-tab" data-bind="text: vm.display_label()">
+	</span>
+	<form class="form-horizontal" data-bind="
+		attr: {
+			id: vm.name + '_form'
+		}">
+		<fieldset>
+			{% block section_content %}
+			{% endblock %}
+
+			<div class="form-actions">
+				<div class="pull-right">
+					<button type="submit" class="btn btn-primary" id="{{vm_id}}_submit" data-bind="enable: vm.is_completed()"><i class="fa fa-arrow-down"></i> Next</button>
+					<button class="btn" type="reset">Clear</button>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+</div>
+</script>

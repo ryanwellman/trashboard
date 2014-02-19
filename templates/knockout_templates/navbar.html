@@ -40,11 +40,13 @@
             </li>
             <li class="span1.5">
                 <b>Monthly Cost:</b>
-                <center><h4>$0.00</h4></center>
+                <span data-bind="text: formatCurrency(master.monthly_subtotal())"></span>
             </li>
             <li class="span1.5">
                 <b>Upfront Cost:</b><br>
-                <center><h4>$0.00</h4></center>
+                <span data-bind="text: formatCurrency(master.upfront_subtotal())"></span>
+
+
             </li>
             <li class="span1.5">
                 <b>Chargeback:</b><br>
@@ -62,8 +64,8 @@
                 <span data-bind="text: vm.master.agreement_id()"></span><br>
                 <b>Monitoring:</b>
                 <span data-bind="
-                	text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected_monitoring()
-                		  ? vm.master.vms.monitoring.selected_monitoring().name
+                	text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected()
+                		  ? vm.master.vms.monitoring.selected().name
                 		  : 'None Selected'
                 "></span><br>
                 <b>Promotions:</b> promotions

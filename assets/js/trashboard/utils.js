@@ -1,6 +1,7 @@
 // money formatting function
 function formatCurrency(value) {
-    return Number(value).toFixed(2);
+    console.log("value is ", value)
+    return '$' + Number(value).toFixed(2);
 };
 
 // fast hash function
@@ -34,4 +35,71 @@ function str2hsla(str, alpha) {
     var l = (hash % 30) + 40; // between 40 and 70
 
     return "hsla(" + h + ", " + s + "%, " + l + "%, " + alpha + ")";
+}
+
+function loads(stringed) {
+    res = JSON.parse(stringed);
+
+    function datetime_to_Date(obj) {
+        return new Date(obj.year, obj.month-1, obj.day, obj.hour, obj.minute, obj.second, obj.microsecond/1000)
+    }
+
+    function deepsearch(obj) {
+        for(var i in obj) {
+            if(!obj.hasOwnProperty(i)) {
+                continue;
+            }
+            if(obj[i] && obj[i].__type__ == 'datetime') {
+                obj[i] = datetime_to_Date(obj[i]);
+            } else if(obj[i] && obj[i].__type__ == 'Decimal') {
+                obj[i] = Number(obj[i].str);
+            } else if(obj[i] && typeof(obj[i]) == 'object') {
+                deepsearch(obj[i]);
+            }
+        }
+    }
+
+    deepsearch(res);
+    return res;
+}
+
+function dumps(obj) {
+    function Date_to_datetime(obj) {
+        return {
+             '__type__': 'datetime',
+             'year': obj.getFullYear(),
+             'month': obj.getMonth() + 1,
+             'day': obj.getDate(),
+             'hour': obj.getHours(),
+             'minute': obj.getMinutes(),
+             'second': obj.getSeconds(),
+             'microsecond': obj.getMilliseconds() * 1000
+        };
+    }
+
+    function deepcopy(obj) {
+        var copy = {}
+        for(var i in obj) {
+            console.log("Copying ", i, obj[i])
+
+            if(!obj.hasOwnProperty(i)) {
+                console.log("skipping");
+                continue;
+            }
+            if(obj[i] && obj[i].constructor === Date) {
+                console.log("It's a date");
+                copy[i] = Date_to_datetime(obj[i]);
+            } else if(obj[i] && typeof(obj[i]) == 'object') {
+                console.log("It's an object");
+                copy[i] = deepcopy(obj[i]);
+            } else {
+                console.log("It's a primitive?")
+                copy[i] = obj[i];
+            }
+        }
+        return copy;
+    }
+
+    copyobj = deepcopy(obj);
+    return JSON.stringify(copyobj);
 }

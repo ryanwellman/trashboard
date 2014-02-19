@@ -1,0 +1,124 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block section_content %}
+
+<!-- Package selection blocks -->
+<div class="controls controls-row" data-bind="
+    foreach: {
+        data: PRODUCTS_BY_TYPE.Package,
+        as: 'package'
+    }">
+
+
+    <div class="select_package span2 " data-bind="
+        css: function() { return vm.classes_for_package(package); },
+        click: function() { vm.choose_package(package); },
+        ">
+        <div class="package_name row">
+            <div class="span2">
+
+                <span data-bind="text: package.name"></span>
+
+            </div>
+        </div>
+        <div class="package_contents row">
+            <div class="span2">
+                <ul data-bind="
+                    foreach: {
+                        data: package.contents,
+                        as: 'pc'
+                    }">
+                    <li>
+                        <span data-bind="text: pc.product.name"></span>
+                        x<span data-bind="text: pc.quantity"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Read-only package contents table. -->
+<div class="controls controls-row" data-bind="visible: vm.selected() && !vm.customizing()">
+    <br />
+    <!-- <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button> -->
+    <br />
+
+
+    <!-- The CURRENT contents of the package. -->
+    <table class="table" id="package_contents">
+        <thead>
+            <tr>
+                <th>Part #</th><th>Description</th><th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers,
+                as: 'cust'
+            }">
+            <!-- ko if: cust.quantity() -->
+            <tr>
+                <!--<td data-bind="text: console.log('vm.customizers is ', vm.customizers, ' and cust is ', cust)"></td>-->
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+                <td data-bind="text: cust.quantity()"></td>
+
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Actual customization table. -->
+
+
+<div class="controls controls-row"  data-bind="visible: vm.selected() && vm.customizing()">
+    <table class="package_customization table">
+        <thead>
+            <tr>
+                <th>Part #</th><th>Description</th><th><center>CB</center></th><th><center>Base Quantity Included</center></th><th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers,
+                as: 'cust'
+            }
+            ">
+            <tr>
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+                <td><center><span data-bind="text: cust.price.cb_points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
+                <td data-bind="text: cust.min_quantity" style="text-align:center;"></td>
+                <td><input class="input-mini" type="text" data-bind="value: cust.quantity" style="text-align:center;" /></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<!-- toggle and summary -->
+
+<div class="controls controls-row">
+    <div class="span2" data-bind="visible: vm.selected()">
+            <span data-bind="
+                style: {
+                    color: vm.cb_balance() >= 0 ? 'green' : 'firebrick'
+                }
+            ">
+                CB Balance:
+                <span data-bind="text: vm.cb_balance()"></span>
+            </span>
+
+    </div>
+    <div class="span3">
+        <button class="btn btn-success" data-bind="
+            text:  vm.customizing() ? 'Save Customization' : 'Customize',
+            click: vm.customizing() ? vm.finish_customizing :
+                                      vm.start_customizing,
+            visible: vm.selected()
+        ">Customize</button>
+    </div>
+</div>
+
+{% endblock %}

@@ -5,55 +5,92 @@ AlaCarteLineVM = function(blob) {
     blob = blob || {};
 
     var fields = {
-        "selected_part": PartVM,
-        "quantity": ko.observable,
+        "quantity": ko.observable(blob.quantity || 0),
+        "part": ko.observable(null),
     };
 
-    // ...since the knockout bindings of each drop-down are the actual PartVMs we created above
-    // this vm is also special in that it needs to be able to fill itself from the blob but not
-    // with just any old unregulated PartVM; they must be the ones that knockout knows about
-    self['quantity'] = fields['quantity'](blob['quantity']);
-    self['selected_part'] = window.DPARTS[blob['selected_part']['code']];
+    _.each(self.fields, function(field, name) {
+        self[name] = field;
+    });
 
-    self.total_price = ko.computed(function() {
-        // ko.computeds only update when an observable they referenced on their first run (undocumented!)
-        // changes; we must use this arcane, twisted way of returning zero
-        self.quantity();
-        if(self.selected_part) {
-            return (self.selected_part.code() && self.selected_part.price()) ? self.quantity() * self.selected_part.price() : 0.00;
-        } else {
-            return self.quantity() * 0; // drop-down is empty
+    self.code = ko.computed({
+        'read': function() {
+            if(!self.part()) return null;
+            return self.part().code;
+        },
+        'write': function(newcode) {
+            var part = window.PRODUCTS[newcode];
+            self.part(part || null);
         }
     });
 
-    self.returnFields = function() {
-        return fields;
-    };
+    if(self.code()) {
+        self.part(window.PRODUCTS[self.code()])
+    }
 
-    self._serialize = function() {
-        return ko.toJSON({ 'code': self.selected_part.code(), 'quantity': self.quantity() });
-    };
+    self.upfront_subtotal = ko.computed(function() {
+        // ko.computeds only update when an observable they referenced on their first run (undocumented!)
+        // changes; we must use this arcane, twisted way of returning zero
+        self.quantity();
+
+        if(self.part()) {
+            return self.part().product_price.upfront_price * self.quantity();
+        } else {
+            return 0;
+        }
+    });
+    self.monthly_subtotal = ko.computed(function() {
+        // ko.computeds only update when an observable they referenced on their first run (undocumented!)
+        // changes; we must use this arcane, twisted way of returning zero
+        self.quantity();
+
+        if(self.part()) {
+            return self.part().product_price.monthly_price * self.quantity();
+        } else {
+            return 0;
+        }
+    });
 
     return self;
 };
 
-ALaCarteVM = function(blob) {
-    var self = new UpdatableAndSerializable();
-    blob = blob || {};
+ALaCarteVM = function(master) {
+    var self = new BaseSectionVM(master);
+    self.name = 'alacarte';
 
-    var fields = {
-        "purchase_lines": ko.observableArray, // contains non-observable AlaCarteLineVMs
-        "done": ko.observable,
+
+    self.fields = {
+
     };
 
-    // alacarte vm is kind of special, it needs to be able to fill its internal array from the blob
-    self['done'] = fields['done'](blob['done']);
-    self['purchase_lines'] = fields['purchase_lines']();
-    _.each(blob['purchase_lines'], function(v, k) {
-        self.purchase_lines().push(new AlaCarteLineVM(v));
-        self.purchase_lines.valueHasMutated();
+    _.each(self.fields, function(field, name) {
+        self[name] = field;
     });
 
+
+    self.available_products = function(agreement) {
+        return _.filter(window.PRODUCTS_BY_TYPE.Part, function(product) {
+            return product.product_price;
+        });
+    };
+
+    self.generate_customizers();
+
+    self.is_completed = ko.computed(function() {
+        return !self.customizing();
+    });
+
+    // alacarte vm is kind of special, it needs to be able to fill its internal array from the blob
+    self.construct_agreement = function(agreement) {
+
+
+    };
+
+    self.update_from_agreement = function(agreement) {
+
+    };
+
+    /*
     self.returnFields = function() {
         return fields;
     };
@@ -65,26 +102,8 @@ ALaCarteVM = function(blob) {
         self.purchase_lines([]);
         self.purchase_lines(data);
     };
+    */
 
-    self.addLine = function() {
-        self.purchase_lines().push(new AlaCarteLineVM({'selected_part': {}, 'quantity': 0}));
-        self.purchase_lines.valueHasMutated();
-    };
-
-    self.removeLine = function(line) { alert('removing!'); self.purchase_lines.remove(line) };
-
-    self.save = function() {
-        alert('{'+$.map(self.purchase_lines(), function(val) { return val._serialize(); }) + '}');
-    }
-
-    self.complete = function() {
-        return self._test([self.done()]);
-    };
-
-    self.clear = function() {
-        self._clear(Object.keys(fields));
-        self.done(false);
-    };
 
     return self;
 };

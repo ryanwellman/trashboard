@@ -1,0 +1,44 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block section_content %}
+	<!-- ko if: which === 'coapplicant' -->
+	<span>Has coapplicant?  <input type="checkbox" data-bind="checked: vm.has_coapplicant"></span>
+	<!-- /ko -->
+
+	<div class="controls controls-row" data-bind="visible: vm.which !== 'coapplicant' || vm.has_coapplicant()">
+		<!-- <legend>Customer Info</legend> -->
+		<div class="control-group" >
+			<label class="control-label">Name:</label>
+			<div class="controls">
+				<input type="text" placeholder="First" data-bind="value: vm.fname">
+				<input type="text" placeholder="Last" data-bind="value: vm.lname">
+			</div>
+			<span class="help-inline"></span>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Phone Number:</label>
+			<div class="controls">
+				<input type="text" placeholder="Phone Number" data-bind="value: vm.phone">
+			</div>
+			<span class="help-inline"></span>
+		</div>
+
+		<div class="control-group">
+			<label class="control-label">SSN or Tax ID:</label>
+			<div class="controls">
+				<input data-bind="value: master.ssn" type="text" placeholder="SSN or Tax ID">
+			</div>
+			<span class="help-inline"></span>
+		</div>
+		<div class="control-group">
+			<label class="control-label">E-mail Address:</label>
+			<div class="controls">
+				<input type="text" placeholder="E-mail" data-bind="value: vm.master.email">
+			</div>
+			<span class="help-inline"></span>
+		</div>
+	</div>
+
+	<!-- ko if: which === 'coapplicant' -->
+	<!-- /ko -->
+
+{% endblock %}

@@ -154,9 +154,9 @@ def CreateProducts():
 
     Combo(code='COMBOTEST', product_type='Combo', category='Combos', name='Test Combo', description='so combo wow much products').save()
 
-    Monitoring(code='BROADBAND', product_type='Monitoring', category='Connection Method', name='', description='Broadband monitoring').save()
-    Monitoring(code='LANDLINE', product_type='Monitoring', category='Connection Method', name='', description='Landline monitoring').save()
-    Monitoring(code='CELLULAR', product_type='Monitoring', category='Connection Method', name='', description='Cellular monitoring').save()
+    Monitoring(code='BROADBAND', product_type='Monitoring', category='Connection Method', name='Broadband', description='Broadband monitoring').save()
+    Monitoring(code='LANDLINE', product_type='Monitoring', category='Connection Method', name='Landline', description='Landline monitoring').save()
+    Monitoring(code='CELLULAR', product_type='Monitoring', category='Connection Method', name='Cellular', description='Cellular monitoring').save()
 
     Shipping(code='UPS', product_type='Shipping', category='Shipping Method', name='UPS Ground', description='2-3 business days').save()
     Shipping(code='FEDEX', product_type='Shipping', category='Shipping Method', name='FedEx Regular', description='3-5 business days').save()

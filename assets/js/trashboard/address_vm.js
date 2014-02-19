@@ -20,8 +20,18 @@ AddressVM = function(master, which) {
 
 
     self.is_completed = ko.computed(function() {
+        if(self.which === 'system_address' && !self.master.floorplan()) {
+            //If I'm system address, I need floorplan chosen.
+            return false;
+        }
         return self.street1() && self.city() && self.state() && self.zip();
         // we can figure out what country you're in from the state
+    });
+
+    self.display_label = ko.computed(function() {
+        return {
+            'system_address': 'System Address'
+        }[self.name];
     });
 
     self.city_and_state = ko.computed(function() {

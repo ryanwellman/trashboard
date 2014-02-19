@@ -1,12 +1,9 @@
 {% include 'knockout_templates/initial_info.html' %}
 {% include 'knockout_templates/customer_info.html' %}
-{% include 'knockout_templates/alacarte.html' %}
 {% include 'knockout_templates/combos.html' %}
 {% include 'knockout_templates/packages.html' %}
-{% include 'knockout_templates/monitoring.html' %}
 {% include 'knockout_templates/premium_add_ons.html' %}
 {% include 'knockout_templates/publish.html' %}
-{% include 'knockout_templates/closing.html' %}
 {% include 'knockout_templates/promos.html' %}
 {% include 'knockout_templates/review.html' %}
 {% include 'knockout_templates/services.html' %}
@@ -15,4 +12,10 @@
 
 
 {% include 'knockout_templates/default_nav_template.html' %}
-{% include 'knockout_templates/applicant_vm.html' %}
+{% include 'knockout_templates/applicant_vm.html' with vm_id='applicant' %}
+{% include 'knockout_templates/address_vm.html' with vm_id='system_address' %}
+{% include 'knockout_templates/monitoring_vm.html' with vm_id='monitoring' %}
+{% include 'knockout_templates/package_vm.html' with vm_id='package' %}
+{% include 'knockout_templates/alacarte_vm.html' with vm_id='alacarte' %}
+
+{% include 'knockout_templates/closing_vm.html' with vm_id='closing' %}

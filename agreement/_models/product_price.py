@@ -42,6 +42,7 @@ class ProductPrice(Serializable):
             swappable=self.swappable,
 
         )
+        return d
 
     class Meta:
         ordering = ['pricetable']

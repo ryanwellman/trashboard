@@ -1,0 +1,20 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block vm_id %}shipping{% endblock %}
+{% block section_content %}
+
+<div class="row" data-bind="
+foreach: {
+	data: PRODUCTS_BY_TYPE.Shipping,
+	as:'ship'
+}">
+	<div class="select_shipping control-group well well-small span3" data-bind="
+		click: function(ship) { vm.selected(ship); },
+		css: {
+			'selected': vm.selected() === ship,
+			'not-selected': vm.selected() !== ship
+		}">
+		<center><span data-bind="text: ship.name"></span></center>
+	</div>
+</div>
+
+{% endblock %}

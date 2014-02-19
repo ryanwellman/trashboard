@@ -74,8 +74,8 @@
                 <b>Combos:</b> combos<br>
                 <b>Shipping:</b>
                 <span data-bind="
-                	text: vm.master.vms.shipping && vm.master.vms.shipping.selected_shipping()
-                	      ?	vm.master.vms.shipping.selected_shipping().name
+                	text: vm.master.vms.shipping && vm.master.vms.shipping.selected()
+                	      ?	vm.master.vms.shipping.selected().name
                 	      : 'None Selected'
                 "</span>
                 <br>

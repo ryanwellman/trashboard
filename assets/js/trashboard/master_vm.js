@@ -32,7 +32,7 @@ MasterVM = function() {
 
     self.vms = {
         //'initial_info': InitialInfoVM(self),
-        /*'shipping': ShippingVM(self), */
+
         'applicant': ApplicantVM(self, 'applicant'),
         'coapplicant': ApplicantVM(self, 'coapplicant'),
 
@@ -43,7 +43,7 @@ MasterVM = function() {
         'package': PackageVM(self),
         'alacarte': ALaCarteVM(self),
         'closing': ClosingVM(self),
-
+        'shipping': ShippingVM(self),
         /*
         'combo': ComboVM(self),
         'review': ReviewVM(self)*/

@@ -1,17 +1,20 @@
 function ShippingVM(master) {
-    var self = new UpdatableAndSerializable();
+    var self = new BaseSectionVM(master);
+    self.name = 'shipping';
 
-    self.master = master;
-
-
-
-    self.selected_shipping = function(shipp) {
-        self.shipping(shipp.value);
+    var fields = {
+        'selected': ko.observable(null),
     };
 
-    self.shipcss = function(param) {
-        return param.code == self.shipping() ? 'currently_chosen' : '';
-    };
+    _.each(fields, function(v, k) {
+        self[k] = v;
+    });
 
+    self.is_completed = ko.computed(function() {
+        return !!self.selected();
+    });
+
+
+    return self;
 
 }

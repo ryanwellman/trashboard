@@ -50,9 +50,9 @@ function BaseSectionVM(master) {
     self.upfront_subtotal = ko.computed(function() {
         var total_balance = 0;
         _.each(self.customizers(), function(cust) {
-            console.log('Upfront subtotal for vm ', self.name, ' adding ', cust.quantity(), ' of ', cust.code, ' at ', cust.price.upfront_price);
-            if(cust.quantity() && cust.price.upfront_price) {
-                total_balance += cust.price.upfront_price * cust.quantity()
+            //console.log('Upfront subtotal for vm ', self.name, ' adding ', cust.quantity(), ' of ', cust.code, ' at ', cust.price().upfront_price);
+            if(cust.quantity() && cust.price().upfront_price) {
+                total_balance += cust.price().upfront_price * cust.quantity()
             }
         });
         return total_balance;
@@ -61,8 +61,8 @@ function BaseSectionVM(master) {
     self.monthly_subtotal = ko.computed(function() {
         var total_balance = 0;
         _.each(self.customizers(), function(cust) {
-            if(cust.quantity() && cust.price.monthly_price) {
-                total_balance += cust.price.monthly_price * cust.quantity()
+            if(cust.quantity() && cust.price().monthly_price) {
+                total_balance += cust.price().monthly_price * cust.quantity()
             }
         });
         return total_balance;
@@ -71,8 +71,8 @@ function BaseSectionVM(master) {
     self.cb_balance = ko.computed(function() {
         var total_cb = 0;
         _.each(self.customizers(), function(cust) {
-            if(cust.chargedback() && cust.quantity() && cust.price.cb_points) {
-                total_balance += cust.quantity() * cust.price.cb_points;
+            if(cust.chargedback() && cust.quantity() && cust.price().cb_points) {
+                total_balance += cust.quantity() * cust.price().cb_points;
             }
         });
         return total_cb;
@@ -96,11 +96,26 @@ function BaseSectionVM(master) {
         return [];
     }
 
-    self.generate_customizers = function() {
+    self.update_cart_lines = function() {
+        _.each(self.customizers(), function(cust) {
+            cust.should_keep = false;
+        });
+        var existing = _.indexBy(self.customizers(), function(cust) { return cust.code; });
+
+
         _.each(self.available_products(), function(product) {
-            if(!product.product_price) {
+            if(!product.price()) {
                 console.log("Skipping ", product, "because it has no product_price.");
                 return;
+            }
+            var e = existing[product.code];
+            if(e) {
+                e.name=product.name;
+                e.product = product;
+                e.price(product.price());
+                e.should_keep = true;
+                return; //Having updated the prices we're done with this.
+
             }
 
             var internal_obs = ko.observable(0);
@@ -127,11 +142,11 @@ function BaseSectionVM(master) {
 
             var one_or_none = ko.computed({
                 'read': function() {
-                    console.log("reading ", !!quantity());
+                    //console.log("reading ", !!quantity());
                     return !!quantity();
                 },
                 'write': function(yesno) {
-                    console.log("Writing ", +yesno);
+                    //console.log("Writing ", +yesno);
                     quantity(+yesno);
                 }
             });
@@ -140,16 +155,76 @@ function BaseSectionVM(master) {
                 'code': product.code,
                 'name': product.name,
                 'product': product,
-                'price': product.product_price,
+                'price': ko.observable(product.price()),
                 'min_quantity': ko.observable(0),
                 'base_quantity': ko.observable(0),
                 'quantity': quantity,
                 'chargedback': ko.observable(false),
-                'one_or_none': one_or_none
+                'one_or_none': one_or_none,
+                'should_keep': true,
             };
+
+            cust.customize_quantity = ko.computed({
+                'read': quantity,
+                'write': function(newval) {
+                    var reject = false;
+                    if(!/^(\d+|)$/.test(newval)) {
+                        reject = true;
+                    } else if(+newval < cust.min_quantity()) {
+                        reject = true;
+                    } else {
+                        quantity(newval);
+                        return;
+                    }
+
+                    // XXX: This guy is pretty weird!
+                    quantity.notifySubscribers(quantity());
+                }
+            });
+
+            cust.delta_fmted = ko.computed(function() {
+                if(cust.quantity() == cust.base_quantity()) {
+                    return '';
+                } else if (cust.quantity() > cust.base_quantity()) {
+                    return '+' + (cust.quantity() - cust.base_quantity());
+                } else {
+                    return cust.quantity() - cust.base_quantity();
+                }
+            });
+
+
+            cust.upfront_each_fmted = ko.computed(function() {
+                if(!cust.price() || !cust.price().upfront_price)
+                    return '';
+                return formatCurrency(cust.price().upfront_price);
+            });
+            cust.upfront_line_fmted = ko.computed(function() {
+               if(!cust.quantity() || !cust.price() || !cust.price().upfront_price)
+                   return '';
+               return formatCurrency(cust.price().upfront_price * cust.quantity());
+            });
+            cust.monthly_each_fmted = ko.computed(function() {
+                if(!cust.price() || !cust.price().monthly_price)
+                    return '';
+                return formatCurrency(cust.price().monthly_price) + '/mo';
+            });
+            cust.monthly_line_fmted = ko.computed(function() {
+               if(!cust.quantity() || !cust.price() || !cust.price().monthly_price)
+                   return '';
+               return formatCurrency(cust.price().monthly_price * cust.quantity()) + '/mo';
+            });
+            cust.customize_cb = ko.computed(function() {
+                return (cust.base_quantity() - cust.quantity()) * cust.price().cb_points;
+            });
+
 
             self.customizers.push(cust);
             //self.computed_quantity[product.code].internal_obs = internal_obs;
+        });
+
+        // Remove anything that isn't necessary anymore.
+        _.each(_.filter(self.customizers(), function(cust) { return !cust.should_keep; }), function(cust) {
+            self.customizers().remove(cust);
         });
     };
 
@@ -165,6 +240,25 @@ function BaseSectionVM(master) {
         }
         self.customizing(false);
     };
+
+
+    // This is neat.  Selected is automatically the first customizer with a positive quantity.
+
+    // This is neat.  Selected is automatically the first customizer with a positive quantity.
+    self.selected = ko.computed({
+        'read': function() {
+            var sel = _.find(self.customizers(), function(cust) {
+                return cust.quantity() > 0;
+            });
+            return sel;
+        },
+        'write': function(sel) {
+            _.each(self.customizers(), function(cust) {
+                cust.quantity( cust === sel ? 1 : 0 );
+            });
+        }
+    });
+
 
 
 

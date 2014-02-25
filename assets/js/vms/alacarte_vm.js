@@ -67,14 +67,11 @@ ALaCarteVM = function(master) {
         self[name] = field;
     });
 
-
-    self.available_products = function(agreement) {
-        return _.filter(window.PRODUCTS_BY_TYPE.Part, function(product) {
-            return product.product_price;
+    self.available_products = ko.computed(function() {
+        return _.filter(catalog.PRODUCTS(), function(prod) {
+            return prod.price() && prod.product_type === 'Part';
         });
-    };
-
-    self.generate_customizers();
+    });
 
     self.is_completed = ko.computed(function() {
         return !self.customizing();

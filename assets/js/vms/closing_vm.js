@@ -9,12 +9,11 @@ ClosingVM = function(master) {
         return true;
     });
 
-    self.available_products = function() {
-        return _.filter(window.PRODUCTS_BY_TYPE.Closer, function(product) {
-            return product.product_price;
+    self.available_products = ko.computed(function() {
+        return _.filter(catalog.PRODUCTS(), function(prod) {
+            return prod.price() && prod.product_type === 'Closer';
         });
-    }
-    self.generate_customizers();
+    });
 
     return self;
 };

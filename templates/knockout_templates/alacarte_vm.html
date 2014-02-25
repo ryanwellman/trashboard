@@ -28,15 +28,14 @@
                 <td data-bind="text: cust.product.code"></td>
                 <td data-bind="text: cust.product.name"></td>
 
-                <td data-bind="text: !cust.price.upfront_price ? '' : formatCurrency(cust.price.upfront_price)"></td>
-                <td data-bind="text: !cust.price.monthly_price ? '' : formatCurrency(cust.price.monthly_price) + '/mo'"></td>
+                <td data-bind="text: cust.upfront_each_fmted()"></td>
+                <td data-bind="text: cust.monthly_each_fmted()"></td>
                 <td>&times;</td>
                 <td data-bind="text: cust.quantity()" style="text-align:center;" /></td>
                 <td>=</td>
-                <td data-bind="text: !(cust.quantity() && cust.price.upfront_price) ? '' :
-                                     formatCurrency(cust.quantity() * cust.price.upfront_price)"></td>
-                 <td data-bind="text: !(cust.quantity() && cust.price.monthly_price) ? '' :
-                                      formatCurrency(cust.quantity() * cust.price.monthly_price) + '/mo'"></td>
+                <td data-bind="text: cust.upfront_line_fmted()"></td>
+                <td data-bind="text: cust.monthly_line_fmted()"></td>
+
             </tr>
             <!-- /ko -->
         </tbody>
@@ -77,15 +76,13 @@
                 <td data-bind="text: cust.product.code"></td>
                 <td data-bind="text: cust.product.name"></td>
 
-                <td data-bind="text: !cust.price.upfront_price ? '' : formatCurrency(cust.price.upfront_price)"></td>
-                <td data-bind="text: !cust.price.monthly_price ? '' : formatCurrency(cust.price.monthly_price) + '/mo'"></td>
+                <td data-bind="text: cust.upfront_each_fmted()"></td>
+                <td data-bind="text: cust.monthly_each_fmted()"></td>
                 <td>&times;</td>
                 <td><input class="input-mini" type="text" data-bind="value: cust.quantity" style="text-align:center;" /></td>
                 <td>=</td>
-                <td data-bind="text: !(cust.quantity() && cust.price.upfront_price) ? '' :
-                                     formatCurrency(cust.quantity() * cust.price.upfront_price)"></td>
-                 <td data-bind="text: !(cust.quantity() && cust.price.monthly_price) ? '' :
-                                      formatCurrency(cust.quantity() * cust.price.monthly_price) + '/mo'"></td>
+                <td data-bind="text: cust.upfront_line_fmted()"></td>
+                <td data-bind="text: cust.monthly_line_fmted()"></td>
             </tr>
         </tbody>
         <tfoot>

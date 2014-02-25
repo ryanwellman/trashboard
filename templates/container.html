@@ -2,11 +2,12 @@
 
 {% block javascript_nocompress %}
 
-<script type="text/javascript" src="{% static 'js/trashboard/utils.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
 
 <script type="text/javascript">
-    window.PRODUCTS = loads('{{products_json|escapejs}}');
-    window.PRICES = loads('{{pricelist_json|escapejs}}');
+  window.InitialCatalogData = loads('{{catalog_json|escapejs}}');
+    //window.PRODUCTS = loads('{{products_json|escapejs}}');
+    //window.PRICES = loads('{{pricelist_json|escapejs}}');
     window.agreement_id = {{agreement_id}};
 
     /*window.PACKAGES = {{packages|safe}};
@@ -21,26 +22,27 @@
     */
 </script>
 
-<script type="text/javascript" src="{% static 'js/trashboard/master_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/master_vm.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/trashboard.js' %}"></script>
 
+<script type="text/javascript" src="{% static 'js/agreement_endpoint.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/constants.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/uas.js' %}"></script>
 
-<script type="text/javascript" src="{% static 'js/trashboard/address_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/agreement_endpoint.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/alacarte_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/applicant_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/base_section_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/closing_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/combo_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/constants.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/creditdecision_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/initial_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/shipping_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/monitoring_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/navbar_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/package_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/review_vm.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/trashboard/uas.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/vms/address_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/alacarte_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/applicant_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/base_section_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/closing_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/combo_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/creditdecision_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/initial_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/shipping_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/monitoring_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/navbar_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/package_vm.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vms/review_vm.js' %}"></script>
 
 {% endblock %}
 

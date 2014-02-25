@@ -36,7 +36,11 @@ class AgreementEditController(GenericController):
 
 
         # Translate to json.
-        self.products_json = dumps({code: p.as_jsonable() for code, p in self.products.iteritems()})
+        self.catalog_json = dumps({
+            'products': {code: p.as_jsonable() for code, p in self.products.iteritems()},
+            'prices': {code: pp.as_jsonable() for code, pp in self.pricelist.iteritems()}
+        })
+        #self.products_json = dumps({code: p.as_jsonable() for code, p in self.products.iteritems()})
         self.pricelist_json = dumps({code: pp.as_jsonable() for code, pp in self.pricelist.iteritems()})
 
 

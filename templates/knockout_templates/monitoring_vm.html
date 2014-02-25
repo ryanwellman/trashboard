@@ -4,16 +4,14 @@
 
 <div class="row" data-bind="
 foreach: {
-	data: PRODUCTS_BY_TYPE.Monitoring,
-	as:'mon'
+	data: vm.customizers(),
+	as:'cust'
 }">
 	<div class="select_monitoring control-group well well-small span3" data-bind="
-		click: function(mon) { vm.selected(mon); },
-		css: {
-			'selected': vm.selected() === mon,
-			'not-selected': vm.selected() !== mon
-		}">
-		<center><span data-bind="text: mon.name"></span></center>
+		click: vm.select_monitoring,
+		css: vm.monitoring_css(cust)
+	">
+		<center><span data-bind="text: cust.name"></span></center>
 	</div>
 </div>
 

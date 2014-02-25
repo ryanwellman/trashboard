@@ -4,19 +4,19 @@
 <!-- Package selection blocks -->
 <div class="controls controls-row" data-bind="
     foreach: {
-        data: PRODUCTS_BY_TYPE.Package,
-        as: 'package'
+        data: vm.customizers(),
+        as: 'cust'
     }">
 
 
     <div class="select_package span2 " data-bind="
-        css: function() { return vm.classes_for_package(package); },
-        click: function() { vm.choose_package(package); },
+        css: vm.package_css(cust),
+        click: vm.select_package,
         ">
         <div class="package_name row">
             <div class="span2">
 
-                <span data-bind="text: package.name"></span>
+                <span data-bind="text: cust.product.name"></span>
 
             </div>
         </div>
@@ -24,7 +24,7 @@
             <div class="span2">
                 <ul data-bind="
                     foreach: {
-                        data: package.contents,
+                        data: cust.product.contents,
                         as: 'pc'
                     }">
                     <li>
@@ -38,59 +38,83 @@
 </div>
 
 <!-- Read-only package contents table. -->
-<div class="controls controls-row" data-bind="visible: vm.selected() && !vm.customizing()">
-    <br />
-    <!-- <button class="btn btn-primary" data-bind="click: package.save_package">Save Package</button> -->
-    <br />
-
+<div class="controls controls-row" data-bind="visible: vm.selected() && !vm.customize_vm.customizing()">
 
     <!-- The CURRENT contents of the package. -->
     <table class="table" id="package_contents">
         <thead>
             <tr>
-                <th>Part #</th><th>Description</th><th>Quantity</th>
+                <th>Part #</th><th>Description</th><th>Quantity</th><th>CB</th>
             </tr>
         </thead>
         <tbody data-bind="
             foreach: {
-                data: vm.customizers,
+                data: vm.customize_vm.customizers(),
                 as: 'cust'
             }">
-            <!-- ko if: cust.quantity() -->
+            <!-- ko if: cust.quantity() || cust.base_quantity() -->
             <tr>
                 <!--<td data-bind="text: console.log('vm.customizers is ', vm.customizers, ' and cust is ', cust)"></td>-->
                 <td data-bind="text: cust.product.code"></td>
                 <td data-bind="text: cust.product.name"></td>
                 <td data-bind="text: cust.quantity()"></td>
-
+                <td data-bind="text: cust.customize_cb() || ''"></td>
             </tr>
             <!-- /ko -->
         </tbody>
+        <tfoot>
+                <td colspan="3"></td>
+                <td data-bind="text: vm.customize_vm.cb_balance()"></td>
+
+        </tfoot>
     </table>
 </div>
 
 <!-- Actual customization table. -->
 
 
-<div class="controls controls-row"  data-bind="visible: vm.selected() && vm.customizing()">
+<div class="controls controls-row"  data-bind="visible: vm.selected() && vm.customize_vm.customizing()">
     <table class="package_customization table">
         <thead>
             <tr>
-                <th>Part #</th><th>Description</th><th><center>CB</center></th><th><center>Base Quantity Included</center></th><th>Quantity</th>
+                <th>Part #</th>
+                <th>Description</th>
+                <th>Must Keep</th>
+                <th><center>Base Quantity Included</center></th>
+                <th>+/-</th>
+                <th>=</th>
+                <th>Quantity</th>
+                <th>&times;<th>
+                <th>CB</th>
+                <th>=</th>
+                <th>CB</th>
             </tr>
         </thead>
         <tbody data-bind="
             foreach: {
-                data: vm.customizers,
+                data: vm.customize_vm.customizers(),
                 as: 'cust'
             }
             ">
             <tr>
                 <td data-bind="text: cust.product.code"></td>
                 <td data-bind="text: cust.product.name"></td>
-                <td><center><span data-bind="text: cust.price.cb_points" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></center></td>
-                <td data-bind="text: cust.min_quantity" style="text-align:center;"></td>
-                <td><input class="input-mini" type="text" data-bind="value: cust.quantity" style="text-align:center;" /></td>
+                <td data-bind="text: cust.min_quantity() || ''"></td>
+                <td data-bind="text: cust.base_quantity() || ''"></td>
+                <td data-bind="text: cust.delta_fmted()"></td>
+                <td>=</td>
+                <td>
+                    <input class="input-mini" type="text" data-bind="value: cust.customize_quantity" style="text-align:center;" />
+                    <!-- /ko -->
+                    <!-- ko: if !cust.price().cb_points -->
+                    <i class="icon-lock"></i> <span data-bind="text: cust.quantity()"></span>
+                    <!-- /ko -->
+                </td>
+                <td>&times;</td>
+                <td><span data-bind="text: cust.price().cb_points || ''" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></td>
+                <td>=</td>
+                <td data-bind="text: cust.customize_cb()"></td>
+
             </tr>
         </tbody>
     </table>
@@ -113,9 +137,9 @@
     </div>
     <div class="span3">
         <button class="btn btn-success" data-bind="
-            text:  vm.customizing() ? 'Save Customization' : 'Customize',
-            click: vm.customizing() ? vm.finish_customizing :
-                                      vm.start_customizing,
+            text:  vm.customize_vm.customizing() ? 'Save Customization' : 'Customize',
+            click: vm.customize_vm.customizing() ? vm.customize_vm.finish_customizing :
+                                                   vm.customize_vm.start_customizing,
             visible: vm.selected()
         ">Customize</button>
     </div>

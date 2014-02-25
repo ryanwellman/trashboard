@@ -1,7 +1,11 @@
 // money formatting function
 function formatCurrency(value) {
-    console.log("value is ", value)
-    return '$' + Number(value).toFixed(2);
+    var fixed = Number(value).toFixed(2);
+    if(value >= 0) {
+        return '$' + fixed;
+    } else {
+        return '-$' + fixed.substring(1);
+    }
 };
 
 // fast hash function

@@ -2,17 +2,11 @@
 {% block vm_id %}shipping{% endblock %}
 {% block section_content %}
 
-<div class="row" data-bind="
-foreach: {
-	data: vm.customizers(),
-	as:'cust'
-}">
-	<div class="select_shipping control-group well well-small span3" data-bind="
-		click: vm.select_shipping,
-		css: vm.shipping_css(cust)
-		">
-		<center><span data-bind="text: cust.product.name"></span></center>
-	</div>
-</div>
+<!-- Shipping selection lines -->
+<div data-bind="template: {
+    name: 'basic_cart_mutex',
+    data: vm,
+    as: 'vm'
+}"></div>
 
 {% endblock %}

@@ -2,17 +2,12 @@
 {% block vm_id %}monitoring{% endblock %}
 {% block section_content %}
 
-<div class="row" data-bind="
-foreach: {
-	data: vm.customizers(),
-	as:'cust'
-}">
-	<div class="select_monitoring control-group well well-small span3" data-bind="
-		click: vm.select_monitoring,
-		css: vm.monitoring_css(cust)
-	">
-		<center><span data-bind="text: cust.name"></span></center>
-	</div>
-</div>
+
+<!-- Monitoring selection lines -->
+<div data-bind="template: {
+    name: 'basic_cart_mutex',
+    data: vm,
+    as: 'vm'
+}"></div>
 
 {% endblock %}

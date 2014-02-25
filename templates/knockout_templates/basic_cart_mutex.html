@@ -1,0 +1,56 @@
+<script type="text/html" id="basic_cart_mutex">
+<!-- renders the customizers on a vm with mutually exclusive checkboxes. -->
+
+<div class="row"><div class="span11">
+
+    <table class="table">
+        <thead>
+            <th colspan="3">Package</th>
+            <th>Upfront</th>
+            <th>Monthly</th>
+            <th>&times;</th>
+            <th>Quantity</th>
+            <th>=</th>
+            <th>Upfront</th>
+            <th>Monthly</th>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers,
+                as: 'cust'
+            }
+            ">
+            <tr data-bind="
+                style: {
+                    backgroundColor: cust.is_selected() ? '#ddffdd' : ''
+                },
+                click: vm.select_row
+            ">
+                <td>
+                    <input type="checkbox" data-bind="
+                        checked: cust.is_selected,
+                        click: function(el, eargs) {
+                            eargs.stopPropagation();
+                        }
+                    ">
+                </td>
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+
+                <td data-bind="text: cust.upfront_each_fmted()"></td>
+                <td data-bind="text: cust.monthly_each_fmted()"></td>
+                <td>&times;</td>
+                <td data-bind="text: cust.quantity()" style="text-align:center;" /></td>
+                <td>=</td>
+                <td data-bind="text: cust.upfront_line_fmted()"></td>
+                <td data-bind="text: cust.monthly_line_fmted()"></td>
+
+            </tr>
+
+        </tbody>
+        <tfoot>
+        </tfoot>
+
+    </table>
+</div></div>
+</script>

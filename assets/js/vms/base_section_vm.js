@@ -96,6 +96,33 @@ function BaseSectionVM(master) {
         return [];
     }
 
+    // This is neat.  Selected is automatically the first customizer with a positive quantity.
+    self.selected = ko.computed({
+        'read': function() {
+            console.log("calculating selected.");
+            var sel = _.find(self.customizers(), function(cust) {
+                return cust.quantity() > 0;
+            });
+            return sel;
+        },
+        'write': function(sel) {
+            console.log("Setting selected to ", sel ? sel.product.code : sel);
+            _.each(self.customizers(), function(cust) {
+                cust.quantity( cust === sel ? 1 : 0 );
+            });
+
+            console.log("Calling onSelectedChange on ", self.name);
+            self.onSelectedChange();
+
+            self.selected.notifySubscribers(self.selected());
+        }
+    });
+
+    self.onSelectedChange = function() {
+
+    };
+
+
     self.update_cart_lines = function() {
         _.each(self.customizers(), function(cust) {
             cust.should_keep = false;
@@ -217,6 +244,35 @@ function BaseSectionVM(master) {
                 return (cust.base_quantity() - cust.quantity()) * cust.price().cb_points;
             });
 
+            cust.is_selected = ko.computed({
+                'read': function() {
+
+                    var i_s = self.selected() === cust;
+                    console.log("Determining is_selected for ", cust.code, i_s);
+                    return i_s
+                },
+                write: function(checked) {
+                    if(checked) {
+                        console.log("Selecting package.");
+                        self.selected(cust);
+                    } else if(self.selected() === cust) {
+                        console.log("Deselecting package.");
+                        cust.quantity(0);
+                        self.selected(null);
+
+
+                    }
+                    _.defer(function () {
+                        // I have no idea why this is necessary.  No amount of
+                        // stopping propagation would keep the checkbox from
+                        // unchecking itself if you clicked it, even though
+                        // the is_selected observable was just fine.
+                        cust.is_selected.notifySubscribers(cust.is_selected());
+                    });
+                }
+            });
+
+
 
             self.customizers.push(cust);
             //self.computed_quantity[product.code].internal_obs = internal_obs;
@@ -241,26 +297,17 @@ function BaseSectionVM(master) {
         self.customizing(false);
     };
 
+    self.select_row = function(cust, eargs) {
+        console.log("You clicked a row.");
 
-    // This is neat.  Selected is automatically the first customizer with a positive quantity.
-
-    // This is neat.  Selected is automatically the first customizer with a positive quantity.
-    self.selected = ko.computed({
-        'read': function() {
-            var sel = _.find(self.customizers(), function(cust) {
-                return cust.quantity() > 0;
-            });
-            return sel;
-        },
-        'write': function(sel) {
-            _.each(self.customizers(), function(cust) {
-                cust.quantity( cust === sel ? 1 : 0 );
-            });
+        if(eargs && eargs.preventDefault) {
+            eargs.preventDefault();
+            eargs.stopPropagation();
         }
-    });
-
-
-
+        if(self.selected() !== cust) {
+            self.selected(cust);
+        }
+    };
 
 
     return self;

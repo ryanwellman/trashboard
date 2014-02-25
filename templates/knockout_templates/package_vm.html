@@ -1,41 +1,17 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block section_content %}
 
-<!-- Package selection blocks -->
-<div class="controls controls-row" data-bind="
-    foreach: {
-        data: vm.customizers(),
-        as: 'cust'
-    }">
+<!-- Package selection lines -->
+<div data-bind="template: {
+    name: 'basic_cart_mutex',
+    data: vm,
+    as: 'vm'
+}"></div>
 
 
-    <div class="select_package span2 " data-bind="
-        css: vm.package_css(cust),
-        click: vm.select_package,
-        ">
-        <div class="package_name row">
-            <div class="span2">
 
-                <span data-bind="text: cust.product.name"></span>
 
-            </div>
-        </div>
-        <div class="package_contents row">
-            <div class="span2">
-                <ul data-bind="
-                    foreach: {
-                        data: cust.product.contents,
-                        as: 'pc'
-                    }">
-                    <li>
-                        <span data-bind="text: pc.product.name"></span>
-                        x<span data-bind="text: pc.quantity"></span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Read-only package contents table. -->
 <div class="controls controls-row" data-bind="visible: vm.selected() && !vm.customize_vm.customizing()">

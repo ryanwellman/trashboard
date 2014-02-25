@@ -6,7 +6,6 @@ PackageVM = function(master) {
     self.name = 'package';
     var fields = {
 
-        'selected': ko.observable(null),
     };
 
 
@@ -23,20 +22,6 @@ PackageVM = function(master) {
         });
     });
 
-    self.selected = ko.computed({
-        'read': function() {
-            var sel = _.find(self.customizers(), function(cust) {
-                return cust.quantity() > 0;
-            });
-            return sel;
-        },
-        'write': function(sel) {
-            _.each(self.customizers(), function(cust) {
-                cust.quantity( cust === sel ? 1 : 0 );
-            });
-        }
-    });
-
 
 
     self.customize_vm = CustomizationVM(master, self);
@@ -47,7 +32,9 @@ PackageVM = function(master) {
 
     self.select_package = function(cust) {
         self.selected(cust);
+    };
 
+    self.onSelectedChange = function() {
         self.customize_vm.reset_customizations();
     };
 

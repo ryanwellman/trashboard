@@ -2,16 +2,16 @@
 // refer to the comments in MasterVM to understand the next two objects
 ApplicantVM = function(master, which) {
     var self = new BaseSectionVM(master);
-    self.name = 'applicant';
+    self.name = which;
 
-    var fields = {
+    self.fields = {
         'fname': ko.observable(''),
         'lname': ko.observable(''),
         'initial': ko.observable(''),
         'phone': ko.observable(''),
     };
 
-    _.each(fields, function(v, k) {
+    _.each(self.fields, function(v, k) {
         self[k] = v;
     });
 
@@ -19,7 +19,7 @@ ApplicantVM = function(master, which) {
         return 'applicant_vm';
     };
 
-    self.name = which;
+
     self.which = which; // Which is the field I am working with on the agreement (applicant, coapplicant)
     self.has_coapplicant = ko.observable(false);
 
@@ -44,6 +44,27 @@ ApplicantVM = function(master, which) {
     self.display_label = function() {
         return self.which === 'applicant' ?
             'Applicant' : 'Coapplicant';
+    };
+
+    self.update_from_agreement = function(agreement) {
+        var person = agreement[self.which] || {};
+
+        self.fname(person.fname || '');
+        self.lname(person.lname || '');
+        self.initial(person.initial || '');
+        self.phone1(person.phone1 || '');
+
+    };
+
+    self.construct_agreement = function(agreement) {
+        var person = {
+            'fname' : self.fname(),
+            'lname': self.lname(),
+            'initial': self.initial(),
+            'phone': self.phone()
+        };
+
+        agreement[self.which] = person;
     };
 
     return self;

@@ -10,6 +10,7 @@ MasterVM = function() {
     // field types
     self.fields = {
         'agreement_id': ko.observable(),
+        'campaign': ko.observable(),
         'pricetable_date': ko.observable(),
         'email': ko.observable(),
         'approved': ko.observable(),
@@ -105,6 +106,16 @@ MasterVM = function() {
         });
 
         return agreement;
+    };
+
+    self.update_from_agreement = function(agreement) {
+        self.campaign(agreement.campaign);
+        self.promo_code(agreement.promo_code);
+        self.email(agreement.email);
+
+        _.each(self.vms, function(vm) {
+            vm.update_from_agreement(agreement);
+        });
     };
 
 

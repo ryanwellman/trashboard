@@ -4,7 +4,6 @@ this program attempts to create the database entries required for trashboard to 
 
 # std imports
 from datetime import datetime
-from itertools import chain
 from time import time
 from decimal import Decimal
 
@@ -15,7 +14,7 @@ from django.core.management.base import BaseCommand, CommandError
 from agreement.models import *
 
 NAME = 'fixtures'
-VERSION = '0.2 alpha'
+VERSION = '0.3 alpha'
 
 PRICETABLES =   {
                     '7': {'WSMOKE': ('PART', '125.00', Decimal('149.99'), 'N/A', Decimal('0.00'), 1L, '75', 'Smoke etector', 'FIRE'), 'GOLD': ('PACKAGE', 'N/A',Decimal('0.00'), '0.00', Decimal('39.99'), 0L, 'N/A', 'Gold', 'PACKAGE'), 'ZLKTS': ('PART', '279.00', Decimal('279.00'), 'N/A', Decimal('0.00'), 0L, '260', 'Z-Wave Touchscreen Lock - Satin Nickel', 'HOMEAUTO'), 'ZLKTO': ('PART', '279.00', Decimal('279.00'), 'N/A', Decimal('0.00'), 0L, '260', 'Z-Wave Touchscreen Lock - Oil Rubbed Bronze', 'HOMEAUTO'), '2TP': ('PART', '99.00', Decimal('129.99'), 'N/A', Decimal('0.00'), 1L, '65', 'Talking Wireless Keypad', 'ACCESSORY'), 'VIDEOSERVICE': ('PART', '0.00', Decimal('0.00'), 'N/A', Decimal('5.00'), 0L, '0', 'Additional Video Service', 'VIDEO'), 'RKT': ('PART', '79.00', Decimal('99.99'), 'N/A', Decimal('0.00'), 1L, '45', 'X10 Socket Rocket', 'HOMEAUTO'), 'DGSKT': ('PART', '15.00', Decimal('15.00'), 'N/A', Decimal('0.00'), 1L, '15', 'Yale Lock Thin Door Gasket', 'HOMEAUTO'), 'XT-2WTTS': ('PART', '115.00', Decimal('115.00'), 'N/A', Decimal('0.00'), 1L, '65', 'Simon XT Touch Screen Keypad', 'ACCESSORY'), 'CAMERA': ('PART', '199.00', Decimal('249.99'), 'N/A', Decimal('0.00'), 0L, '125', 'Video Camera', 'VIDEO'), 'ZLKTB': ('PART', '279.00', Decimal('279.00'), 'N/A', Decimal('0.00'), 0L, '260', 'Z-Wave Touchscreen Lock - Polished Brass', 'HOMEAUTO'), 'SECRETKEYPAD': ('PART', '49.00', Decimal('69.99'), 'N/A', Decimal('0.00'), 1L, '20', 'Secret Keypad', 'ACCESSORY'), 'WPANIC': ('PART', '95.00', Decimal('129.99'), 'N/A', Decimal('0.00'), 1L, '60', 'Medical Panic Pendant', 'ACCESSORY'), 'TWOWAY': ('MONITORING', 'N/A', Decimal('59.00'), '357.00', Decimal('5.00'), 0L, 'N/A', 'Two-Way Voice', 'MONITORING'), 'OVERNIGHT': ('SHIPPING', 'N/A', Decimal('49.95'), 'N/A', Decimal('0.00'), 0L, 'N/A', 'Overnight Shipping', 'SHIPPING'), 'WGLASS': ('PART', '99.00', Decimal('129.99'), 'N/A', Decimal('0.00'), 1L, '65', 'Glass Break Detector', 'SENSOR'), 'UTA': ('PART', '99.00', Decimal('129.99'), 'N/A', Decimal('10.00'), 0L, '50', 'GPS Tracking Device', 'GPS'), 'BROADBAND': ('MONITORING', 'N/A', Decimal('89.00'), '387.00', Decimal('7.00'), 0L, 'N/A', 'Broadband', 'MONITORING'), 'SIMONXT': ('PART', '299.00', Decimal('399.00'), 'N/A', Decimal('0.00'), 0L, '125', 'Simon XT Control Panel', 'PANEL'), 'FREEZE': ('PART', '125.00', Decimal('149.99'), 'N/A', Decimal('0.00'), 1L, '50', 'Freeze Sensor', 'SENSOR'), 'FLOOD': ('PART', '125.00', Decimal('149.99'), 'N/A', Decimal('0.00'), 1L, '60', 'Flood Sensor', 'SENSOR'), 'CELLULAR': ('MONITORING', 'N/A', Decimal('139.00'), '536.00', Decimal('12.00'), 0L, 'N/A', 'Cellular', 'MONITORING'), 'WCONT': ('PART', '39.50', Decimal('49.99'), 'N/A', Decimal('0.00'), 1L, '25', 'Micro Door/Window Sensor', 'SENSOR'), 'STANDARD': ('MONITORING', 'N/A', Decimal('40.00'), '239.00', Decimal('0.00'), 0L, 'N/A', 'Standard', 'MONITORING'), '4KEY': ('PART', '49.50', Decimal('69.99'), 'N/A', Decimal('0.00'), 1L, '25', '4-Button Keychain Remote Control', 'ACCESSORY'), 'GROUND': ('SHIPPING', 'N/A',Decimal('19.95'), 'N/A', Decimal('0.00'), 0L, 'N/A', 'Ground Shipping', 'SHIPPING'), 'SIMON3': ('PART', '299.00', Decimal('350.00'), 'N/A', Decimal('0.00'), 0L, '125', 'Simon 3', 'PANEL'), 'GARAGE': ('PART', '79.00', Decimal('99.99'), 'N/A', Decimal('0.00'), 1L, '40', 'Overhead Garage Door Sensor', 'SENSOR'), 'LAMP': ('PART', '79.00', Decimal('99.99'), 'N/A', Decimal('0.00'), 1L, '40', 'X10 Appliance Module', 'HOMEAUTO'), 'WPIR': ('PART', '99.00', Decimal('129.99'), 'N/A', Decimal('0.00'), 1L, '50', 'Motion Detector', 'SENSOR'), 'TWODAY': ('SHIPPING', 'N/A', Decimal('29.95'), 'N/A', Decimal('0.00'), 0L, 'N/A', 'Two-Day Shipping', 'SHIPPING'), 'SL': ('PART', '19.95', Decimal('29.99'), 'N/A', Decimal('0.00'), 1L, '15', 'Solar Yard Sign Light', 'ACCESSORY'), 'WSRN': ('PART', '79.00', Decimal('99.99'), 'N/A', Decimal('0.00'), 1L, '50', 'X10 Siren', 'HOMEAUTO')},
@@ -164,50 +163,7 @@ def CreateProducts():
     Closer(code='FREEKEY', product_type='Closer', category='Rate Drops', name='Free Keychains', description='Give away some of our famous disposable keychains!').save()
     Closer(code='FREESHIP', product_type='Closer', category='Rate Drops', name='Free Shipping', description='Cancels out shipping cost for the customer').save()
 
-    #Part(code='ANTENNA', product_type='Part', category='Premium Items', name='Cellular Antenna', description='Cut the wires and it still works!').save()
-    #Part(code='CRBMDT', product_type='Part', category='Fire Sensors', name='Carbon Monoxide detector', description='').save()
-    #Part(code='DWSENS', product_type='Part', category='Window Sensors', name='Door/Window Sensors', description='').save()
-    #Part(code='FLSENS', product_type='Part', category='Security Sensors', name='Flood Sensor', description='').save()
-    #Part(code='GBSENS', product_type='Part', category='Security Sensors', name='Glass Break Sensor', description='').save()
-    #Part(code='GDSENS', product_type='Part', category='Security Sensors', name='Garage Door Sensor', description='').save()
-    #Part(code='KEYCRC', product_type='Part', category='Accessories', name='Keychain Remote Control', description='').save()
-    #Part(code='LTSENS', product_type='Part', category='Security Sensors', name='Low Temperature Sensor', description='').save()
-    #Part(code='MEDPEN', product_type='Part', category='Accessories', name='Medical Panic Pendant', description='').save()
-    #Part(code='MEDPNB', product_type='Part', category='Accessories', name='Medical Panic Bracelet', description='').save()
-    #Part(code='MINPNP', product_type='Part', category='Accessories', name='Mini Pinpad', description='').save()
-    #Part(code='MOTDEC', product_type='Part', category='Security Sensors', name='Motion Detector', description='').save()
-    #Part(code='SIMNXT', product_type='Part', category='Security Panels', name='Simon XT', description='').save()
-    #Part(code='SIMTHR', product_type='Part', category='Security Panels', name='Simon 3', description='').save()
-    #Part(code='SMKDET', product_type='Part', category='Fire Sensors', name='Smoke Detector', description='').save()
-    #Part(code='SOLLGT', product_type='Part', category='Accessories', name='Solar Light', description='').save()
-    #Part(code='TLKDEV', product_type='Part', category='Security Panels', name='Talkover Device', description='').save()
-    #Part(code='TLKKYP', product_type='Part', category='Accessories', name='Talking Keypad', description='').save()
-    #Part(code='TLKTSC', product_type='Part', category='Accessories', name='XT Talking Touchscreen', description='').save()
-    #Part(code='XTNAPM', product_type='Part', category='Home Automation', name='X10 Appliance Module', description='').save()
-    #Part(code='XTNSIR', product_type='Part', category='Home Automation', name='XT Siren', description='').save()
-    #Part(code='XTSRCK', product_type='Part', category='Home Automation', name='X10 Socket Rocket', description='').save()
-
-    #Service(code='ALPACASRV', product_type='Service', category='Services', name='Alpaca Rental Service', description='You bought alpaca shears and now need an alpaca').save()
-    #Service(code='SMOKESRV', product_type='Service', category='Services', name='Smoke Service', description='You bought a smoke detector and now need this').save()
-    #Service(code='VIDEOSRV', product_type='Service', category='Services', name='Video Service', description='You got a camera and now need this').save()
-
     Combo(code='COMBOTEST', product_type='Combo', category='Combos', name='Test Combo', description='so combo wow much products').save()
-
-    #Monitoring(code='BROADBAND', product_type='Monitoring', category='Connection Method', name='Broadband', description='Broadband monitoring').save()
-    #Monitoring(code='LANDLINE', product_type='Monitoring', category='Connection Method', name='Landline', description='Landline monitoring').save()
-    #Monitoring(code='CELLULAR', product_type='Monitoring', category='Connection Method', name='Cellular', description='Cellular monitoring').save()
-
-    #Shipping(code='UPS', product_type='Shipping', category='Shipping Method', name='UPS Ground', description='2-3 business days').save()
-    #Shipping(code='FEDEX', product_type='Shipping', category='Shipping Method', name='FedEx Regular', description='3-5 business days').save()
-    #Shipping(code='USPS', product_type='Shipping', category='Shipping Method', name='USPS Priority Mail', description='allegedly 2-3 business days, maybe not').save()
-    #Shipping(code='JPOST', product_type='Shipping', category='Shipping Method', name='Japan Post EMS', description='overnight').save()
-
-    #Package(code='COPPER', product_type='Package', category='Packages', name='Copper', description='Copper package').save()
-    #Package(code='BRONZE', product_type='Package', category='Packages', name='Bronze', description='Bronze package').save()
-    #Package(code='SILVER', product_type='Package', category='Packages', name='Silver', description='Silver package').save()
-    #Package(code='GOLD', product_type='Package', category='Packages', name='Gold', description='Gold package').save()
-    #Package(code='PLATINUM', product_type='Package', category='Packages', name='Platinum', description='Platinum package').save()
-    #Package(code='BUSINESS', product_type='Package', category='Packages', name='Business', description='Business package').save()
 
     return Product.objects.count() - object_counter
 

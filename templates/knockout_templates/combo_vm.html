@@ -1,0 +1,47 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block section_content %}
+
+<!-- combo selection lines -->
+<div data-bind="template: {
+    name: 'basic_cart_mutex',
+    data: vm,
+    as: 'vm'
+}"></div>
+
+
+
+
+
+
+<!-- Read-only combo contents table. -->
+<div class="controls controls-row">
+
+    <!-- The CURRENT contents of the combo. -->
+    <table class="table" id="package_contents">
+        <thead>
+            <tr>
+                <th>Part #</th><th>Description</th><th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody data-bind="
+            foreach: {
+                data: vm.customizers(),
+                as: 'cust'
+            }">
+            <!-- ko if: cust.quantity() || cust.base_quantity() -->
+            <tr>
+                <!--<td data-bind="text: console.log('vm.customizers is ', vm.customizers, ' and cust is ', cust)"></td>-->
+                <td data-bind="text: cust.product.code"></td>
+                <td data-bind="text: cust.product.name"></td>
+                <td data-bind="text: cust.quantity()"></td>
+            </tr>
+            <!-- /ko -->
+        </tbody>
+        <tfoot>
+                <td colspan="4"></td>
+
+        </tfoot>
+    </table>
+</div>
+
+{% endblock %}

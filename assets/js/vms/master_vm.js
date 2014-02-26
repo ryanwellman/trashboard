@@ -41,10 +41,10 @@ MasterVM = function() {
 
         'package': PackageVM(self),
         'alacarte': ALaCarteVM(self),
+        'combo': ComboVM(self),
         'closing': ClosingVM(self),
         'shipping': ShippingVM(self),
         /*
-        'combo': ComboVM(self),
         'review': ReviewVM(self)*/
     };
 

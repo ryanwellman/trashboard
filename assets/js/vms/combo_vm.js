@@ -1,53 +1,17 @@
+ComboVM = function(master) {
+    var self = new BaseSectionVM(master);
 
-ComboVM = function(blob) {
-    var self = new UpdatableAndSerializable();
-    blob = blob || {};
+    self.name = 'combo';
 
-    var fields = {
-        'selected_codes': ko.observableArray,
-        'contents': ko.observableArray,
-        'done': ko.observable,
-    };
-
-    _.each(fields, function(v, k) {
-        if(blob[k] != undefined) {
-            self[k] = v(blob[k]);
-        }
-    });
-
-    // ko needs the things in selected_codes to be things from window vars
-    codes = []
-    _.each(self.selected_codes(), function(v, k) {
-        codes.push(window.premium_index[v.code]);
-    });
-    self.selected_codes(codes);
-
-    self.select_item = function() {
-        self.contents.removeAll();
-        for(var i = 0; i < self.selected_codes().length; i++) {
-            console.log(self.selected_codes()[i].contents);
-            for(var j = 0; j < self.selected_codes()[i].contents.length; j++) {
-                var ret = {
-                    'code': self.selected_codes()[i].contents[j].code,
-                    'quantity': self.selected_codes()[i].contents[j].quantity,
-                };
-
-                self.contents.push(ret);
-            }
-        }
-
-        // required for ko to allow checkbox to click
+    self.is_completed = ko.computed(function() {
         return true;
-    };
+    });
 
-    self.complete = function() {
-        return self._test([self.done()]);
-    };
-
-    self.clear = function() {
-        self._clear(Object.keys(fields));
-        self.done(false);
-    };
+    self.available_products = ko.computed(function() {
+        return _.filter(catalog.PRODUCTS(), function(prod) {
+            return prod.price() && prod.product_type === 'Combo';
+        });
+    });
 
     return self;
 };

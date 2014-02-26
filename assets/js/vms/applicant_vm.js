@@ -8,7 +8,7 @@ ApplicantVM = function(master, which) {
         'fname': ko.observable(''),
         'lname': ko.observable(''),
         'initial': ko.observable(''),
-        'phone': ko.observable(''),
+        'phone1': ko.observable(''),
     };
 
     _.each(self.fields, function(v, k) {
@@ -28,7 +28,7 @@ ApplicantVM = function(master, which) {
         if(self.which === 'coapplicant' && !self.has_coapplicant()) {
             return true;
         }
-        return self.fname() && self.lname() && self.phone() && self.master.email() && self.master.ssn();
+        return self.fname() && self.lname() && self.phone1() && self.master.email() && self.master.ssn();
     });
 
     self.full_name = ko.computed(function() {
@@ -61,7 +61,7 @@ ApplicantVM = function(master, which) {
             'fname' : self.fname(),
             'lname': self.lname(),
             'initial': self.initial(),
-            'phone': self.phone()
+            'phone1': self.phone1()
         };
 
         agreement[self.which] = person;

@@ -70,6 +70,13 @@ PackageVM = function(master) {
         self.customize_vm.construct_agreement(agreement);
     };
 
+    var SUPER_update_from_agreement = _.bind(self.update_from_agreement, self);
+    self.update_from_agreement = function(agreement) {
+        SUPER_update_from_agreement(agreement);
+
+        self.customize_vm.update_from_agreement(agreement);
+    }
+
     return self;
 };
 
@@ -153,7 +160,7 @@ CustomizationVM = function(master, package_vm) {
             var delta = cust.quantity() - cust.base_quantity();
             // store the trade delta as the invoice line quantity
             agreement.invoice_lines.push({
-                'product': cust.code,
+                'code': cust.code,
                 'quantity': delta,
                 'traded': true
             });
@@ -162,19 +169,26 @@ CustomizationVM = function(master, package_vm) {
     };
 
     self.update_from_agreement = function(agreement) {
+
         var trade_lines = _.filter(agreement.invoice_lines, function(iline) {
             return iline.traded;
         });
 
-        var trade_lines_by_code = _.index(trade_lines, function(tline) {
+        var trade_lines_by_code = _.indexBy(trade_lines, function(tline) {
             return tline.product;
         });
 
-        _.each(self.customizations(), function(cust) {
+        self.reset_customizations();
+
+        console.log("In customize_vm's update_from_agreement, tl=", trade_lines, "tlbc=", trade_lines_by_code);
+        _.each(self.customizers(), function(cust) {
             var tline = trade_lines_by_code[cust.code];
+            console.log("I am searching.  ", cust, tline);
             if(tline) {
                 // Using the trade delta, assign the current total quantity.
                 cust.quantity(cust.base_quantity() + tline.quantity);
+            } else {
+                cust.quantity(cust.base_quantity());
             }
         });
     };

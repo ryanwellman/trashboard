@@ -88,7 +88,7 @@ function BaseSectionVM(master) {
         var custs = self.nonzero_customizations();
         _.each(custs, function(cust) {
             var il = {
-                'product': cust.code,
+                'code': cust.code,
                 'quantity': cust.quantity()
             };
             agreement.invoice_lines.push(il);
@@ -98,7 +98,7 @@ function BaseSectionVM(master) {
     self.update_from_agreement = function(agreement) {
         /* Given an agreement blob, update the fields on this vm.  (This
         should cause the templates to update). */
-        self.update_cart_from_agreement();
+        self.update_cart_from_agreement(agreement);
 
     };
     self.update_cart_from_agreement = function(agreement) {
@@ -106,7 +106,8 @@ function BaseSectionVM(master) {
             return !iline.traded && !iline.parent && !iline.mandatory;
         });
 
-        var lines_by_code = _.index(top_levels, function(iline) {
+        console.log("Update cart from agreement in ", self.name, " using ", top_levels);
+        var lines_by_code = _.indexBy(top_levels, function(iline) {
             return iline.product;
         });
 

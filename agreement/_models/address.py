@@ -28,6 +28,16 @@ class Address(Updatable):
         }
         return jsonable
 
+    def update_from_blob(self, blob, updater=None):
+        errors = []
+        for field in ('name', 'street1', 'street2', 'city', 'state', 'zip', 'country'):
+            setattr(self, field, blob.get(field) or '')
+
+        self.fill_country_from_postal_code()
+
+        if updater:
+            updater.errors.extend(errors)
+
     def fill_country_from_postal_code(self):
         # source: http://en.wikipedia.org/wiki/List_of_postal_codes
         # canadian postal codes are ANA NAN with an optional space or hyphen between sections

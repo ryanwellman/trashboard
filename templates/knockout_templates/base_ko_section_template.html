@@ -12,8 +12,12 @@
 
 			<div class="form-actions">
 				<div class="pull-right">
-					<button type="submit" class="btn btn-primary" id="{{vm_id}}_submit" data-bind="enable: vm.is_completed()"><i class="fa fa-arrow-down"></i> Next</button>
-					<button class="btn" type="reset">Clear</button>
+					<button type="submit" class="btn btn-success" id="{{vm_id}}_submit" data-bind="
+						click: master.save_and_submit
+					">
+						<i class="fa fa-arrow-down"></i>
+						Save
+					</button>
 				</div>
 			</div>
 		</fieldset>

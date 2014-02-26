@@ -35,24 +35,40 @@ class InvoiceLine(Updatable):
     monthly_each    =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_total   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
+    cb_points       =   models.IntegerField(blank=True, null=True)
     parent          =   models.ForeignKey('self', blank=True, null=True)
     mandatory       =   models.BooleanField(default=False)
     traded          =   models.BooleanField(default=False)
 
-    def update(self, quantity, product, price, pricedate):
+    def update(self, quantity, product, price, pricedate, traded=False):
         self.quantity = quantity
         self.product = product.code
-        self.product_type = product.type
+        self.product_type = product.product_type
         self.category = product.category
-        self.pricetable = price.pricetable_id
         self.note = ''
-        self.pricedate = pricedate
+        self.traded = traded
 
-        self.upfront_each = price.upfront_price
-        self.upfront_total = self.quantity * self.upfront_each
+        if pricedate:
+            self.pricedate = pricedate
 
-        self.monthly_each = price.monthly_each
-        self.monthly_total = price.monthly_total
+        if traded:
+
+            self.cb_points = price.cb_points * quantity
+            self.monthly_each = self.monthly_total = self.upfront_each = self.upfront_total = None
+        elif price:
+            self.pricetable = price.pricetable_id
+
+            self.upfront_each = price.upfront_price
+            if self.upfront_each is None:
+                self.upfront_total = None
+            else:
+                self.upfront_total = self.quantity * self.upfront_each
+
+            self.monthly_each = price.monthly_price
+            if self.monthly_each is None:
+                self.monthly_total = None
+            else:
+                self.monthly_total = self.quantity * self.monthly_each
 
     @property
     def code(self):
@@ -77,7 +93,12 @@ class InvoiceLine(Updatable):
 
     def as_jsonable(self):
         jsonable = dict()
-        for field in ('note', 'product', 'category', 'pricetable', 'quantity', 'pricedate', 'upfront_each', 'upfront_total', 'upfront_strike', 'monthly_each', 'monthly_total', 'monthly_strike', 'mandatory',):
+        for field in ('note', 'product', 'category',
+                      'pricetable', 'pricedate',
+                      'quantity',
+                      'upfront_each', 'upfront_total', 'upfront_strike',
+                      'monthly_each', 'monthly_total', 'monthly_strike',
+                      'mandatory', 'traded', 'code'):
             jsonable[field] = getattr(self, field)
         jsonable['parent'] = self.parent_id
 

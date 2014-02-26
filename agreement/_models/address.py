@@ -14,7 +14,8 @@ class Address(Updatable):
     """
 
     name = models.CharField(max_length=80)
-    address = models.CharField(max_length=80)
+    street1 = models.CharField(max_length=80)
+    street2 = models.CharField(max_length=80)
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=25)
     zip = models.CharField(max_length=10)
@@ -23,9 +24,19 @@ class Address(Updatable):
     def as_jsonable(self):
         jsonable = {
             field: getattr(self, field)
-            for field in ('name', 'address', 'city', 'state', 'zip', 'country')
+            for field in ('name', 'street1', 'street2', 'city', 'state', 'zip', 'country')
         }
         return jsonable
+
+    def update_from_blob(self, blob, updater=None):
+        errors = []
+        for field in ('name', 'street1', 'street2', 'city', 'state', 'zip', 'country'):
+            setattr(self, field, blob.get(field) or '')
+
+        self.fill_country_from_postal_code()
+
+        if updater:
+            updater.errors.extend(errors)
 
     def fill_country_from_postal_code(self):
         # source: http://en.wikipedia.org/wiki/List_of_postal_codes
@@ -45,9 +56,9 @@ class Address(Updatable):
                 self.country = 'Canada'
 
     def __unicode__(self):
-        # address city, state, country zip
+        # street1 city, state, country zip
         # postal codes should go last (?)
-        return "{0} {1}, {2}, {4} {3}".format(self.address, self.city, self.state, self.zip, self.country)
+        return "{0} {1}, {2}, {4} {3}".format(self.street1, self.city, self.state, self.zip, self.country)
 
     class Meta:
         verbose_name = "Address"

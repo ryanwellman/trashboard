@@ -5,7 +5,7 @@ AddressVM = function(master, which) {
 
     self.name = which;
 
-    var fields = {
+    self.fields = {
         'street1': ko.observable(),
         'street2': ko.observable(),
         'city': ko.observable(),
@@ -14,7 +14,7 @@ AddressVM = function(master, which) {
         'zip': ko.observable()
     };
 
-    _.each(fields, function(v,k) {
+    _.each(self.fields, function(v,k) {
         self[k] = v;
     });
 
@@ -47,6 +47,26 @@ AddressVM = function(master, which) {
         }
         return state;
     });
+
+    self.update_from_agreement = function(agreement) {
+        var person = agreement[self.which] || {};
+
+        _.each(self.fields, function(obs, f) {
+            obs(person[f] || '');
+        });
+
+    };
+
+    self.construct_agreement = function(agreement) {
+        var person = {};
+        _.each(self.fields, function(obs, f) {
+            person[f] = obs();
+        });
+
+        agreement[self.which] = person;
+
+    };
+
 
 
     return self;

@@ -82,7 +82,7 @@ function dumps(obj) {
     }
 
     function deepcopy(obj) {
-        var copy = {}
+        var copy = obj.constructor();
         for(var i in obj) {
             console.log("Copying ", i, obj[i])
 
@@ -94,7 +94,7 @@ function dumps(obj) {
                 console.log("It's a date");
                 copy[i] = Date_to_datetime(obj[i]);
             } else if(obj[i] && typeof(obj[i]) == 'object') {
-                console.log("It's an object");
+                console.log("It's an object or array");
                 copy[i] = deepcopy(obj[i]);
             } else {
                 console.log("It's a primitive?")

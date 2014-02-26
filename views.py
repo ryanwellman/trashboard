@@ -19,6 +19,8 @@ from handy import intor
 from handy.jsonstuff import dumps
 from handy.controller import JsonResponse
 
+from agreement.agreement_updater import AgreementUpdater
+
 @csrf_exempt
 def dyn_json(request, agreement_id=None):
     """
@@ -46,13 +48,24 @@ def dyn_json(request, agreement_id=None):
         return JsonResponse(content={'agreement': agreement.as_jsonable()})
 
     # If we're posting, then get the JSON out of the post data
-    post_data = request.POST.get('update_blob_json')
+    post_data = request.POST.get('agreement_update_blob')
+    if not post_data:
+        print request.POST
+        jsonable = agreement.as_jsonable()
+        print jsonable
+        return JsonResponse(content={'agreement': jsonable, 'errors': ['There was no POST data.']})
+
     update_blob = loads(post_data)
-    agreement.update_from_blob(update_blob)
+    updater = AgreementUpdater(agreement, update_blob)
+    updater.update_from_blob(update_blob)
+
+    return updater.json_response()
+
+
 
     jsonable = agreement.as_jsonable()
     print jsonable
-    return JsonResponse(content={'agreement': agreement.as_jsonable()})
+
 
     if False:
 

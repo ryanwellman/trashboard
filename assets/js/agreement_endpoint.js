@@ -38,29 +38,32 @@ AgreementEndpoint = function() {
     // XXX: needs to be better
     self._save = function(agreement) {
         // obtain a payload and declare a return value outside the promise
-        payload = JSON.stringify(agreement)
-        var retval = '';
+        payload = { 'agreement_update_blob': dumps(agreement) };
+
+        var retval;
 
         var result = $.ajax({
             type: "POST",
-            dataType: "json",
+            dataType: "text",
+            dataFilter: function(data, type) {
+                console.log("Got data: ", data);
+                var loaded = loads(data);
+                console.log("And was able to loads it:", loaded);
+                return loaded;
+
+            },
             url: '/json/' + window.agreement_id,
             async: false, // testing with and without this
             data: payload,
-        });
-
-        result.fail(function(xhr, status, error) {
-            console.log('failed! (' + error + ') ' + status);
-            console.log(xhr.responseText);
-        });
-
-        result.done(function(data) {
-            // obtain that agreement id from the json response
-            console.log(data);
-            obj.id = data.id;  // scope spam
-            window.agreement_id = data.id;
-            retval = data.id;
-            console.log("saved json" + (window.agreement_id ? " to agreement " + window.agreement_id :  '') + "\n" + ko.toJSON(self));
+            error: function(xhr, status, error) {
+                console.log('failed! (' + error + ') ' + status);
+                console.log(xhr.responseText);
+            },
+            success: function(data) {
+                // obtain that agreement id from the json response
+                /* data will have agreement and errors */
+                retval = data;
+            }
         });
 
         // return the agreement id that was saved

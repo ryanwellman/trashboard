@@ -17,7 +17,8 @@ class Applicant(Updatable):
     fname = models.CharField(max_length=50)
     lname = models.CharField(max_length=50)
     initial = models.CharField(max_length=1)
-    phone = models.CharField(max_length=15)
+    phone1 = models.CharField(max_length=15)
+    phone2 = models.CharField(max_length=15)
     last4 = models.CharField(max_length=4)
 
     def __unicode__(self):
@@ -30,9 +31,18 @@ class Applicant(Updatable):
     def as_jsonable(self):
         jsonable = {
             field: getattr(self, field)
-            for field in ('fname', 'lname', 'initial', 'phone', 'last4')
+            for field in ('fname', 'lname', 'initial', 'phone1', 'phone2', 'last4')
         }
         return jsonable
+
+    def update_from_blob(self, blob, updater=None):
+        errors = []
+        for field in ('fname', 'lname', 'initial', 'phone1', 'phone2', 'last4'):
+            setattr(self, field, blob.get(field) or '')
+
+        if updater:
+            updater.errors.extend(errors)
+        return errors
 
 
     class Meta:

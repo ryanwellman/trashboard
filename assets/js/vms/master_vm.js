@@ -10,6 +10,7 @@ MasterVM = function() {
     // field types
     self.fields = {
         'agreement_id': ko.observable(),
+        'campaign': ko.observable(),
         'pricetable_date': ko.observable(),
         'email': ko.observable(),
         'approved': ko.observable(),
@@ -107,8 +108,37 @@ MasterVM = function() {
         return agreement;
     };
 
+    self.update_from_agreement = function(agreement, errors) {
+        console.log("master update_from_agreement", agreement);
+
+        if(agreement) {
+            self.campaign(agreement.campaign);
+            self.promo_code(agreement.promo_code);
+            self.email(agreement.email);
+
+            _.each(self.vms, function(vm) {
+                vm.update_from_agreement(agreement);
+            });
+        }
+        _.each(errors, function(error) {
+            alert(error);
+        });
+    };
 
 
+    self.save_and_submit = function(vm, eargs) {
+        if(eargs && eargs.preventDefault) {
+            eargs.preventDefault();
+        }
+
+        var agreement_blob = self.construct_agreement();
+        var data = agreement_endpoint._save(agreement_blob);
+
+
+        self.update_from_agreement(data.agreement, data.errors);
+
+
+    }
 
 
     // XXX: insert other fns above this line

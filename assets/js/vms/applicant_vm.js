@@ -2,16 +2,16 @@
 // refer to the comments in MasterVM to understand the next two objects
 ApplicantVM = function(master, which) {
     var self = new BaseSectionVM(master);
-    self.name = 'applicant';
+    self.name = which;
 
-    var fields = {
+    self.fields = {
         'fname': ko.observable(''),
         'lname': ko.observable(''),
         'initial': ko.observable(''),
-        'phone': ko.observable(''),
+        'phone1': ko.observable(''),
     };
 
-    _.each(fields, function(v, k) {
+    _.each(self.fields, function(v, k) {
         self[k] = v;
     });
 
@@ -19,7 +19,7 @@ ApplicantVM = function(master, which) {
         return 'applicant_vm';
     };
 
-    self.name = which;
+
     self.which = which; // Which is the field I am working with on the agreement (applicant, coapplicant)
     self.has_coapplicant = ko.observable(false);
 
@@ -28,7 +28,7 @@ ApplicantVM = function(master, which) {
         if(self.which === 'coapplicant' && !self.has_coapplicant()) {
             return true;
         }
-        return self.fname() && self.lname() && self.phone() && self.master.email() && self.master.ssn();
+        return self.fname() && self.lname() && self.phone1() && self.master.email() && self.master.ssn();
     });
 
     self.full_name = ko.computed(function() {
@@ -44,6 +44,27 @@ ApplicantVM = function(master, which) {
     self.display_label = function() {
         return self.which === 'applicant' ?
             'Applicant' : 'Coapplicant';
+    };
+
+    self.update_from_agreement = function(agreement) {
+        var person = agreement[self.which] || {};
+
+        self.fname(person.fname || '');
+        self.lname(person.lname || '');
+        self.initial(person.initial || '');
+        self.phone1(person.phone1 || '');
+
+    };
+
+    self.construct_agreement = function(agreement) {
+        var person = {
+            'fname' : self.fname(),
+            'lname': self.lname(),
+            'initial': self.initial(),
+            'phone1': self.phone1()
+        };
+
+        agreement[self.which] = person;
     };
 
     return self;

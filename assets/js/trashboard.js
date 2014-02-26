@@ -113,9 +113,6 @@ Catalog = function() {
 
 // jquery on ready wrapper to anonymous function
 $(function() {
-    // Get the current agreement blob.
-    agreement_endpoint = new AgreementEndpoint();
-    master_blob = agreement_endpoint._load();
 
     // Construct and fetch the current catalog.
     window.catalog = new Catalog();
@@ -125,6 +122,14 @@ $(function() {
     window.master = new MasterVM();
 
     catalog.update_catalog(InitialCatalogData);
+
+
+
+    // Get the current agreement blob.
+    agreement_endpoint = new AgreementEndpoint();
+    master_blob = agreement_endpoint._load(window.agreement_id);
+
+    master.update_from_agreement(master_blob.agreement, []);
 
 
 

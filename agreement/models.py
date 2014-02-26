@@ -34,3 +34,4 @@ types = TypesFromModule(_models, models.Model)
 for kls in types:
     if Model in kls.__mro__:
         locals()[kls.__name__] = kls
+

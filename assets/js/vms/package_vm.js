@@ -44,23 +44,6 @@ PackageVM = function(master) {
        self.customize_vm.update_cart_lines();
     }
 
-
-    /* STALE: This shouldn't be necessary anymore because this vm should function similarly
-
-    // Package is priced differently than most things.
-    self.monthly_subtotal = ko.computed(function() {
-        if(!self.selected())
-            return 0;
-        return self.selected().price().monthly_price;
-    });
-
-    self.upfront_subtotal = ko.computed(function() {
-        if(!self.selected())
-            return 0;
-        return self.selected().price().upfront_price;
-    });
-    */
-
     // This is a little weird.  I'm not sure what having one computed calling another is going to
     // do exactly, with this "super" computed call.  I THINK it'll work as intended.  The super
     // computed will get events, and its update will trigger THIS one to update.
@@ -79,6 +62,21 @@ PackageVM = function(master) {
         return classes.join(' ');
     }
 
+    var SUPER_construct_agreement = _.bind(self.construct_agreement, self);
+    self.construct_agreement = function(agreement) {
+        SUPER_construct_agreement(agreement);
+
+        // Let customization vm do some stuff.
+        self.customize_vm.construct_agreement(agreement);
+    };
+
+    var SUPER_update_from_agreement = _.bind(self.update_from_agreement, self);
+    self.update_from_agreement = function(agreement) {
+        SUPER_update_from_agreement(agreement);
+
+        self.customize_vm.update_from_agreement(agreement);
+    }
+
     return self;
 };
 
@@ -90,7 +88,7 @@ CustomizationVM = function(master, package_vm) {
     self.package_vm = package_vm;
 
     var fields = {
-        'customizing': ko.observable(false)
+
     };
 
     // copy them out of fields onto this itself.
@@ -151,6 +149,49 @@ CustomizationVM = function(master, package_vm) {
         });
         return total_balance;
     });
+
+    self.construct_agreement = function(agreement) {
+        console.log("About to call self.customizations on ", self);
+        _.each(self.customizers(), function(cust) {
+            // Skip if they are the same.
+            if(cust.quantity() === cust.base_quantity()) {
+                return;
+            }
+            var delta = cust.quantity() - cust.base_quantity();
+            // store the trade delta as the invoice line quantity
+            agreement.invoice_lines.push({
+                'code': cust.code,
+                'quantity': delta,
+                'traded': true
+            });
+
+        });
+    };
+
+    self.update_from_agreement = function(agreement) {
+
+        var trade_lines = _.filter(agreement.invoice_lines, function(iline) {
+            return iline.traded;
+        });
+
+        var trade_lines_by_code = _.indexBy(trade_lines, function(tline) {
+            return tline.product;
+        });
+
+        self.reset_customizations();
+
+        console.log("In customize_vm's update_from_agreement, tl=", trade_lines, "tlbc=", trade_lines_by_code);
+        _.each(self.customizers(), function(cust) {
+            var tline = trade_lines_by_code[cust.code];
+            console.log("I am searching.  ", cust, tline);
+            if(tline) {
+                // Using the trade delta, assign the current total quantity.
+                cust.quantity(cust.base_quantity() + tline.quantity);
+            } else {
+                cust.quantity(cust.base_quantity());
+            }
+        });
+    };
 
 
     return self;

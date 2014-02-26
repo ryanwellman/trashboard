@@ -41,7 +41,9 @@ function BaseSectionVM(master) {
        'complete': vm.is_completed(),
        'incomplete': !vm.is_completed(),
        */
-       var classes = ['vm', self.is_completed() ? 'complete' : 'incomplete', self.name];
+       var classes = ['vm',
+                      self.is_completed() ? 'complete' : 'incomplete',
+                      self.name];
        return classes.join(' ');
 
     }
@@ -83,14 +85,43 @@ function BaseSectionVM(master) {
         /* Update the passed in agreement blob with data from the fields
            on this vm. */
 
+        var custs = self.nonzero_customizations();
+        _.each(custs, function(cust) {
+            var il = {
+                'code': cust.code,
+                'quantity': cust.quantity()
+            };
+            agreement.invoice_lines.push(il);
+        });
     };
 
     self.update_from_agreement = function(agreement) {
         /* Given an agreement blob, update the fields on this vm.  (This
         should cause the templates to update). */
-
+        self.update_cart_from_agreement(agreement);
 
     };
+    self.update_cart_from_agreement = function(agreement) {
+        var top_levels = _.filter(agreement.invoice_lines, function(iline) {
+            return !iline.traded && !iline.parent && !iline.mandatory;
+        });
+
+        console.log("Update cart from agreement in ", self.name, " using ", top_levels);
+        var lines_by_code = _.indexBy(top_levels, function(iline) {
+            return iline.product;
+        });
+
+        _.each(self.customizers(), function(cust) {
+            var il = lines_by_code[cust.code];
+            cust.quantity(il ? il.quantity : 0);
+        });
+    };
+
+    self.nonzero_customizations = ko.computed(function() {
+        return _.filter(self.customizers(), function(cust) {
+            return cust.quantity();
+        });
+    });
 
     self.available_products = function() {
         return [];
@@ -127,7 +158,9 @@ function BaseSectionVM(master) {
         _.each(self.customizers(), function(cust) {
             cust.should_keep = false;
         });
-        var existing = _.indexBy(self.customizers(), function(cust) { return cust.code; });
+        var existing = _.indexBy(self.customizers(), function(cust) {
+            return cust.code;
+        });
 
 
         _.each(self.available_products(), function(product) {
@@ -145,6 +178,7 @@ function BaseSectionVM(master) {
 
             }
 
+            // Make a new cust line.
             var internal_obs = ko.observable(0);
 
             var quantity = ko.computed({
@@ -159,7 +193,7 @@ function BaseSectionVM(master) {
                         // in it to revert to the value in the model:
 
                         // https://github.com/knockout/knockout/issues/1019#issuecomment-21777977
-                        quantity.notifySubscribers(quantity())
+                        quantity.notifySubscribers(quantity());
                         return;
                     }
                     // Otherwise, cast it to an int and put it in.
@@ -167,6 +201,7 @@ function BaseSectionVM(master) {
                 }
             });
 
+            // Reads/writes quantity as a boolean (true=1, false=0)
             var one_or_none = ko.computed({
                 'read': function() {
                     //console.log("reading ", !!quantity());
@@ -174,7 +209,7 @@ function BaseSectionVM(master) {
                 },
                 'write': function(yesno) {
                     //console.log("Writing ", +yesno);
-                    quantity(+yesno);
+                    quantity(yesno ? 1 : 0);
                 }
             });
 
@@ -206,6 +241,7 @@ function BaseSectionVM(master) {
 
                     // XXX: This guy is pretty weird!
                     quantity.notifySubscribers(quantity());
+                    customize_quantity.notifySubscribers(customize_quantity());
                 }
             });
 
@@ -240,6 +276,8 @@ function BaseSectionVM(master) {
                    return '';
                return formatCurrency(cust.price().monthly_price * cust.quantity()) + '/mo';
             });
+
+
             cust.customize_cb = ko.computed(function() {
                 return (cust.base_quantity() - cust.quantity()) * cust.price().cb_points;
             });
@@ -255,7 +293,7 @@ function BaseSectionVM(master) {
                     if(checked) {
                         console.log("Selecting package.");
                         self.selected(cust);
-                    } else if(self.selected() === cust) {
+                    } else if(!checked && self.selected() === cust) {
                         console.log("Deselecting package.");
                         cust.quantity(0);
                         self.selected(null);

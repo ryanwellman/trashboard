@@ -23,14 +23,14 @@ function MonitoringVM(master) {
         return !!self.selected();
     });
 
-    self.select_monitoring = function(cust) {
-        self.selected(cust);
+    self.select_monitoring = function(cline) {
+        self.selected(cline);
     }
 
 
-    self.monitoring_css = function(cust) {
-        var classes = ['monitoring', cust.product.code];
-        if(cust === self.selected()) {
+    self.monitoring_css = function(cline) {
+        var classes = ['monitoring', cline.product.code];
+        if(cline === self.selected()) {
              classes.push('selected');
         }
         return classes.join(' ');

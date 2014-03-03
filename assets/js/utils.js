@@ -1,5 +1,8 @@
 // money formatting function
 function formatCurrency(value) {
+    if(value === undefined || value === null) {
+        return '';
+    }
     var fixed = Number(value).toFixed(2);
     if(value >= 0) {
         return '$' + fixed;

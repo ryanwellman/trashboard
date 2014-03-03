@@ -30,20 +30,21 @@ PackageVM = function(master) {
         return !!self.selected() && self.customize_vm.is_completed();
     });
 
-    self.select_package = function(cust) {
-        self.selected(cust);
+    self.select_package = function(cline) {
+        self.selected(cline);
     };
 
     self.onSelectedChange = function() {
         self.customize_vm.reset_customizations();
     };
 
+/*
     var SUPER_update_cart_lines = _.bind(self.update_cart_lines, self);
     self.update_cart_lines = function() {
        SUPER_update_cart_lines();
        self.customize_vm.update_cart_lines();
     }
-
+*/
     // This is a little weird.  I'm not sure what having one computed calling another is going to
     // do exactly, with this "super" computed call.  I THINK it'll work as intended.  The super
     // computed will get events, and its update will trigger THIS one to update.
@@ -54,9 +55,9 @@ PackageVM = function(master) {
         return bal;
     });
 
-    self.package_css = function(cust) {
-        var classes = ['package', cust.product.code];
-        if(cust === self.selected()) {
+    self.package_css = function(cline) {
+        var classes = ['package', cline.product.code];
+        if(cline === self.selected()) {
              classes.push('selected');
         }
         return classes.join(' ');
@@ -107,6 +108,13 @@ CustomizationVM = function(master, package_vm) {
         });
     });
 
+    self.cart_lines = ko.computed(function() {
+        package_vm.cart_trigger();
+        return _.filter(master.customization_cart.cart_lines(), function(cline) {
+            return cline.product.product_type === 'Part';
+        });
+    });
+
     self.reset_customizations = function() {
         var sel = self.package_vm.selected();
         var contents = {};
@@ -117,17 +125,17 @@ CustomizationVM = function(master, package_vm) {
             });
         }
 
-        _.each(self.customizers(), function(cust) {
-            var pc = contents[cust.code];
+        _.each(self.cart_lines(), function(cline) {
+            var pc = contents[cline.code];
             if(!pc) {
-                cust.min_quantity(0);
-                cust.base_quantity(0);
-                cust.quantity(0);
+                cline.min_quantity(0);
+                cline.base_quantity(0);
+                cline.quantity(0);
             } else {
-                console.log('updating a cust');
-                cust.min_quantity(pc.min_quantity);
-                cust.base_quantity(pc.quantity);
-                cust.quantity(cust.base_quantity());
+                console.log('updating a cline');
+                cline.min_quantity(pc.min_quantity);
+                cline.base_quantity(pc.quantity);
+                cline.quantity(cline.base_quantity());
             }
 
         });
@@ -144,23 +152,23 @@ CustomizationVM = function(master, package_vm) {
     // However, every line has a chargeback cost based on the delta of quantities.
     self.cb_balance = ko.computed(function() {
         var total_balance = 0;
-        _.each(self.customizers(), function(cust) {
-            total_balance += cust.customize_cb();
+        _.each(self.cart_lines(), function(cline) {
+            total_balance += cline.customize_cb();
         });
         return total_balance;
     });
 
     self.construct_agreement = function(agreement) {
         console.log("About to call self.customizations on ", self);
-        _.each(self.customizers(), function(cust) {
+        _.each(self.cart_lines(), function(cline) {
             // Skip if they are the same.
-            if(cust.quantity() === cust.base_quantity()) {
+            if(cline.quantity() === cline.base_quantity()) {
                 return;
             }
-            var delta = cust.quantity() - cust.base_quantity();
+            var delta = cline.quantity() - cline.base_quantity();
             // store the trade delta as the invoice line quantity
             agreement.invoice_lines.push({
-                'code': cust.code,
+                'code': cline.code,
                 'quantity': delta,
                 'traded': true
             });
@@ -181,14 +189,14 @@ CustomizationVM = function(master, package_vm) {
         self.reset_customizations();
 
         console.log("In customize_vm's update_from_agreement, tl=", trade_lines, "tlbc=", trade_lines_by_code);
-        _.each(self.customizers(), function(cust) {
-            var tline = trade_lines_by_code[cust.code];
-            console.log("I am searching.  ", cust, tline);
+        _.each(self.cart_lines(), function(cline) {
+            var tline = trade_lines_by_code[cline.code];
+            console.log("I am searching.  ", cline, tline);
             if(tline) {
                 // Using the trade delta, assign the current total quantity.
-                cust.quantity(cust.base_quantity() + tline.quantity);
+                cline.quantity(cline.base_quantity() + tline.quantity);
             } else {
-                cust.quantity(cust.base_quantity());
+                cline.quantity(cline.base_quantity());
             }
         });
     };

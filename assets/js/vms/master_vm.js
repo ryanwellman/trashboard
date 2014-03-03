@@ -9,20 +9,26 @@ MasterVM = function() {
     // make blob a thing if it isn't one
     // field types
     self.fields = {
-        'agreement_id': ko.observable(),
-        'campaign': ko.observable(),
-        'pricetable_date': ko.observable(),
-        'email': ko.observable(),
-        'approved': ko.observable(),
-        'email': ko.observable(),
-        'floorplan': ko.observable(),
-        'promo_code': ko.observable(),
-        'ssn': ko.observable('')
+        'agreement_id': tidyObservable(),
+        'campaign': tidyObservable(),
+        'pricetable_date': tidyObservable(),
+        'email': tidyObservable(),
+        'approved': tidyObservable(),
+        'email': tidyObservable(),
+        'floorplan': tidyObservable(),
+        'promo_code': tidyObservable(),
+        'ssn': tidyObservable(''),
+        'dirty': ko.observable(false),
     };
 
     _.each(self.fields, function(obs, fieldname) {
         self[fieldname] = obs;
     });
+
+
+    self.cart = new Cart();
+    self.customization_cart = new Cart();
+
 
     // variables computed from json responses
     // most of these are sugar for their return values
@@ -44,8 +50,7 @@ MasterVM = function() {
         'combo': ComboVM(self),
         'closing': ClosingVM(self),
         'shipping': ShippingVM(self),
-        /*
-        'review': ReviewVM(self)*/
+        'review': ReviewVM(self)
     };
 
     self.navbar = new NavBarVM(self);
@@ -93,6 +98,7 @@ MasterVM = function() {
             'system_address': null,
             'agreement_id': null,
 
+
         };
 
         agreement.agreement_id = self.agreement_id();
@@ -123,6 +129,8 @@ MasterVM = function() {
         _.each(errors, function(error) {
             alert(error);
         });
+
+        self.dirty(false);
     };
 
 
@@ -140,7 +148,26 @@ MasterVM = function() {
 
     }
 
+    self.onCatalogUpdated = function() {
+        self.cart.update_from_catalog();
+        self.customization_cart.update_from_catalog();
+
+        _.each(self.vms, function(vm) {
+            vm.cart_trigger.valueHasMutated();
+        });
+    }
+
+
 
     // XXX: insert other fns above this line
     return self;
 };
+
+
+function tidyObservable(val) {
+    var obs = ko.observable(val);
+    obs.subscribe(function(newValue) {
+        master.dirty(true);
+    });
+    return obs;
+}

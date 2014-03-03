@@ -25,16 +25,16 @@
         </thead>
         <tbody data-bind="
             foreach: {
-                data: vm.customize_vm.customizers(),
-                as: 'cust'
+                data: vm.customize_vm.cart_lines(),
+                as: 'cline'
             }">
-            <!-- ko if: cust.quantity() || cust.base_quantity() -->
+            <!-- ko if: cline.quantity() || cline.base_quantity() -->
             <tr>
-                <!--<td data-bind="text: console.log('vm.customizers is ', vm.customizers, ' and cust is ', cust)"></td>-->
-                <td data-bind="text: cust.product.code"></td>
-                <td data-bind="text: cust.product.name"></td>
-                <td data-bind="text: cust.quantity()"></td>
-                <td data-bind="text: cust.customize_cb() || ''"></td>
+                <!--<td data-bind="text: console.log('vm.cart_lines is ', vm.cart_lines, ' and cline is ', cline)"></td>-->
+                <td data-bind="text: cline.product.code"></td>
+                <td data-bind="text: cline.product.name"></td>
+                <td data-bind="text: cline.quantity()"></td>
+                <td data-bind="text: cline.customize_cb() || ''"></td>
             </tr>
             <!-- /ko -->
         </tbody>
@@ -68,28 +68,28 @@
         </thead>
         <tbody data-bind="
             foreach: {
-                data: vm.customize_vm.customizers(),
-                as: 'cust'
+                data: vm.customize_vm.cart_lines(),
+                as: 'cline'
             }
             ">
             <tr>
-                <td data-bind="text: cust.product.code"></td>
-                <td data-bind="text: cust.product.name"></td>
-                <td data-bind="text: cust.min_quantity() || ''"></td>
-                <td data-bind="text: cust.base_quantity() || ''"></td>
-                <td data-bind="text: cust.delta_fmted()"></td>
+                <td data-bind="text: cline.product.code"></td>
+                <td data-bind="text: cline.product.name"></td>
+                <td data-bind="text: cline.min_quantity() || ''"></td>
+                <td data-bind="text: cline.base_quantity() || ''"></td>
+                <td data-bind="text: cline.delta_fmted()"></td>
                 <td>=</td>
                 <td>
-                    <input class="input-mini" type="text" data-bind="value: cust.customize_quantity" style="text-align:center;" />
+                    <input class="input-mini" type="text" data-bind="value: cline.customize_quantity" style="text-align:center;" />
                     <!-- /ko -->
-                    <!-- ko: if !cust.price().cb_points -->
-                    <i class="icon-lock"></i> <span data-bind="text: cust.quantity()"></span>
+                    <!-- ko: if !cline.price().cb_points -->
+                    <i class="icon-lock"></i> <span data-bind="text: cline.quantity()"></span>
                     <!-- /ko -->
                 </td>
                 <td>&times;</td>
-                <td><span data-bind="text: cust.price().cb_points || ''" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></td>
+                <td><span data-bind="text: (cline.price() ? cline.price().cb_points : 0) || ''" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></td>
                 <td>=</td>
-                <td data-bind="text: cust.customize_cb()"></td>
+                <td data-bind="text: cline.customize_cb()"></td>
 
             </tr>
         </tbody>

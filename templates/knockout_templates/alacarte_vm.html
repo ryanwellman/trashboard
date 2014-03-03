@@ -19,22 +19,22 @@
         </thead>
         <tbody data-bind="
             foreach: {
-                data: vm.customizers,
-                as: 'cust'
+                data: vm.cart_lines,
+                as: 'cline'
             }
             ">
-            <!-- ko if: cust.quantity() -->
+            <!-- ko if: cline.quantity() -->
             <tr>
-                <td data-bind="text: cust.product.code"></td>
-                <td data-bind="text: cust.product.name"></td>
+                <td data-bind="text: cline.product.code"></td>
+                <td data-bind="text: cline.product.name"></td>
 
-                <td data-bind="text: cust.upfront_each_fmted()"></td>
-                <td data-bind="text: cust.monthly_each_fmted()"></td>
+                <td data-bind="text: cline.upfront_each_fmted()"></td>
+                <td data-bind="text: cline.monthly_each_fmted()"></td>
                 <td>&times;</td>
-                <td data-bind="text: cust.quantity()" style="text-align:center;" /></td>
+                <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
                 <td>=</td>
-                <td data-bind="text: cust.upfront_line_fmted()"></td>
-                <td data-bind="text: cust.monthly_line_fmted()"></td>
+                <td data-bind="text: cline.upfront_line_fmted()"></td>
+                <td data-bind="text: cline.monthly_line_fmted()"></td>
 
             </tr>
             <!-- /ko -->
@@ -69,20 +69,20 @@
         </thead>
         <tbody data-bind="
             foreach: {
-                data: vm.customizers,
-                as: 'cust'
+                data: vm.cart_lines,
+                as: 'cline'
             }">
             <tr>
-                <td data-bind="text: cust.product.code"></td>
-                <td data-bind="text: cust.product.name"></td>
+                <td data-bind="text: cline.product.code"></td>
+                <td data-bind="text: cline.product.name"></td>
 
-                <td data-bind="text: cust.upfront_each_fmted()"></td>
-                <td data-bind="text: cust.monthly_each_fmted()"></td>
+                <td data-bind="text: cline.upfront_each_fmted()"></td>
+                <td data-bind="text: cline.monthly_each_fmted()"></td>
                 <td>&times;</td>
-                <td><input class="input-mini" type="text" data-bind="value: cust.quantity" style="text-align:center;" /></td>
+                <td><input class="input-mini" type="text" data-bind="value: cline.quantity" style="text-align:center;" /></td>
                 <td>=</td>
-                <td data-bind="text: cust.upfront_line_fmted()"></td>
-                <td data-bind="text: cust.monthly_line_fmted()"></td>
+                <td data-bind="text: cline.upfront_line_fmted()"></td>
+                <td data-bind="text: cline.monthly_line_fmted()"></td>
             </tr>
         </tbody>
         <tfoot>

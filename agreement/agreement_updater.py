@@ -5,7 +5,7 @@ from handy import intor, first
 from collections import defaultdict
 from handy.controller import JsonResponse
 from agreement.models import Applicant, Address, Campaign, Package, Product, Agreement, InvoiceLine
-
+#from handy.reflector import TypesFromAgreement
 
 class IL(object):
     def __init__(self, line, updater):
@@ -44,7 +44,6 @@ class AgreementUpdater(object):
 
     def update_from_blob(self, update_blob):
         # this is where the vast majority of the magic is going to happen.
-        errors = []
 
         if 'applicant' in update_blob:
             # We are assigning applicant.  If we don't have one already, make it.
@@ -80,7 +79,7 @@ class AgreementUpdater(object):
         if 'invoice_lines' in update_blob:
             self.update_invoice_lines()
 
-        return errors
+        #return errors
 
 
     def update_invoice_lines(self):
@@ -266,8 +265,10 @@ class AgreementUpdater(object):
             self.total_quantities[line.code] += line.quantity
 
         changed = False
-        for mand_func in []:  # Where do these live?:
-            changed = mand_func(self) or changed
+        #mandatory_adders = TypesFromAgreement(mandatories, MandatoryRequirement)
+        mandatory_adders = []
+        for mandreq in mandatory_adders:  # Where do these live?:
+            changed = mandreq.check() or changed
 
         return changed
 
@@ -298,3 +299,14 @@ class AgreementUpdater(object):
                 'prices': {code: price.as_jsonable() for code, price in self.prices.iteritems()}
             }
         })
+
+
+
+class MandatoryRequirement(object):
+    def __init__(self, updater):
+        self.errors = updater.error
+        self.messages = updater.messages
+        self.agreement = updater.agreement
+
+    def check(self):
+        pass

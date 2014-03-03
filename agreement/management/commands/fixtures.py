@@ -185,7 +185,7 @@ def CreateProductContents():
                 'SILVER': 10,
                 'GOLD': 12,
                 'PLATINUM': 15,
-                'BUSINESS': 20,
+                'BUSINESS': 2,
             }
 
     # put these things in the packages with fake upfront strike prices
@@ -193,7 +193,7 @@ def CreateProductContents():
         current_package = Package.objects.get(code=k)
         ProductContent(included_in=current_package, included_product=wcont, quantity=v, upfront_strike=5.0, monthly_strike=None).save()
         ProductContent(included_in=current_package, included_product=simonxt, quantity=1, upfront_strike=5.0, monthly_strike=None).save()
-        ProductContent(included_in=current_package, included_product=wpir, quantity=2, upfront_strike=5.0, monthly_strike=None).save()
+        ProductContent(included_in=current_package, included_product=wpir, quantity=1, upfront_strike=5.0, monthly_strike=None).save()
 
     # stuff that goes in combos
     yrdsign = Part.objects.get(code='YRDSIGN')

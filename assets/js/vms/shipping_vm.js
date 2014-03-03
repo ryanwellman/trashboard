@@ -23,14 +23,14 @@ function ShippingVM(master) {
         return !!self.selected();
     });
 
-    self.select_shipping = function(cust) {
-        self.selected(cust);
+    self.select_shipping = function(cline) {
+        self.selected(cline);
     }
 
 
-    self.shipping_css = function(cust) {
-        var classes = ['shipping', cust.product.code];
-        if(cust === self.selected()) {
+    self.shipping_css = function(cline) {
+        var classes = ['shipping', cline.product.code];
+        if(cline === self.selected()) {
              classes.push('selected');
         }
         return classes.join(' ');

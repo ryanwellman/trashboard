@@ -93,14 +93,14 @@ class InvoiceLine(Updatable):
 
     def as_jsonable(self):
         jsonable = dict()
-        for field in ('note', 'product', 'category',
+        for field in ('id', 'note', 'product', 'category',
                       'pricetable', 'pricedate',
                       'quantity',
                       'upfront_each', 'upfront_total', 'upfront_strike',
                       'monthly_each', 'monthly_total', 'monthly_strike',
                       'mandatory', 'traded', 'code'):
             jsonable[field] = getattr(self, field)
-        jsonable['parent'] = self.parent_id
+        jsonable['parent_id'] = self.parent_id
 
         return jsonable
 

@@ -13,7 +13,12 @@ AgreementEndpoint = function() {
 
         // obtain blob from ajax
         var result = $.ajax({
-            dataType: "json",
+            dataType: "text",
+            dataFilter: function(data, type) {
+                var loaded = loads(data);
+                console.log("Magic loads", loaded);
+                return loaded;
+            },
             url: '/json/' + window.agreement_id,
             async: false, // asynchronous load means empty blob
         });

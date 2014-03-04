@@ -94,6 +94,9 @@ class AgreementUpdater(object):
         '''
 
         # coerce the incoming invoice lines:
+
+        print "Coming in from the json:"
+        print self.blob['invoice_lines']
         incoming_lines = [IL(line, updater=self) for line in self.blob['invoice_lines']]
         # If the IL constructor put any errors in, stop now.
         if self.errors:
@@ -117,6 +120,11 @@ class AgreementUpdater(object):
         for line in self.final_lines:
             line.save()
 
+        print "Final lines BEFORE CHILD SYNC:"
+        for line in self.final_lines:
+            print "{}, {}, {}".format(line.code, line.quantity, line.traded)
+
+
         # loop through, adding mandatory items and syncing children until no changes are made.
         loops = 0
         self.sync_all_children()
@@ -136,6 +144,10 @@ class AgreementUpdater(object):
                 break
 
         self.sanity_check()
+
+        print "Final lines:"
+        for line in self.final_lines:
+            print "{}, {}, {}".format(line.code, line.quantity, line.traded)
 
         # Finally, any lines that are in existing_lines but not in final_lines should be deleted.
         for orphan in self.existing_lines:
@@ -241,6 +253,10 @@ class AgreementUpdater(object):
                 # Put the strike values on the child rows.
                 child.upfront_strike = pc.upfront_strike
                 child.monthly_strike = pc.monthly_strike
+
+                # Use the parent's pricetable, pricedate for this one.
+                child.pricetable = line.pricetable
+                child.pricedate = line.pricedate
 
                 # Save this child. It's either been updated or is new.
                 child.save()

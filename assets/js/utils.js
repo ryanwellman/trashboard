@@ -1,14 +1,23 @@
 // money formatting function
-function formatCurrency(value) {
+function formatCurrency(value, times, mo) {
     if(value === undefined || value === null) {
         return '';
     }
+    if(times !== undefined && times !== null) {
+        value *= times;
+    }
+
     var fixed = Number(value).toFixed(2);
     if(value >= 0) {
-        return '$' + fixed;
+        fixed = '$' + fixed;
     } else {
-        return '-$' + fixed.substring(1);
+        fixed = '-$' + fixed.substring(1);
     }
+
+    if(mo) {
+        fixed += ' /mo';
+    }
+    return fixed;
 };
 
 // fast hash function

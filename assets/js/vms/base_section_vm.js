@@ -75,7 +75,7 @@ function BaseSectionVM(master) {
     };
     self.update_cart_from_agreement = function(agreement) {
         var top_levels = _.filter(agreement.invoice_lines, function(iline) {
-            return !iline.traded && !iline.parent && !iline.mandatory;
+            return !iline.traded && !iline.parent_id && !iline.mandatory;
         });
 
         console.log("Update cart from agreement in ", self.name, " using ", top_levels);

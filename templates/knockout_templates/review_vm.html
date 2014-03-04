@@ -3,9 +3,64 @@
 
 {% block section_content %}
 
-<div class="row" data-bind="visible: master.dirty">
+<div class="row" data-bind="visible: master.dirty()">
     <div class="span11 alert alert-info">
         Your agreement has been modified, please click Save to save your adjustments before continuing.
+    </div>
+</div>
+
+<div class="row" data-bind="visible: !master.dirty()">
+    <div class="span11">
+
+        <table class="table">
+            <thead>
+                <th colspan="2" data-bind="text: vm.cart_heading_label()"></th>
+                <th>Upfront</th>
+                <th>Monthly</th>
+                <th>&times;</th>
+                <th>Quantity</th>
+                <th>=</th>
+                <th>Upfront</th>
+                <th>Monthly</th>
+            </thead>
+            <tbody>
+                <!-- ko foreach: {
+                    data: vm.invoice_lines(),
+                    as: 'iline',
+                } -->
+                    <tr>
+                        <td data-bind="text: iline.code"></td>
+                        <td data-bind="text: iline.product.name"></td>
+                        <td data-bind="
+                            text: iline.upfront_each_fmted,
+                            css: iline.upfront_each_classes
+                        "></td>
+                        <td data-bind="
+                            text: iline.monthly_each_fmted,
+                            css: iline.monthly_each_classes
+                        "></td>
+                        <td>&times;</td>
+                        <td data-bind="
+                            text: quantity
+                        "></td>
+                        <td>=</td>
+                        <td data-bind="
+                            text: iline.upfront_total_fmted,
+                            css: iline.upfront_total_classes
+                        "></td>
+                        <td data-bind="
+                            text: iline.monthly_total_fmted,
+                            css: iline.monthly_total_classes
+                        "></td>
+
+
+                    </tr>
+
+                <!-- /ko -->
+
+            </tbody>
+        </table>
+
     </div>
 </div>
 <!-- ko if: master.dirty -->

@@ -15,22 +15,36 @@
         <table class="table">
             <thead>
                 <th colspan="2" data-bind="text: vm.cart_heading_label()"></th>
-                <th>Upfront</th>
-                <th>Monthly</th>
-                <th>&times;</th>
                 <th>Quantity</th>
+                <th>&times;</th>
+                <th>Upfront (ea.)</th>
+                <th>Monthly (ea.)</th>
                 <th>=</th>
-                <th>Upfront</th>
-                <th>Monthly</th>
+                <th>Upfront Total</th>
+                <th>Monthly Total</th>
             </thead>
             <tbody>
                 <!-- ko foreach: {
                     data: vm.invoice_lines(),
                     as: 'iline',
                 } -->
-                    <tr>
-                        <td data-bind="text: iline.code"></td>
+                    <tr data-bind="
+                        css: iline.css_classes()
+                    ">
+                        <td>
+                            <!-- ko foreach: { data: iline.indents() } -->
+                                <i class="fa fa-ellipsis-h"></i>
+                            <!-- /ko -->
+                            <span  data-bind="text: iline.code"></span>
+                        </td>
                         <td data-bind="text: iline.product.name"></td>
+
+                        <td data-bind="
+                            text: quantity
+                        "></td>
+
+                        <td>&times;</td>
+
                         <td data-bind="
                             text: iline.upfront_each_fmted,
                             css: iline.upfront_each_classes
@@ -38,10 +52,6 @@
                         <td data-bind="
                             text: iline.monthly_each_fmted,
                             css: iline.monthly_each_classes
-                        "></td>
-                        <td>&times;</td>
-                        <td data-bind="
-                            text: quantity
                         "></td>
                         <td>=</td>
                         <td data-bind="
@@ -69,56 +79,4 @@
 
 
 
-{% endblock %}
-
-{% block kasdfjhajksdf %}
-
-
-<div class="row"><div class="span11">
-
-    <table class="table">
-        <thead>
-            <th colspan="2" data-bind="text: vm.cart_heading_label()">asdfasff</th>
-            <th>Upfront</th>
-            <th>Monthly</th>
-            <th>&times;</th>
-            <th>Quantity</th>
-            <th>=</th>
-            <th>Upfront</th>
-            <th>Monthly</th>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.top_lines(),
-                as: 'cline'
-            }
-            ">
-            <tr>
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-
-                <td data-bind="text: cline.upfront_each_fmted()"></td>
-                <td data-bind="text: cline.monthly_each_fmted()"></td>
-                <td>&times;</td>
-                <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
-                <td>=</td>
-                <td data-bind="text: cline.upfront_line_fmted()"></td>
-                <td data-bind="text: cline.monthly_line_fmted()"></td>
-                <!-- ko if: cline.product.product_type === 'Package' && cline.quantity() -->
-                <!-- /ko -->
-
-
-            </tr>
-
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="7"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
-            </tr>
-        </tfoot>
-
-    </table>
-</div></div>
 {% endblock %}

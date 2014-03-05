@@ -281,10 +281,14 @@ class AgreementUpdater(object):
             self.total_quantities[line.code] += line.quantity
 
         changed = False
-        #mandatory_adders = TypesFromAgreement(mandatories, MandatoryRequirement)
-        mandatory_adders = []
-        for mandreq in mandatory_adders:  # Where do these live?:
-            changed = mandreq.check() or changed
+        #mandatory_adders = Reflector.TypesFromAgreement(mandatories, MandatoryRequirement)
+        #mandatory_adders = []
+        from mandatory_requirements import MandatoryRequirements
+
+        for reqname, mr_kls in MandatoryRequirements.iteritems():
+            print "About to check reqname=%r, mr_kls=%r" % (reqname, mr_kls)
+            mr = mr_kls(updater=self)
+            changed = mr.check() or changed
 
         return changed
 
@@ -298,7 +302,21 @@ class AgreementUpdater(object):
         # businesses in california MUST have a smoke detector.)
 
 
-        mp = self.reclaim_product(code=code, mandatory=True)
+        mp = self.reclaim_line(code=code, mandatory=True)
+        if not mp:
+            mp = InvoiceLine(agreement=self.agreement)
+            product = self.products.get(code)
+            if not product:
+                self.errors.append('Could not add mandatory product %r' % code)
+                return
+            price = self.prices.get(code)
+            if not price:
+                self.errors.append('Mandatory product %r has no price.  Campaign=%r' % (code, self.agreement.campaign_id))
+
+
+            mp.update(quantity=quantity, product=product, price=price, pricedate=self.agreement.pricetable_date)
+            mp.mandatory = True
+
         mp.quantity = quantity
         mp.save()
         self.final_lines.append(mp)
@@ -317,12 +335,3 @@ class AgreementUpdater(object):
         })
 
 
-
-class MandatoryRequirement(object):
-    def __init__(self, updater):
-        self.errors = updater.error
-        self.messages = updater.messages
-        self.agreement = updater.agreement
-
-    def check(self):
-        pass

@@ -75,6 +75,7 @@ ReviewVM = function(master) {
             last_by_type.Monitoring,
             last_by_type.Shipping,
         ]);
+        console.log("last_by_type=", last_by_type, " and result_set=", result_set);
 
         var tops = _.filter(agreement.invoice_lines, function(iline) {
             return !iline.parent;
@@ -87,7 +88,7 @@ ReviewVM = function(master) {
         });
 
         _.each(children, function(iline) {
-            result_set.splice(result_set.indexOf(iline) + 1, 0, iline);
+            result_set.splice(result_set.indexOf(iline.parent) + 1, 0, iline);
         });
         _.each(result_set, function(iline) {
             if(!iline.parent) {
@@ -102,6 +103,21 @@ ReviewVM = function(master) {
             iline.upfront_total_fmted = formatCurrency(iline.upfront_strike || iline.upfront_total, iline.quantity);
             iline.monthly_total_fmted = formatCurrency(iline.monthly_strike || iline.monthly_total, iline.quantity, 'monthly');
 
+
+            iline.upfront_each_classes = iline.upfront_total_classes = iline.upfront_strike ? 'strike-red' : '';
+            iline.monthly_each_classes = iline.monthly_total_classes = iline.monthly_strike ? 'strike-red' : '';
+
+
+            iline.indents = function() {
+                return _.range(iline.depth);
+            };
+            iline.css_classes = function() {
+                return _.compact([
+                    'invoice_line',
+                    'depth' + iline.depth,
+                    iline.depth ? 'child' : ''
+                ]).join(' ');
+            };
 
         });
 

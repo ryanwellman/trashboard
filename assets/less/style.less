@@ -214,3 +214,22 @@ section.vm {
     -moz-text-decoration-color: red;
 
 }
+
+.invoice_line {
+    td:nth-child(1) {
+        font-weight: bold;
+    }
+
+    &.child {
+        td:nth-child(1) {
+            font-weight: normal;
+        }
+        font-size: smaller;
+        font-style: italic;
+        td {
+            margin-left: 10px;
+        }
+        background-color: #D9EDF7;
+    }
+    /* background-color: #C3C3C3; */
+}

@@ -36,6 +36,7 @@ SECRET_KEY = 'hdi%asicub%e1z$=9h&g&m8$m$n2+bwo*_gne2zqbt5-+u+!##'
 
 MIDDLEWARE_CLASSES = (
     'middleware.RequestTimeLoggingMiddleware',
+    'middleware.QueryCountDebugMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -68,6 +69,7 @@ INSTALLED_APPS = (
 
     'agreement',
     'handy',
+    'regional',
 )
 
 # This is tacked onto the end of COMPRESS_ROOT (which defaults to STATIC_ROOT)

@@ -69,6 +69,11 @@
                 <!-- /ko -->
 
             </tbody>
+            <tfoot>
+                <th colspan="7"></th>
+                <th data-bind="text: formatCurrency(vm.upfront_total())"></th>
+                <th data-bind="text: formatCurrency(vm.monthly_total(), 1, '/mo')"></th>
+            </tfoot>
         </table>
 
     </div>

@@ -62,8 +62,8 @@ class Product(Serializable):
             description=self.description,
             contents=contents,
         )
-        for pc in self.contents.all():
-            contents.append(pc.as_jsonable())
+        #for pc in self.contents.all():
+        #    contents.append(pc.as_jsonable())
 
         return jsonable
 

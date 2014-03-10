@@ -4,7 +4,7 @@ from django.utils import timezone
 from handy import intor, first
 from collections import defaultdict
 from handy.controller import JsonResponse
-from agreement.models import Applicant, Address, Campaign, Package, Product, Agreement, InvoiceLine
+from agreement.models import Applicant, Address, Campaign, Package, Product, Agreement, InvoiceLine, ProductContent
 #from handy.reflector import TypesFromAgreement
 
 class IL(object):
@@ -39,6 +39,12 @@ class AgreementUpdater(object):
 
         self.products = Product.get_all_products()
         self.prices = agreement.campaign.get_product_prices()
+
+        pcs = ProductContent.objects.all()
+        self.product_contents = defaultdict(list)
+        for pc in pcs:
+            self.product_contents[pc.included_in_id].append(pc)
+
         self.final_children = []
 
 
@@ -94,9 +100,6 @@ class AgreementUpdater(object):
         '''
 
         # coerce the incoming invoice lines:
-
-        print "Coming in from the json:"
-        print self.blob['invoice_lines']
         incoming_lines = [IL(line, updater=self) for line in self.blob['invoice_lines']]
         # If the IL constructor put any errors in, stop now.
         if self.errors:
@@ -106,14 +109,34 @@ class AgreementUpdater(object):
         self.existing_lines = list(self.agreement.invoice_lines.all())
         self.unclaimed_lines = list(self.existing_lines)  # Unclaim all existing lines.  We may reclaim them soon.
 
+        # this is the list of lines that will be on the agreement at the end:
         self.final_lines = []
-        # Create/reclaim each line in incoming_lines.
+
+        # First, do every line that came in from the system NOT traded.
+        # Invoice Lines for these should all be TOP.
+        # (This includes package, monitoring, alacarte, but not children, mandatory services...)
         for il in incoming_lines:
+            if il.traded:
+                continue
             # il is a fakey line.
-            line = self.reclaim_line(code=il.code, traded=il.traded)
+            line = self.reclaim_line(code=il.code, line_type='TOP')
             if not line:
                 line = InvoiceLine(agreement=self.agreement)
-            line.update(quantity=il.quantity, product=il.product, price=il.price, pricedate=self.agreement.pricetable_date, traded=il.traded)
+            line.update_top(product=il.product, quantity=il.quantity, price=il.price, pricedate=self.agreement.pricetable_date)
+
+            self.final_lines.append(line)
+
+        # Now do it again for trade lines.
+        for il in incoming_lines:
+            if not il.traded:
+                continue
+
+            line = self.reclaim_line(code=il.code, line_type='TRADE')
+            if not line:
+                line = InvoiceLine(agreement=self.agreement)
+
+            line.update_trade(product=il.product, quantity=il.quantity, price=il.price, pricedate=self.agreement.pricetable_date)
+
             self.final_lines.append(line)
 
         # Save any lines in final_lines because they'll need pks for their children.
@@ -143,6 +166,9 @@ class AgreementUpdater(object):
                 self.errors.append("Probably an infinite loop in mandatories/children.  Needs fixin.")
                 break
 
+        # Next reclaim/create a permit line if needed.
+        self.add_permit_lines()
+
         self.sanity_check()
 
         print "Final lines:"
@@ -160,22 +186,27 @@ class AgreementUpdater(object):
         return
 
 
-    def reclaim_line(self, code, traded=False, parent_id=None, mandatory=False):
+    def reclaim_line(self, code, parent_id=None, line_type=None, note=None):
         for line in list(self.unclaimed_lines):
             if line.code != code:
                 continue
 
-            if line.traded != traded:
+            if parent_id is not None and parent_id != line.parent_id:
                 continue
 
-            if line.mandatory != mandatory:
+            if line_type is not None and line_type != line.line_type:
                 continue
+
+            if note is not None and note != line.note:
+                continue
+
+
 
             # If we're not looking for a traded/mandatory line, then it's either a top or a child line.
-            if not traded and not mandatory:
-                # so its parent needs to be whatever we're looking for
-                if line.parent_id != parent_id:
-                    continue
+            #if not traded and not mandatory:
+            #    # so its parent needs to be whatever we're looking for
+            #    if line.parent_id != parent_id:
+            #        continue
 
             # If we get here, we're reclaiming it.
             self.unclaimed_lines.remove(line)
@@ -238,25 +269,17 @@ class AgreementUpdater(object):
                 self.errors.append("Could not find product %r to sync child lines on line %r" % (line.code, line.pk))
                 continue
             # Index the contents of this line's product.
-            contents = self.by_code(prod.contents.all())
+            contents = self.by_code(self.product_contents.get(prod.code, []))
 
             # for every product in that product:
             for code, pc in contents.iteritems():
-                child = self.reclaim_line(parent_id=line.pk, code=code)
+                child = self.reclaim_line(parent_id=line.pk, code=code, line_type='CHILD')
                 if not child:
                     # If I wasn't able to reclaim an existing child, we need to make a new one for this agreement/line:
                     child = InvoiceLine(agreement=self.agreement, parent=line)
 
                 # sync the child line with the product (gets updated quantity, product type, category, etc.)
-                child.update(product=self.products[code], quantity=pc.quantity * line.quantity, price=None, pricedate=None)
-
-                # Put the strike values on the child rows.
-                child.upfront_strike = pc.upfront_strike
-                child.monthly_strike = pc.monthly_strike
-
-                # Use the parent's pricetable, pricedate for this one.
-                child.pricetable = line.pricetable
-                child.pricedate = line.pricedate
+                child.update_child(product=self.products[code], pc=pc, parent_line=line)
 
                 # Save this child. It's either been updated or is new.
                 child.save()
@@ -302,7 +325,7 @@ class AgreementUpdater(object):
         # businesses in california MUST have a smoke detector.)
 
 
-        mp = self.reclaim_line(code=code, mandatory=True)
+        mp = self.reclaim_line(code=code, line_type='MANDATORY')
         if not mp:
             mp = InvoiceLine(agreement=self.agreement)
             product = self.products.get(code)
@@ -313,17 +336,46 @@ class AgreementUpdater(object):
             if not price:
                 self.errors.append('Mandatory product %r has no price.  Campaign=%r' % (code, self.agreement.campaign_id))
 
-
-            mp.update(quantity=quantity, product=product, price=price, pricedate=self.agreement.pricetable_date)
-            mp.mandatory = True
+            mp.update_mandatory(quantity=quantity, product=product, price=price, pricedate=self.agreement.pricetable_date)
 
         mp.quantity = quantity
         mp.save()
         self.final_lines.append(mp)
 
+    def add_permit_lines(self):
+        from regional.restrictions import GetMatchingPRsByZip
 
+        if not self.agreement.system_address.zip:
+            return
+
+        property_type = 'commercial' if self.agreement.floorplan == 'Business' else 'residential'
+
+        prs = GetMatchingPRsByZip(self.agreement.system_address.zip, property_type, asof=datetime.now())
+        print "PRs found: %r" % prs
+        permits = [pr for pr in prs if pr.permit_fee or pr.addendum_fee]
+
+        # These are the lines we need permits for.  We're going to cheat
+        # our faces off and use the note column for this.
+
+        for pr in permits:
+            # reclaim or create a permit line.
+            pnote = ';'.join([pr.override_type or pr.region_type, ', '.join(pr.override_name or pr.region_name)])
+            pline = self.reclaim_line(code='PERMIT', line_type='PERMIT', note=pnote)
+            if not pline:
+                pline = InvoiceLine(agreement=self.agreement, line_type='PERMIT')
+
+            pline.update_permit(pr, permit_product=self.products['PERMIT'])
+            pline.save()
+
+            # Put the permit line onto the final part.
+            self.final_lines.append(pline)
 
     def json_response(self):
+        prod_dict = {code: prod.as_jsonable() for code, prod in self.products.iteritems()}
+        for code, prod_json in prod_dict.iteritems():
+            for pc in self.product_contents.get(code, []):
+                prod_json['contents'].append(pc.as_jsonable())
+
         return JsonResponse(content={
             'agreement': self.agreement.as_jsonable(),
             'errors': self.errors,

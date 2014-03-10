@@ -510,7 +510,7 @@ def create_and_redirect(request):
         campaign = Campaign.objects.all()[0] # XXX: bad
 
     # some defaults
-    applicant_default = {'lname': '', 'phone': '', 'initial': '', 'fname': '', 'last4': ''}
+    applicant_default = {'lname': '', 'phone': '', 'initial': '', 'first_name': '', 'last4': ''}
     address_default = {'city': '', 'state': '', 'address': '', 'zip': '', 'country': ''}
 
     # create a new agreement

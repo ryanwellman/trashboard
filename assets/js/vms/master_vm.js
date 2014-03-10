@@ -131,6 +131,7 @@ MasterVM = function() {
         });
 
         self.dirty(false);
+        console.log("master update_from_agreement ended");
     };
 
 
@@ -163,11 +164,17 @@ MasterVM = function() {
     return self;
 };
 
+window.tidyCount = 0;
 
 function tidyObservable(val) {
     var obs = ko.observable(val);
+    //obs.tidy = window.tidyCount++;
     obs.subscribe(function(newValue) {
-        master.dirty(true);
+        if(!master.dirty()) {
+            //console.log("Setting dirty for ", obs, newValue);
+            //window.dirtything = obs;
+            master.dirty(true);
+        }
     });
     return obs;
 }

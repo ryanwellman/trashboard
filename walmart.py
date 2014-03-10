@@ -65,27 +65,27 @@ def Warehouse():
             applicant_id = None
             if 'applicant' in blob.keys():
                 if not blob['applicant']:
-                    fname = ''
-                    lname = ''
+                    first_name = ''
+                    last_name = ''
                     initial = ''
                     phone = ''
-                    applicant_id = Customer(fname, lname, initial, phone)
+                    applicant_id = Customer(first_name, last_name, initial, phone)
                 else:
-                    fname = blob['applicant']['first_name']
-                    lname = blob['applicant']['last_name']
+                    first_name = blob['applicant']['first_name']
+                    last_name = blob['applicant']['last_name']
                     initial = blob['applicant']['middle_initial']
                     phone = None
                     if not blob['phone1']:
                         phone = ''
                     else:
                         phone = blob['phone1']
-                    applicant_id = Customer(fname, lname, initial, phone)
+                    applicant_id = Customer(first_name, last_name, initial, phone)
             else:
-                fname = ''
-                lname = ''
+                first_name = ''
+                last_name = ''
                 initial = ''
                 phone = ''
-                applicant_id = Customer(fname, lname, initial, phone)
+                applicant_id = Customer(first_name, last_name, initial, phone)
             agreement.applicant_id = applicant_id
 
             agreement.coapplicant = None
@@ -93,11 +93,11 @@ def Warehouse():
                 if not blob['coapplicant']:
                     agreement.coapplicant_id = None
                 else:
-                    fname = blob['coapplicant']['first_name']
-                    lname = blob['coapplicant']['last_name']
+                    first_name = blob['coapplicant']['first_name']
+                    last_name = blob['coapplicant']['last_name']
                     initial = blob['coapplicant']['middle_initial']
                     phone = blob['phone1']
-                    create_coapplicant = Customer(fname, lname, initial, phone)
+                    create_coapplicant = Customer(first_name, last_name, initial, phone)
                     agreement.coapplicant_id = create_coapplicant
 
             billing_address_id = None
@@ -272,10 +272,10 @@ def Warehouse():
 
     return
 
-def Customer(fname, lname, initial, phone):
+def Customer(first_name, last_name, initial, phone):
     applicant = Applicant()
-    applicant.fname = fname
-    applicant.lname = lname
+    applicant.first_name = first_name
+    applicant.last_name = last_name
     applicant.initial = initial
     applicant.phone = phone
     applicant.save()

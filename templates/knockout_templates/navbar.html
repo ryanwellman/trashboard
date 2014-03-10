@@ -40,11 +40,11 @@
             </li>
             <li class="span1.5">
                 <b>Monthly Cost:</b>
-                <span data-bind="text: formatCurrency(master.monthly_subtotal())"></span>
+                <span data-bind="text: formatCurrency(master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total(), 1, '/mo')"></span>
             </li>
             <li class="span1.5">
                 <b>Upfront Cost:</b><br>
-                <span data-bind="text: formatCurrency(master.upfront_subtotal())"></span>
+                <span data-bind="text: formatCurrency(master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total())"></span>
 
 
             </li>

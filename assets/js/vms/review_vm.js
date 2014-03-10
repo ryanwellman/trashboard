@@ -8,12 +8,12 @@ ReviewVM = function(master) {
 
     // field types
     var fields = {
+        'upfront_total': ko.observable(0),
+        'monthly_total': ko.observable(0)
     };
 
     _.each(fields, function(v, k) {
-        if(blob[k] != undefined) {
-            self[k] = v(blob[k]);
-        }
+        self[k] = v;
     });
 
     self.available_products = function() {
@@ -87,6 +87,9 @@ ReviewVM = function(master) {
             return iline.parent;
         });
 
+        var upfront_total = 0;
+        var monthly_total = 0;
+
         _.each(children, function(iline) {
             result_set.splice(result_set.indexOf(iline.parent) + 1, 0, iline);
         });
@@ -95,6 +98,12 @@ ReviewVM = function(master) {
                 iline.depth = 0;
             } else {
                 iline.depth = iline.parent.depth + 1;
+            }
+
+            if(iline.upfront_total) {
+                upfront_total += iline.upfront_total;
+            } else if(iline.monthly_total) {
+                monthly_total += iline.monthly_total;
             }
 
             iline.upfront_each_fmted = formatCurrency(iline.upfront_strike || iline.upfront_each);
@@ -123,6 +132,8 @@ ReviewVM = function(master) {
 
 
         self.invoice_lines(result_set);
+        self.monthly_total(monthly_total);
+        self.upfront_total(upfront_total);
 
 
     };

@@ -6,12 +6,12 @@ AddressVM = function(master, which) {
     self.name = which;
 
     self.fields = {
-        'street1': ko.observable(),
-        'street2': ko.observable(),
-        'city': ko.observable(),
-        'state': ko.observable(),
-        'country': ko.observable(),
-        'zip': ko.observable()
+        'street1': tidyObservable(),
+        'street2': tidyObservable(),
+        'city': tidyObservable(),
+        'state': tidyObservable(),
+        'country': tidyObservable(),
+        'zip': tidyObservable()
     };
 
     _.each(self.fields, function(v,k) {

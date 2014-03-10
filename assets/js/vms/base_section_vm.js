@@ -179,12 +179,14 @@ function BaseSectionVM(master) {
     };
 
     self.start_customizing = function(data, eargs) {
+        _.defer(updateScrollspy);
         if(eargs && eargs.preventDefault) {
             eargs.preventDefault();
         }
         self.customizing(true);
     };
     self.finish_customizing = function(data, eargs) {
+        _.defer(updateScrollspy);
         if(eargs && eargs.preventDefault) {
             eargs.preventDefault();
         }

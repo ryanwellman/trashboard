@@ -72,7 +72,13 @@ $(function() {
     $('body').scrollspy({target: '#right_sidebar', offset: 150});
 
 
+    // The applyBindings call has a side effect when there are observables bound to Select.  They call the observable and set it to undefined.
+    master.dirty(false);
     return;
 
 
 });
+
+window.updateScrollspy = function() {
+    $('body').scrollspy('refresh');
+}

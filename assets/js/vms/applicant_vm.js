@@ -5,10 +5,10 @@ ApplicantVM = function(master, which) {
     self.name = which;
 
     self.fields = {
-        'fname': ko.observable(''),
-        'lname': ko.observable(''),
-        'initial': ko.observable(''),
-        'phone1': ko.observable(''),
+        'first_name': tidyObservable(''),
+        'last_name': tidyObservable(''),
+        'initial': tidyObservable(''),
+        'phone1': tidyObservable(''),
     };
 
     _.each(self.fields, function(v, k) {
@@ -28,14 +28,14 @@ ApplicantVM = function(master, which) {
         if(self.which === 'coapplicant' && !self.has_coapplicant()) {
             return true;
         }
-        return self.fname() && self.lname() && self.phone1() && self.master.email() && self.master.ssn();
+        return self.first_name() && self.last_name() && self.phone1() && self.master.email() && self.master.ssn();
     });
 
     self.full_name = ko.computed(function() {
-        var full_name = self.fname();
-        if(self.lname()) {
+        var full_name = self.first_name();
+        if(self.last_name()) {
             if(full_name) full_name += ' ';
-            full_name += self.lname();
+            full_name += self.last_name();
         }
         return full_name;
     });
@@ -49,8 +49,8 @@ ApplicantVM = function(master, which) {
     self.update_from_agreement = function(agreement) {
         var person = agreement[self.which] || {};
 
-        self.fname(person.fname || '');
-        self.lname(person.lname || '');
+        self.first_name(person.first_name || '');
+        self.last_name(person.last_name || '');
         self.initial(person.initial || '');
         self.phone1(person.phone1 || '');
 
@@ -58,8 +58,8 @@ ApplicantVM = function(master, which) {
 
     self.construct_agreement = function(agreement) {
         var person = {
-            'fname' : self.fname(),
-            'lname': self.lname(),
+            'first_name' : self.first_name(),
+            'last_name': self.last_name(),
             'initial': self.initial(),
             'phone1': self.phone1()
         };

@@ -157,7 +157,7 @@ def CreateProducts():
 
                 seen_list.add(product_code)
 
-
+    Product(code='PERMIT', product_type='Product', category='Fees and Licensing', name='Local Permit Fee', description='Permit fee collected for local jurisdiction').save()
     Closer(code='10RTDROP', product_type='Closer', category='Rate Drops', name='$10/mo rate drop', description='Removes $10 per month (requires manager approval)').save()
     Closer(code='5RTDROP', product_type='Closer', category='Rate Drops', name='$5/mo rate drop', description='Removes $5 from the monthly monitoring').save()
     Closer(code='FREEKEY', product_type='Closer', category='Rate Drops', name='Free Keychains', description='Give away some of our famous disposable keychains!').save()

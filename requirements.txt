@@ -13,3 +13,4 @@ path.py==5.0
 pyodbc==3.0.7
 raven==3.5.2
 six==1.4.1
+dateutils==0.6.6

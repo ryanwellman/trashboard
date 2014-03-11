@@ -1,0 +1,11 @@
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/CA/city-santa-rosa-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/FL/city-pompano-beach-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/FL/county-indian-river-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/GA/city-albany-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/IL/city-alton-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/IL/city-east-saint-louis-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/MD/county-prince-georges-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/MD/county-washington-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/NV/county-washoe-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/NY/county-onondaga-all.pdf
+/media/sf_www/dashboard/dashboard/apps/regional/static/permits/VA/city-suffolk-all.pdf

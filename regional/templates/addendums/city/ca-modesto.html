@@ -1,0 +1,21 @@
+{% extends 'addendums/base.html' %}
+
+{% block city %}Modesto{% endblock %}
+
+{% block cost_per_month %}5.00{% endblock %}
+
+{% block response_limit %}one (1) per year{% endblock %}
+
+{% block additional_response_cost %}45.00{% endblock %}
+
+{% block holidays %}
+    {% with '65.00' as cost %}
+        {% include 'addendums/holidays.html' %}
+    {% endwith %}
+{% endblock %}
+
+{% block alarm_permit %}
+    {% with 'Modesto' as city %}
+        {% include 'addendums/alarm_permit.html' %}
+    {% endwith %}
+{% endblock %}

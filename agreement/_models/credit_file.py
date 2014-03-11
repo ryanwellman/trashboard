@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from applicant import Applicant
 
 
 class CreditRequest(models.Model):
@@ -31,6 +32,10 @@ class CreditRequest(models.Model):
     modified_date = models.DateTimeField(auto_now=True, auto_now_add=True)
     processor_pid = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        verbose_name = "Credit Request"
+        app_label = 'agreement'
+
 
 class CreditFile(models.Model):
     '''
@@ -56,7 +61,7 @@ class CreditFile(models.Model):
     # The CreditRequest that generated this credit file, or null if it was a copy.
     # (We can always find it from copy_of_file, and storing a null prevents
     # duplicates from showing in the run's .files list.)
-    run_request = models.ForeignKey(CreditRequest, null=True, blank=True)
+    run_request = models.ForeignKey('CreditRequest', null=True, blank=True)
 
     # The result information.
     bureau = models.CharField(max_length=20)

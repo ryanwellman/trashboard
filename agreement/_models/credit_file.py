@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
 from applicant import Applicant
-
+from django.conf import settings
 
 class CreditRequest(models.Model):
     '''
@@ -12,7 +12,7 @@ class CreditRequest(models.Model):
     applicant = models.ForeignKey(Applicant)
 
     # person_id is used to identify the name/social used to run it.
-    person_id = models.CharField(max_length=128)
+    person_id = models.CharField(max_length=64)
     name = models.CharField(max_length=64)
     last_4 = models.IntegerField()
 
@@ -31,6 +31,20 @@ class CreditRequest(models.Model):
     processed_date = models.DateTimeField(blank=True, null=True)
     modified_date = models.DateTimeField(auto_now=True, auto_now_add=True)
     processor_pid = models.IntegerField(blank=True, null=True)
+
+    processed = models.BooleanField(default=False)
+
+    @staticmethod
+    def create_request(applicant, social):
+        req = CreditRequest()
+        req.applicant = applicant
+        req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
+        req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
+        req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long(social)
+        req.bureaus = settings.CREDIT_BUREAUS
+        req.last_4 = social[-4:]
+        req.stop_running_at_beacon = settings.STOP_RUNNING_AT_BEACON
+        req.save()
 
     class Meta:
         verbose_name = "Credit Request"
@@ -63,6 +77,9 @@ class CreditFile(models.Model):
     # duplicates from showing in the run's .files list.)
     run_request = models.ForeignKey('CreditRequest', null=True, blank=True)
 
+    # The time that this file was generated.
+    generated_date = models.DateTimeField()
+
     # The result information.
     bureau = models.CharField(max_length=20)
     beacon = models.IntegerField(null=True, blank=True)
@@ -86,18 +103,19 @@ class CreditFile(models.Model):
     def as_jsonable(self):
         jsonable = {
             field: getattr(self, field)
-            for field in ('fname', 'lname', 'initial', 'phone1', 'phone2', 'last4')
+            for field in ('name', 'bureau', 'fraud', 'frozen', 'nohit', 'vermont', 'beacon', 'generated_date', 'status_string')
         }
         return jsonable
 
-    def update_from_blob(self, blob, updater=None):
-        errors = []
-        for field in ('fname', 'lname', 'initial', 'phone1', 'phone2', 'last4'):
-            setattr(self, field, blob.get(field) or '')
-
-        if updater:
-            updater.errors.extend(errors)
-        return errors
+    @property
+    def status_string(self):
+        if self.fraud or self.frozen or self.vermont:
+            return 'REVIEW'
+        if self.nohit:
+            return 'NO HIT'
+        if self.beacon >= settings.CREDIT_APPROVED_BEACON:
+            return 'APPROVED'
+        return 'DCS'
 
 
     class Meta:

@@ -1,6 +1,8 @@
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import socket
 from path import path
+from datetime import timedelta
+from handy.cipher import MessageCipher
 
 import django.conf.global_settings as DEFAULT_SETTINGS
 
@@ -137,3 +139,10 @@ LOGGING = {
         }
     }
 }
+
+CREDIT_BUREAUS = 'equifax,transUnion'
+STOP_RUNNING_AT_BEACON = 625
+CREDIT_REUSABLE_SPAN = timedelta(days=30)
+CREDIT_APPROVED_BEACON = 600
+
+SOCIAL_CIPHER = MessageCipher(private_file='/devd/trashboard/social_cipher_test.private', public_file='/devd/trashboard/social_cipher_test.public')

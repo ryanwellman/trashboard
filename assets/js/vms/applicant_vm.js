@@ -57,6 +57,9 @@ ApplicantVM = function(master, which) {
     };
 
     self.construct_agreement = function(agreement) {
+        if(self.which === 'coapplicant' && ! self.has_coapplicant()) {
+            return;
+        }
         var person = {
             'first_name' : self.first_name(),
             'last_name': self.last_name(),

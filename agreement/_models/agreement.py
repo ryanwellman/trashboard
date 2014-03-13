@@ -35,10 +35,10 @@ class Agreement(Updatable):
     """
 
     campaign = models.ForeignKey(Campaign)
-    applicant = models.ForeignKey(Applicant, related_name='main_applicant')
-    coapplicant = models.ForeignKey(Applicant, related_name='co_applicant', blank=True, null=True)
-    billing_address = models.ForeignKey(Address, related_name='billing')
-    system_address =models.ForeignKey(Address, related_name='system')
+    applicant = models.ForeignKey(Applicant, null=True, blank=True, related_name='+')
+    coapplicant = models.ForeignKey(Applicant, null=True, blank=True, related_name='+')
+    billing_address = models.ForeignKey(Address, null=True, blank=True, related_name='billing')
+    system_address =models.ForeignKey(Address, null=True, blank=True, related_name='system')
     pricetable_date = models.DateTimeField(default=timezone.now) # automatically timestamped on creation
     date_updated = models.DateTimeField(default=timezone.now) # update when updated
     email = models.CharField(max_length=75)
@@ -48,12 +48,63 @@ class Agreement(Updatable):
     monitoring = models.CharField(max_length=20)
     floorplan = models.CharField(max_length=20)
     promo_code = models.CharField(max_length=20)
-    done_premium = models.BooleanField(default=False)
-    done_combo = models.BooleanField(default=False)
-    done_alacarte = models.BooleanField(default=False)
-    done_closing = models.BooleanField(default=False)
-    done_package = models.BooleanField(default=False)
-    done_promos = models.BooleanField(default=False)
+
+    credit_status = models.CharField(max_length=20, null=True, blank=True)
+
+    def calculate_credit_status(self, socials=None):
+        # Return the overall credit status for this agreement.
+        # If socials are provided and credit files don't exist for th
+        # applicants already, they'll be passed in to the applicants'
+        # get_credit_status function so that they can begin running it.
+        socials = socials or {}
+
+        applicant = self.applicant
+        coapplicant = self.coapplicant
+        applicant_status = coapplicant_status = None
+        applicant_beacon = None
+        if applicant:
+            applicant_status = applicant.get_credit_status(social=socials.get('applicant'))
+            applicant_beacon = applicant.get_beacon()
+
+        should_start_coapplicant = bool(applicant_status and applicant_status != 'APPROVED')
+        if coapplicant:
+            # The coapplicant is GOING to get run, because we just got their
+            # social and this is the only time to run it (unless we save it somewhere,
+            # which I'm loathe to do outside of the request itself, which can get purged.)
+            coapplicant_status = coapplicant.get_credit_status(social=socials.get('coapplicant'))
+
+            # # Only run the coapplicant's credit if the applicant isn't approved or pending.
+            # should_start = bool(applicant_status and applicant_status not in ('APPROVED', 'PENDING')
+
+            # # Also run the coapplicant's credit if the applicant was approved but under the ideal level.
+            # if applicant_status == 'APPROVED' and applicant_beacon < 625:
+            #     should_start = True
+            # # only run the coapplicant's
+            # coapplicant_status = coapplicant.get_credit_status(start_running=should_start_coapplicant)
+
+        # Statuses are: None (not run), PENDING, APPROVED, DCS, NO HIT, REVIEW
+        # If either is approved, the agreement's status is approved.
+        both = (applicant_status, coapplicant_status)
+        if 'APPROVED' in both:
+            return 'APPROVED'
+
+        if 'PENDING' in both:
+            return 'PENDING'
+
+        if 'REVIEW' in both:
+            return 'REVIEW'
+
+        if 'NOHIT' in both:
+            return 'NO HIT'
+
+        if 'DCS' in both:
+            return 'DCS'
+
+        # If none of these five are in either, the only thing left i
+        # (None, None) which means nothing has been run.
+        assert(both == (None, None))
+        return None
+
 
     def __unicode__(self):
         if not self.id:
@@ -74,9 +125,12 @@ class Agreement(Updatable):
     def as_jsonable(self):
         jsonable = dict()
         for field in ('campaign', 'applicant', 'coapplicant',
-                      'billing_address', 'system_address'):
+                      'billing_address', 'system_address',
+                      ):
             obj = getattr(self, field)
             jsonable[field] = obj.as_jsonable() if obj else None
+
+        jsonable['credit_status'] = self.credit_status
 
         for field in ('pricetable_date', 'date_updated', 'email', 'approved', 'promo_code'):
             jsonable[field] = getattr(self, field)

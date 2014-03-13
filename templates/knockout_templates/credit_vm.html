@@ -1,0 +1,37 @@
+{% extends 'knockout_templates/base_ko_section_template.html' %}
+{% block section_content %}
+	<div class="row">
+		<div class="span11">
+			<table>
+				<thead>
+					<th></th>
+					<th>Name</th>
+					<th>Status</th>
+					<th>Social</th>
+					<th></th>
+				</thead>
+				<tbody>
+					<!-- ko foreach: {data: [vm.applicant_credit, coapplicant_credit], as: 'cf' } -->
+					<tr data-bind="visible: cf.should_show()">
+						<td style="font-weight: bold" data-bind="text: cf.which"></td>
+						<td data-bind="
+							text: cf.first_name() + ' ' + cf.last_name()
+						"></td>
+						<td data-bind="
+							text: cf.credit_status()
+						"></td>
+						<td>
+							<input data-bind="value: cf.social" placeholder="Social" />
+						</td>
+						<td data-bind="
+							text: cf.person_id() ? '(Saved)' : ''
+						"></td>
+					</tr>
+					<!-- /ko -->
+
+				</tbody>
+			</table>
+	    </div>
+	</div>
+
+{% endblock %}

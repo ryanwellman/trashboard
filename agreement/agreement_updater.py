@@ -5,6 +5,7 @@ from handy import intor, first
 from collections import defaultdict
 from handy.controller import JsonResponse
 from agreement.models import Applicant, Address, Campaign, Package, Product, Agreement, InvoiceLine, ProductContent
+from annoying.functions import get_object_or_None as gooN
 #from handy.reflector import TypesFromAgreement
 
 class IL(object):
@@ -50,28 +51,17 @@ class AgreementUpdater(object):
 
     def update_from_blob(self, update_blob):
         # this is where the vast majority of the magic is going to happen.
-
         if 'applicant' in update_blob:
-            # We are assigning applicant.  If we don't have one already, make it.
-            target_applicant = self.agreement.applicant
-            if not target_applicant:
-                target_applicant = Applicant()
-
-            target_applicant.update_from_blob(update_blob['applicant'], self)
-
-            target_applicant.save()
-            self.agreement.applicant = target_applicant # Put it back on myself
+            self.update_applicant(which='applicant', app_blob=update_blob['applicant'])
 
         if 'coapplicant' in update_blob:
-            # We are assigning applicant.  If we don't have one already, make it.
-            target_applicant = self.agreement.coapplicant
-            if not target_applicant:
-                target_applicant = Applicant()
+            self.update_applicant(which='coapplicant', app_blob=update_blob['coapplicant'])
 
-            target_applicant.update_from_blob(update_blob['coapplicant'], self)
-            target_applicant.save()
+        self.update_credit_status(update_blob)
 
-            self.agreement.coapplicant = target_applicant # Put it back on myself
+        if self.agreement.applicant_id == self.agreement.coapplicant_id:
+            # If coapplicant is the applicant, remove it.
+            self.agreement.coapplicant = None
 
         if 'system_address' in update_blob:
             target_address = self.agreement.system_address
@@ -86,6 +76,86 @@ class AgreementUpdater(object):
             self.update_invoice_lines()
 
         #return errors
+
+    def update_applicant(self, which, app_blob):
+        '''
+
+        **** THIS ONE WORKS:
+        if no new social AND the name is the same as current one:
+            use the current one because I'm not changing the social and the name stayed the same.
+        else if there is a match:
+            use it instead of the current one.  It already exists.
+        else If the current one has a person_id and is locked:
+            make a new one, because I can't reuse the current one (it is locked with a social).
+        else (there isn't one, and the current one has no person_id):
+            use the current one, because it isn't locked and can be altered.
+
+        '''
+
+        new_social = app_blob.get('social') or None # blank is None.
+        current = getattr(self.agreement, which)
+        name_same = False
+        cap = lambda n: (n or '').upper()
+
+        # Determine if the name is the same.
+        if current:
+            current_name = (cap(current.first_name), cap(current.last_name))
+        else:
+            current_name = ('', '')
+
+        new_name = (cap(app_blob.get('first_name')), cap(app_blob.get('last_name')))
+
+        name_same = current_name == new_name
+
+        # If the social is provided, look up an exact match.
+        exact_match = None
+        if new_social:
+            new_person_id = Applicant.generate_person_id(app_blob.get('first_name'), app_blob.get('last_name'), new_social)
+            if new_person_id:
+                exact_match = gooN(Applicant, person_id=new_person_id)
+
+        new_applicant = None
+        if exact_match:
+            print "Reusing exact match."
+            # Reuse the found exact match.
+            # It might even BE the current one if nothing changed.
+            new_applicant = exact_match
+        elif current and not new_social and name_same:
+            print "Reusing because name is same."
+            # Reuse the current one because I didn't provide a new_social and the name is the same.
+            new_applicant = current
+        elif current and current.person_id:
+            print "Making new because current has a person_id"
+            # Make a new one, because the current isn't an exact match or even a soft match because no social was given
+            new_applicant = Applicant(agreement=self.agreement)
+        elif not current:
+            print "Making new because no current."
+            # Make a new one, because there isn't an exact match or a current to use.
+            new_applicant = Applicant(agreement=self.agreement)
+        else:
+            print "Using current because."
+            # Reuse the current one, because it exists and isn't locked.
+            new_applicant = current
+
+
+        new_applicant.update_from_blob(app_blob, updater=self)
+        print "After update with %r, applicant %r has person_id %r" % (app_blob, new_applicant, new_applicant.person_id)
+        #if not new_applicant.pk:
+        new_applicant.save()
+        print "Setting agreement's %s to %r" % (which, new_applicant)
+        setattr(self.agreement, which, new_applicant)
+        if not current or current.pk != new_applicant.pk:
+            self.agreement.save()
+
+    def update_credit_status(self, agreement_blob):
+        socials = {}
+        if agreement_blob.get('applicant', {}).get('social'):
+            socials['applicant'] = agreement_blob['applicant']['social']
+        if agreement_blob.get('coapplicant', {}).get('social'):
+            socials['coapplicant'] = agreement_blob['coapplicant']['social']
+
+        self.agreement.credit_status = self.agreement.calculate_credit_status(socials=socials)
+
 
 
     def update_invoice_lines(self):

@@ -14,7 +14,6 @@ MasterVM = function() {
         'pricetable_date': tidyObservable(),
         'email': tidyObservable(),
         'approved': tidyObservable(),
-        'email': tidyObservable(),
         'floorplan': tidyObservable(),
         'promo_code': tidyObservable(),
         'ssn': tidyObservable(''),
@@ -42,6 +41,7 @@ MasterVM = function() {
         'coapplicant': ApplicantVM(self, 'coapplicant'),
 
         'system_address': AddressVM(self, 'system_address'),
+        'credit': null,
 
         'monitoring': MonitoringVM(self),
 
@@ -52,6 +52,7 @@ MasterVM = function() {
         'shipping': ShippingVM(self),
         'review': ReviewVM(self)
     };
+    self.vms.credit = CreditVM(self);
 
     self.navbar = new NavBarVM(self);
 
@@ -86,8 +87,6 @@ MasterVM = function() {
 
     self.construct_agreement = function() {
         agreement = {
-            'applicant': null,
-            'coapplicant': null,
             'billing_address': null,
             'campaign': null,
             'date_updated': null,

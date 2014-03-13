@@ -132,8 +132,9 @@ class Applicant(Updatable):
         for field in ('first_name', 'last_name', 'initial', 'phone1', 'phone2', 'last_4'):
             setattr(self, field, blob.get(field) or '')
 
-        social = blob.get('social')
-        self.sync_person_id(social)
+        if 'social' in blob:
+            social = blob.get('social')
+            self.sync_person_id(social)
 
         if updater:
             updater.errors.extend(errors)

@@ -50,6 +50,10 @@ class Agreement(Updatable):
     promo_code = models.CharField(max_length=20)
 
     credit_status = models.CharField(max_length=20, null=True, blank=True)
+    credit_override = models.CharField(max_length=20, null=True, blank=True)
+    #credit_override_user = models.ForeignKey(OrgUser, null=True, blank=True)
+    bypass_upfront_authorization = models.BooleanField(default=False)
+
 
     def calculate_credit_status(self, socials=None):
         # Return the overall credit status for this agreement.

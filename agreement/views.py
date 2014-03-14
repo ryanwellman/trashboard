@@ -21,7 +21,7 @@ def CreditReview(request):
         if "decline_credit" in request.POST:
             decline_agreement = request.POST.get('agreement_id')
             agreement = Agreement.objects.get(id=decline_agreement)
-            agreement.credit_override = 'DECLINED'
+            agreement.credit_override = 'DCS'
             agreement.save()
             return redirect('credit_review')
 

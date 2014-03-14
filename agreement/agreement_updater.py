@@ -105,7 +105,7 @@ class AgreementUpdater(object):
 
         zipcode = None
         if self.agreement.system_address and self.agreement.system_address.zip:
-            zipcode = agreement.system_address.zip
+            zipcode = self.agreement.system_address.zip
 
         can_get_fire, msg = restrictions.can_sell_fire_detectors(
             zipcode=zipcode,

@@ -7,6 +7,8 @@ from datetime import timedelta, datetime
 
 from annoying.functions import get_object_or_None as gooN
 from django.conf import settings
+from handy import intor
+from datetime import datetime
 
 
 class Applicant(Updatable):
@@ -63,6 +65,10 @@ class Applicant(Updatable):
         credit_request = gooN(CreditRequest, applicant=self)
 
         if credit_request:
+            if getattr(settings, 'MOCK_CREDIT', None):
+                self.run_mock_credit(credit_request, social)
+                return self.get_credit_status()
+
             return 'PENDING'
 
         # If I don't have a social, I can't start it.
@@ -77,8 +83,33 @@ class Applicant(Updatable):
             # I'd use an assert but I don't want to 500 here.
             return None
 
-        CreditRequest.create_request(applicant=self, social=social)
+
+
+        rq = CreditRequest.create_request(applicant=self, social=social)
+
+        # Mock credit run.
+        if getattr(settings, 'MOCK_CREDIT', None):
+            self.run_mock_credit(rq, social)
+            return self.get_credit_status()
+
         return 'PENDING'
+
+    def run_mock_credit(self, request, social=None):
+        from credit_file import CreditFile
+
+        name = ' '.join(filter(None, [self.first_name, self.last_name]))
+        mock = CreditFile(applicant=self,
+            person_id=self.person_id,
+            name=name,
+            last_4 = social[-4:],
+            run_request=request,
+            generated_date=datetime.now(),
+            bureau='equifax',
+            beacon=intor(social[-3:], 601),
+            transaction_id='Mock Credit',
+            transaction_status='Done'
+        )
+        mock.save()
 
     def get_beacon(self):
         if not self.person_id:

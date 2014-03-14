@@ -46,6 +46,8 @@ class CreditRequest(models.Model):
         req.stop_running_at_beacon = settings.STOP_RUNNING_AT_BEACON
         req.save()
 
+        return req
+
     class Meta:
         verbose_name = "Credit Request"
         app_label = 'agreement'

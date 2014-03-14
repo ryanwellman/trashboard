@@ -47,3 +47,5 @@ DEBUG_TOOLBAR_PANELS = (
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
+MOCK_CREDIT = True

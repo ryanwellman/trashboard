@@ -58,6 +58,9 @@ class Agreement(Updatable):
     #credit_override_user = models.ForeignKey(OrgUser, null=True, blank=True)
     bypass_upfront_authorization = models.BooleanField(default=False)
 
+    # DRAFT, PUBLISHED, EXPIRED, SIGNED
+    status = models.CharField(max_length=20)
+
 
     def calculate_credit_status(self, socials=None):
         # Return the overall credit status for this agreement.
@@ -102,7 +105,7 @@ class Agreement(Updatable):
         if 'REVIEW' in both:
             return 'REVIEW'
 
-        if 'NOHIT' in both:
+        if 'NO HIT' in both:
             return 'NO HIT'
 
         if 'DCS' in both:
@@ -153,7 +156,7 @@ class Agreement(Updatable):
         for field in ('pricetable_date', 'date_updated', 'email',
                       'approved', 'promo_code', 'floorplan',
                     'property_type', 'install_method',
-                    'credit_status'):
+                    'credit_status', 'status'):
             jsonable[field] = getattr(self, field)
 
         jsonable['invoice_lines'] = [il.as_jsonable() for il in self.invoice_lines.all()]

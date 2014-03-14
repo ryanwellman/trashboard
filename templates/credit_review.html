@@ -30,11 +30,13 @@
         </div>
     </div>
     -->
+
+    <!--
 </div>
 <div class="container-fluid">
     <table class="table table-bordered table-condensed">
         <thead class="table-back">
-            <th><center>ID</center></th>
+            <th>ID</center></th>
             <th><center>DATE</center></th>
             <th><center>NAME</center></th>
             <th><center>INTERCONNECT ID</center></th>
@@ -63,38 +65,64 @@
         </tfoot>
     </table>
 </div>
+-->
+<!-- aaa
 {% for p in pending_credit %}
-    {{p}}
+   bbb {{p}}
 {% endfor %}
+ccc -->
 <div class="container-fluid">
     <table class="table table-bordered table-condensed">
         <thead class="table-back">
-            <th><center>ID</center></th>
-            <th><center>DATE</center></th>
-            <th><center>NAME</center></th>
-            <th><center>INTERCONNECT ID</center></th>
-            <th><center>BEACON</center></th>
-            <th><center>ORGANIZATION</center></th>
-            <th><center>ACTIONS</center></th>
+            <th>ID</th>
+            <th>ORGANIZATION</th>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>INTERCONNECT ID</th>
+            <th>BEACON</th>
+            <th>ACTIONS</th>
         </thead>
         <tbody>
             {% for p in pending_credit %}
-            <form id="credit_review" method="POST">
-                <input type="hidden" name="agreement_id" value="{{p.id}}">
-            {% csrf_token %}
-            <tr>
-                <td><center>{{p.id}}</center></td>
-                <td><center>{{p.date_updated|date}}</center></td>
-                <td><center>{{p.applicant_id__first_name}} {{p.applicant_id__last_name}}</center></td>
-                <td><center></center></td>
-                <td><center></center></td>
-                <td><center></center></td>
-                <td><center>
-                        <button class="btn btn-success credit-btn" name="approve_credit">APPROVE</button>
-                        <button class="btn btn-danger credit-btn" name="decline_credit">DECLINE</button>
-                </center></td>
-            </tr>
-            </form>
+                <tr>
+                    <td>{{p.agreement_id}}</td>
+                    <td>{{p.organization_name}}</td>
+                    <td>{{p.date_updated|date}}</td>
+                    <td>Status: {{ p.credit_status }}</td>
+                    <td>Override to: {{p.credit_override}}</td>
+                    <td></td>
+                    <td>
+                            <form id="credit_review" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="agreement_id" value="{{p.agreement_id}}">
+                                <button class="btn btn-success credit-btn" name="approve_credit">APPROVE</button>
+                                <button class="btn btn-danger credit-btn" name="decline_credit">DECLINE</button>
+                            </form>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="3"><strong>Applicant</strong></td>
+                    <td>{{p.applicant_first_name}} {{p.applicant_last_name}}</td>
+                    <td>{{p.applicant_transaction_id}}</td>
+                    <td>{{p.applicant_beacon}}</td>
+
+                </tr>
+                {% if p.coapplicant_transaction_id %}
+                <tr>
+                    <td colspan="3"><strong>Coapplicant</strong></td>
+                    <!--<td colspan="2">
+                        <!--<strong>Coapplicant</strong>
+                    </td>-->
+                    <td>{{p.coapplicant_first_name}} {{p.coapplicant_last_name}}</td>
+                    <td>{{p.coapplicant_transaction_id}}</td>
+                    <td>{{p.coapplicant_beacon}}</td>
+                    <td>
+
+                    </center></td>
+                </tr>
+                {% endif %}
+
             {% endfor %}
         </tbody>
         <tfoot class="table-back">

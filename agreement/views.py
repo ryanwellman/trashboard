@@ -10,7 +10,29 @@ def Index(request):
 
 @render_to('credit_review.html')
 def CreditReview(request):
-    pending_credit = Agreement.objects.values('id', 'date_updated', 'applicant_id__first_name', 'applicant_id__last_name')
+    qs = Agreement.objects.filter(status__in=['DRAFT', ''], credit_status__in=['REVIEW', 'NO HIT'])
+    fields = {
+        'id' : 'agreement_id',
+        'date_updated' : 'date_updated',
+        'campaign__organization__name' : 'organization_name',
+        'applicant_id__first_name': 'applicant_first_name',
+        'applicant_id__last_name': 'applicant_last_name',
+        'applicant_id__credit_file__beacon' : 'applicant_beacon',
+        'applicant_id__credit_file__transaction_id' : 'applicant_transaction_id',
+        'coapplicant_id__first_name': 'coapplicant_first_name',
+        'coapplicant_id__last_name': 'coapplicant_last_name',
+        'coapplicant_id__credit_file__beacon' : 'coapplicant_beacon',
+        'coapplicant_id__credit_file__transaction_id' : 'coapplicant_transaction_id',
+    }
+    pending_credit = qs.values(*fields.keys())
+    pending_credit = [
+        {
+            new_key: row[key]
+            for key, new_key in fields.iteritems()
+        }
+        for row in pending_credit
+    ]
+    print pending_credit
 
     if "approve_credit" in request.POST:
         approve_agreement = request.POST.get('agreement_id')
@@ -30,7 +52,8 @@ def CreditReview(request):
 
 @render_to('bypass.html')
 def BypassUpfrontAuthorization(request):
-    published = Agreement.objects.values('id', 'date_updated', 'applicant_id__first_name', 'applicant_id__last_name')
+    qs = Agreement.objects.filter(status='PUBLISHED')
+    published = qs.values('id', 'date_updated', 'applicant_id__first_name', 'applicant_id__last_name')
 
     if request.POST:
         print "let's bypass this shit"

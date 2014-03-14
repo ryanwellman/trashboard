@@ -10,7 +10,32 @@ def Index(request):
 
 @render_to('credit_review.html')
 def CreditReview(request):
-    qs = Agreement.objects.filter(status__in=['DRAFT', ''], credit_status__in=['REVIEW', 'NO HIT'])
+
+    if request.method == 'POST':
+        if "approve_credit" in request.POST:
+            approve_agreement = request.POST.get('agreement_id')
+            agreement = Agreement.objects.get(id=approve_agreement)
+            agreement.credit_override = 'APPROVED'
+            agreement.save()
+            return redirect('credit_review')
+        if "decline_credit" in request.POST:
+            decline_agreement = request.POST.get('agreement_id')
+            agreement = Agreement.objects.get(id=decline_agreement)
+            agreement.credit_override = 'DECLINED'
+            agreement.save()
+            return redirect('credit_review')
+
+        return redirect('credit_review')
+
+
+    agreements = Agreement.objects.filter(status__in=['DRAFT', ''])
+    # Re-review a specific id
+    if request.GET.get('agreement_id'):
+        agreements = agreements.filter(pk=request.GET.get('agreement_id'))
+    else:
+        # Review anything that isn't overridden already.
+        agreements = agreements.filter(credit_status__in=['REVIEW', 'NO HIT'], credit_override__isnull=True)
+
     fields = {
         'id' : 'agreement_id',
         'date_updated' : 'date_updated',
@@ -24,7 +49,7 @@ def CreditReview(request):
         'coapplicant_id__credit_file__beacon' : 'coapplicant_beacon',
         'coapplicant_id__credit_file__transaction_id' : 'coapplicant_transaction_id',
     }
-    pending_credit = qs.values(*fields.keys())
+    pending_credit = agreements.values(*fields.keys())
     pending_credit = [
         {
             new_key: row[key]
@@ -34,18 +59,6 @@ def CreditReview(request):
     ]
     print pending_credit
 
-    if "approve_credit" in request.POST:
-        approve_agreement = request.POST.get('agreement_id')
-        agreement = Agreement.objects.get(id=approve_agreement)
-        agreement.credit_override = 'APPROVED'
-        agreement.save()
-        return redirect('credit_review')
-    if "decline_credit" in request.POST:
-        decline_agreement = request.POST.get('agreement_id')
-        agreement = Agreement.objects.get(id=decline_agreement)
-        agreement.credit_override = 'DECLINED'
-        agreement.save()
-        return redirect('credit_review')
 
     return dict(pending_credit=pending_credit)
 

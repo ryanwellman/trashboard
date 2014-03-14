@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block mainheader %}
+<div class="container top-container">
+<div class="row">
+    <div class="span4">
+        <img src="https://secure.protectamerica.com/assets/images/pa-logo-new.png">
+    </div>
+    <div class="span3 pull-right">
+        <p>
+            Currently logged in as:<br/>
+            {{user}}
+        </p>
+    </div>
+</div>
+</div>
+
+{% endblock %}
+{% block mainnav %}
+<div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+        <ul class="nav">
+            <li><a href="{% url "index" %}">Home</a></li>
+            <li class="divider-vertical"></li>
+            <li><a href="{% url "credit_review" %}">Review Credit</a></li>
+            <li class="divider-vertical"></li>
+            <li><a href="#">Create Draft</a></li>
+            <li class="divider-vertical"></li>
+            <li><a href="#">Manage Accounts</a></li>
+            <li class="divider-vertical"></li>
+            <li><a href="#">List Agreements</a></li>
+            <li class="divider-vertical"></li>
+            <li><a href="{% url "bypass" %}">Bypass Upfront Authorization</a></li>
+            <li class="divider-vertical"></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript_compress %}
+<script type="text/javascript">
+$(function(){
+    $('ul.nav > li').click(function(e) {
+        $('ul.nav > li').removeClass('active');
+        $(this).addClass('active');
+    });
+    e.preventDefault();
+});
+</script>
+{% endblock %}

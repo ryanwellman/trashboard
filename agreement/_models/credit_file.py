@@ -33,6 +33,10 @@ class CreditRequest(models.Model):
     processor_pid = models.IntegerField(blank=True, null=True)
 
     processed = models.BooleanField(default=False)
+    # need to store these things
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    country_code = models.CharField(max_length=10)
 
     @staticmethod
     def create_request(applicant, social):

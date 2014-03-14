@@ -3,7 +3,7 @@ function NavBarVM(master) {
 
     self.name = 'navbar';
 
-    console.log("Is window", self === window);
+    //console.log("Is window", self === window);
     return self;
 
 

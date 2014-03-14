@@ -14,10 +14,18 @@ MasterVM = function() {
         'pricetable_date': tidyObservable(),
         'email': tidyObservable(),
         'approved': tidyObservable(),
-        'floorplan': tidyObservable(),
+        'floorplan': tidyObservable(null),
+        'install_method': tidyObservable(null),
+        'property_type': tidyObservable(null),
+        'credit_status': ko.observable(''),
         'promo_code': tidyObservable(),
         'ssn': tidyObservable(''),
         'dirty': ko.observable(false),
+
+        'messages': ko.observableArray([]),
+        'errors': ko.observableArray([]),
+        'restrictions': ko.observableArray([])
+
     };
 
     _.each(self.fields, function(obs, fieldname) {
@@ -97,7 +105,6 @@ MasterVM = function() {
             'system_address': null,
             'agreement_id': null,
 
-
         };
 
         agreement.agreement_id = self.agreement_id();
@@ -105,6 +112,11 @@ MasterVM = function() {
         agreement.campaign = self.campaign();
         agreement.pricetable_date = self.pricetable_date();
         agreement.promo_code = self.promo_code();
+
+        // These are ord with null because selects are weird in ko
+        agreement.floorplan = self.floorplan() || null;
+        agreement.property_type = self.property_type() || null;
+        agreement.install_method = self.install_method() || null;
 
         _.each(self.vms, function(vm) {
             vm.construct_agreement(agreement);
@@ -115,6 +127,18 @@ MasterVM = function() {
 
     self.update_from_agreement = function(agreement, errors) {
         console.log("master update_from_agreement", agreement);
+
+        self.email(agreement.email);
+        self.campaign(agreement.campaign);
+        self.pricetable_date(agreement.pricetable_date);
+        self.promo_code(agreement.pricetable_date);
+
+        // Credit status is read only
+        self.credit_status(agreement.credit_status);
+
+        self.floorplan(agreement.floorplan);
+        self.property_type(agreement.property_type);
+        self.install_method(agreement.install_method);
 
         if(agreement) {
             self.campaign(agreement.campaign);
@@ -141,9 +165,22 @@ MasterVM = function() {
 
         var agreement_blob = self.construct_agreement();
         var data = agreement_endpoint._save(agreement_blob);
-
+        window.master_blob = data;
 
         self.update_from_agreement(data.agreement, data.errors);
+        catalog.update_catalog(data.catalog);
+
+        _.each(data.messages, function(msg) {
+            alert(msg);
+        });
+
+        _.each(data.errors, function(err) {
+            alert(err);
+        });
+
+        self.messages(data.messages);
+        self.errors(data.errors);
+        self.restrictions(data.restrictions);
 
 
     }

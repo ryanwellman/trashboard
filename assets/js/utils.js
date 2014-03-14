@@ -103,13 +103,13 @@ function dumps(obj) {
                 continue;
             }
             if(obj[i] && obj[i].constructor === Date) {
-                console.log("It's a date");
+                //console.log("It's a date");
                 copy[i] = Date_to_datetime(obj[i]);
             } else if(obj[i] && typeof(obj[i]) == 'object') {
-                console.log("It's an object or array");
+                //console.log("It's an object or array");
                 copy[i] = deepcopy(obj[i]);
             } else {
-                console.log("It's a primitive?")
+                //console.log("It's a primitive?")
                 copy[i] = obj[i];
             }
         }

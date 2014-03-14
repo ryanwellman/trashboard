@@ -21,14 +21,37 @@
 </div>
 
 <div class="control-group">
-	<label class="control-label">Dwelling Type:</label>
+	<label class="control-label">Floorplan:</label>
 	<div class="controls">
 		<select data-bind="
-		    options: window.DWELLINGS,
+		    options: window.FLOORPLANS,
 		    optionsCaption: 'Please select...',
 		    value: vm.master.floorplan
 		"></select>
 	</div>
 </div>
+
+<div class="control-group">
+	<label class="control-label">Property Type:</label>
+	<div class="controls">
+		<select data-bind="
+		    options: window.PROPERTY_TYPES,
+		    optionsCaption: 'Please select...',
+		    value: vm.master.property_type
+		"></select>
+	</div>
+</div>
+
+<div class="control-group">
+	<label class="control-label">Installation Types:</label>
+	<div class="controls">
+		<select data-bind="
+		    options: catalog.INSTALL_METHODS,
+		    optionsCaption: 'Please select...',
+		    value: vm.master.install_method
+		"></select>
+	</div>
+</div>
+
 
 {% endblock %}

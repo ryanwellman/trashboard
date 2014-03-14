@@ -3,20 +3,21 @@ Catalog = function() {
     var self = this;
     self.PRODUCTS = ko.observableArray([]);
     self.PRODUCTS_BY_CODE = {};
+    self.INSTALL_METHODS = ko.observableArray([]);
 
     self.update_catalog = function(catalog_blob) {
-
+        window.catalog_blob = catalog_blob;
         // 1. Sync products in PRODUCTS and PRODUCTS_BY_CODE.
 
         _.each(self.PRODUCTS(), function(prod) {
             prod.should_keep = false;
         });
         _.each(catalog_blob.products, function(prod) {
-            console.log("Syncing ", prod)
+            //console.log("Syncing ", prod)
             var existing_prod = self.PRODUCTS_BY_CODE[prod.code];
             if(existing_prod) {
                 _.extend(existing_prod, prod);
-                prod.should_keep = true;
+                existing_prod.should_keep = true;
 
             } else {
                 // Make a copy of the product from json.
@@ -60,6 +61,9 @@ Catalog = function() {
         // re-renders when they change.  Downside: carts with lines that refer to these will
         // not auto-update by availability, because those are binding to a different list (of cart lineS)
         // not to the available products.  Instead, each vm needs its cart updated after the catalog is generated.
+
+        // 4.5 Update available install methods.
+        self.INSTALL_METHODS(catalog_blob.available_install_methods);
 
         // 5. Update all of master's vms with the catalog.
         if(window.master) {

@@ -55,6 +55,8 @@ AddressVM = function(master, which) {
             obs(person[f] || '');
         });
 
+
+
     };
 
     self.construct_agreement = function(agreement) {

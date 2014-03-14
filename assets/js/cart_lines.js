@@ -123,15 +123,15 @@ CartLine = function(cart, product) {
                 'read': function() {
 
                     var i_s = vm.selected() === cline;
-                    console.log("Determining is_selected for ", cline.code, i_s);
+                    //console.log("Determining is_selected for ", cline.code, i_s);
                     return i_s
                 },
                 write: function(checked) {
                     if(checked) {
-                        console.log("Selecting package.");
+                        //console.log("Selecting package.");
                         vm.selected(cline);
                     } else if(!checked && vm.selected() === cline) {
-                        console.log("Deselecting package.");
+                        //console.log("Deselecting package.");
                         cline.quantity(0);
                         vm.selected(null);
 

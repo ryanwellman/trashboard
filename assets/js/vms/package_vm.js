@@ -18,7 +18,7 @@ PackageVM = function(master) {
 
     self.available_products = ko.computed(function() {
         return _.filter(window.catalog.PRODUCTS(), function(prod) {
-            return prod.price() && prod.product_type === 'Package';
+            return prod.price() && prod.price().available && prod.product_type === 'Package';
         });
     });
 
@@ -104,7 +104,7 @@ CustomizationVM = function(master, package_vm) {
 
     self.available_products = ko.computed(function() {
         return _.filter(window.catalog.PRODUCTS(), function(prod) {
-            return prod.price() && prod.product_type === 'Part';
+            return prod.price() && prod.price().available && prod.product_type === 'Part' && prod.price().swappable;
         });
     });
 
@@ -159,7 +159,7 @@ CustomizationVM = function(master, package_vm) {
     });
 
     self.construct_agreement = function(agreement) {
-        console.log("About to call self.customizations on ", self);
+        //console.log("About to call self.customizations on ", self);
         _.each(self.cart_lines(), function(cline) {
             // Skip if they are the same.
             if(cline.quantity() === cline.base_quantity()) {
@@ -188,10 +188,10 @@ CustomizationVM = function(master, package_vm) {
 
         self.reset_customizations();
 
-        console.log("In customize_vm's update_from_agreement, tl=", trade_lines, "tlbc=", trade_lines_by_code);
+        //console.log("In customize_vm's update_from_agreement, tl=", trade_lines, "tlbc=", trade_lines_by_code);
         _.each(self.cart_lines(), function(cline) {
             var tline = trade_lines_by_code[cline.code];
-            console.log("I am searching.  ", cline, tline);
+            //console.log("I am searching.  ", cline, tline);
             if(tline) {
                 // Using the trade delta, assign the current total quantity.
                 cline.quantity(cline.base_quantity() + tline.quantity);

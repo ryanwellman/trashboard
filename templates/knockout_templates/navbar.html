@@ -82,7 +82,10 @@
             </li>
             <li class="span2">
                 <b>Credit Status:</b><br>
-                <span class="btn btn-large btn-info"><i class="fa fa-clock-o"></i> Pending</span>
+                <span class="btn btn-large btn-info">
+                    <i class="fa fa-clock-o"></i>
+                    <span data-bind="text: vm.master.credit_status()"></span>
+                </span>
             </li>
             <li class="span2 pull-right">
                 <b>Logged in as:</b><br>

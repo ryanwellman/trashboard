@@ -10,6 +10,7 @@ from product import Product
 from handy import intor, first
 from collections import defaultdict
 from handy.controller import JsonResponse
+import regional.restrictions as restrictions
 
 class Agreement(Updatable):
     """
@@ -46,7 +47,10 @@ class Agreement(Updatable):
     package = models.ForeignKey(Package, related_name='package', blank=True, null=True) # now nullable
     shipping = models.CharField(max_length=20)
     monitoring = models.CharField(max_length=20)
-    floorplan = models.CharField(max_length=20)
+
+    install_method = models.CharField(max_length=20, blank=True, null=True)
+    property_type = models.CharField(max_length=20, blank=True, null=True)
+    floorplan = models.CharField(max_length=20, blank=True, null=True)
     promo_code = models.CharField(max_length=20)
 
     credit_status = models.CharField(max_length=20, null=True, blank=True)
@@ -109,6 +113,17 @@ class Agreement(Updatable):
         assert(both == (None, None))
         return None
 
+    def available_install_methods(self):
+        zipcode = self.system_address.zip if self.system_address else None
+        if not zipcode:
+            zipcode = None
+
+        return restrictions.get_available_install_methods(
+            zipcode=zipcode,
+            property_type=self.property_type,
+            restriction_date=self.pricetable_date
+        )
+
 
     def __unicode__(self):
         if not self.id:
@@ -134,9 +149,11 @@ class Agreement(Updatable):
             obj = getattr(self, field)
             jsonable[field] = obj.as_jsonable() if obj else None
 
-        jsonable['credit_status'] = self.credit_status
-
-        for field in ('pricetable_date', 'date_updated', 'email', 'approved', 'promo_code'):
+        # primitives
+        for field in ('pricetable_date', 'date_updated', 'email',
+                      'approved', 'promo_code', 'floorplan',
+                    'property_type', 'install_method',
+                    'credit_status'):
             jsonable[field] = getattr(self, field)
 
         jsonable['invoice_lines'] = [il.as_jsonable() for il in self.invoice_lines.all()]

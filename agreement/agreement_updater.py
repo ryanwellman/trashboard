@@ -6,6 +6,8 @@ from collections import defaultdict
 from handy.controller import JsonResponse
 from agreement.models import Applicant, Address, Campaign, Package, Product, Agreement, InvoiceLine, ProductContent
 from annoying.functions import get_object_or_None as gooN
+import regional.restrictions as restrictions
+
 #from handy.reflector import TypesFromAgreement
 
 class IL(object):
@@ -24,8 +26,8 @@ class IL(object):
             errors.append('Invalid invoiceline update: %r' % (line,))
         elif not self.product:
             errors.append('The product %s could not be found.' % line.code)
-        elif not self.price:
-            errors.append('The product %s is not available for the campaign %s' % self.campaign_id)
+        # elif not self.price:
+        #     errors.append('The product %s is not available for the campaign %s' % self.campaign_id)
 
 
 
@@ -36,6 +38,7 @@ class AgreementUpdater(object):
         self.agreement = agreement
         self.errors = []
         self.messages = []
+        self.restrictions = []
         self.blob = blob
 
         self.products = Product.get_all_products()
@@ -46,6 +49,8 @@ class AgreementUpdater(object):
         for pc in pcs:
             self.product_contents[pc.included_in_id].append(pc)
 
+        self.apply_restrictions()
+        self.available_install_methods = agreement.available_install_methods()
         self.final_children = []
 
 
@@ -72,10 +77,53 @@ class AgreementUpdater(object):
             target_address.save()
             self.agreement.system_address = target_address
 
+        self.available_install_methods = self.agreement.available_install_methods()
+
+        for field in ['floorplan', 'property_type', 'install_method']:
+            print update_blob[field]
+            if field in update_blob:
+                setattr(self.agreement, field, update_blob[field])
+
+        if self.agreement.install_method and self.agreement.install_method not in self.available_install_methods:
+            self.agreement.install_method = None
+            self.messages.append('The installation method chosen is no longer available.')
+
+        self.apply_restrictions()
+
+        self.agreement.save()
+
         if 'invoice_lines' in update_blob:
             self.update_invoice_lines()
 
         #return errors
+    def apply_restrictions(self):
+        self.restrictions = []
+
+        # Unmask any availability that I previously adjusted.
+        for price in self.prices.values():
+            price.available_mask = None
+
+        zipcode = None
+        if self.agreement.system_address and self.agreement.system_address.zip:
+            zipcode = agreement.system_address.zip
+
+        can_get_fire, msg = restrictions.can_sell_fire_detectors(
+            zipcode=zipcode,
+            property_type=self.agreement.property_type,
+            tech_install=(self.agreement.install_method == 'TECH')
+            )
+        print "Can get fire?", can_get_fire, repr(msg)
+        if msg:
+            self.restrictions.append(msg)
+
+        if not can_get_fire:
+            self.prices['WSMOKE'].available_mask = False
+
+        if self.agreement.credit_status == 'DCS':
+            for code, price in self.prices.iteritems():
+                if self.products[code].product_type == 'Package' and code != 'COPPER':
+                    price.available_mask = False
+
 
     def update_applicant(self, which, app_blob):
         '''
@@ -181,6 +229,21 @@ class AgreementUpdater(object):
 
         # this is the list of lines that will be on the agreement at the end:
         self.final_lines = []
+
+        for il in list(incoming_lines):
+            if not il.price:
+                incoming_lines.remove(il)
+                self.messages.append('%s removed from the agreement because it is not available.' % il.code)
+                continue
+            available = getattr(il.price, 'available_mask', None)
+            if available is None:
+                available = il.price.available
+            if not available:
+                incoming_lines.remove(il)
+                self.messages.append('%s removed from the agreement because it is no longer available.' % il.code)
+                continue
+
+
 
         # First, do every line that came in from the system NOT traded.
         # Invoice Lines for these should all be TOP.
@@ -450,9 +513,11 @@ class AgreementUpdater(object):
             'agreement': self.agreement.as_jsonable(),
             'errors': self.errors,
             'messages': self.messages,
+            'restrictions': self.restrictions,
             'catalog': {
                 'products': {code: prod.as_jsonable() for code, prod in self.products.iteritems()},
-                'prices': {code: price.as_jsonable() for code, price in self.prices.iteritems()}
+                'prices': {code: price.as_jsonable() for code, price in self.prices.iteritems()},
+                'available_install_methods': self.available_install_methods,
             }
         })
 

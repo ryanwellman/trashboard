@@ -24,6 +24,8 @@ class ProductPrice(Serializable):
     todate          =   models.DateTimeField(null=True)
     promo           =   models.BooleanField(default=False)
     swappable       =   models.BooleanField(default=False)
+    # Should be listed in a cart
+    available       =   models.BooleanField(default=True)
 
 
     def __unicode__(self):
@@ -40,8 +42,11 @@ class ProductPrice(Serializable):
             todate=self.todate,
             promo=self.promo,
             swappable=self.swappable,
-
+            available=self.available,
         )
+        if getattr(self, 'available_mask', None) is not None:
+            d['available'] = self.available_mask
+
         return d
 
     class Meta:

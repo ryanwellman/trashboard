@@ -154,19 +154,19 @@ function BaseSectionVM(master) {
     // This is neat.  Selected is automatically the first customizer with a positive quantity.
     self.selected = ko.computed({
         'read': function() {
-            console.log("calculating selected.");
+            //console.log("calculating selected.");
             var sel = _.find(self.cart_lines(), function(cline) {
                 return cline.quantity() > 0;
             });
             return sel;
         },
         'write': function(sel) {
-            console.log("Setting selected to ", sel ? sel.product.code : sel);
+            //console.log("Setting selected to ", sel ? sel.product.code : sel);
             _.each(self.cart_lines(), function(cline) {
                 cline.quantity( cline === sel ? 1 : 0 );
             });
 
-            console.log("Calling onSelectedChange on ", self.name);
+            //console.log("Calling onSelectedChange on ", self.name);
             self.onSelectedChange();
 
             self.selected.notifySubscribers(self.selected());

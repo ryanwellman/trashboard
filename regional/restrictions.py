@@ -323,6 +323,23 @@ def get_install_method_permissions(zipcode, property_type, restriction_date):
 
     return permissions
 
+def get_available_install_methods(zipcode, property_type, restriction_date):
+    methods = ['TECH', 'GUIDED']
+    if not zipcode:
+        return methods
+
+    if not property_type:
+        return methods
+
+    permissions = get_install_method_permissions(zipcode, property_type, restriction_date)
+
+    if not permissions['tech_install']:
+        methods.remove('TECH')
+    if not permissions['self_install']:
+        methods.remove('GUIDED')
+
+    return methods
+
 def GetMatchingPRsByZip(zipcode, property_type, asof):
     # Get every region that this zipcode is part of.
 
@@ -373,7 +390,8 @@ def get_addendum(zipcode, property_type, restriction_date):
 
 
 def can_sell_fire_detectors(zipcode, property_type, tech_install=False):
-    if property_type == 'COMMERCIAL':
+    # returns (True/False, 'reason why not or None')
+    if property_type and property_type.upper() == 'COMMERCIAL':
         msg = " ".join(["Customers in a commercial property cannot purchase",
                         "fire sensors."])
         return False, msg
@@ -397,7 +415,7 @@ def can_sell_fire_detectors(zipcode, property_type, tech_install=False):
     no_tech_install = {
     }
 
-    regions = Region.filter_by_zipcode(zipcode)
+    regions = Region.filter_by_zipcode(zipcode) if zipcode else []
     for region in regions:
 
         if region.exists_in(no_install):

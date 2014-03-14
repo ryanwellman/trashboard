@@ -1,5 +1,7 @@
 
 // fix the window level vars for this to work
+/* All this moved into catalog.js
+
 _.each(window.PRODUCTS, function(prod) {
     // There is a price in the pricetable for this object so it is purchasable.
     // XXX: This might need to check that the price is not null, but I'm not sure just yet.
@@ -26,6 +28,18 @@ _.each(window.PRODUCTS, function(prod) {
         pc.product = window.PRODUCTS[pc.code];
     });
 });
+*/
+
+window.PROPERTY_TYPES = [
+    'Residential',
+    'Commercial'
+];
+window.FLOORPLANS = [
+    'One Floor',
+    'One Floor Split',
+    'Two Floor'
+
+];
 
 // The truth is that none of this should really EVER change, other than adding and removing, right?
 // So can I just.. not do this?
@@ -51,7 +65,7 @@ $(function() {
     // create an object that knockout can use to bind
     window.master = new MasterVM();
 
-    catalog.update_catalog(InitialCatalogData);
+    //catalog.update_catalog(InitialCatalogData);
 
 
 
@@ -59,8 +73,8 @@ $(function() {
     agreement_endpoint = new AgreementEndpoint();
     master_blob = agreement_endpoint._load(window.agreement_id);
 
+    catalog.update_catalog(master_blob.catalog);
     master.update_from_agreement(master_blob.agreement, []);
-
 
 
     // apply bindings for knockout

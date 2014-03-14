@@ -42,8 +42,11 @@ def dyn_json(request, agreement_id=None):
 
     # handle outgoing data
     if request.method == 'GET':
-        jsonable = agreement.as_jsonable()
-        print jsonable
+        updater = AgreementUpdater(agreement, None)
+        return updater.json_response();
+
+        #jsonable = agreement.as_jsonable()
+        #print jsonable
 
         return JsonResponse(content={'agreement': agreement.as_jsonable()})
 

@@ -15,7 +15,7 @@ function MonitoringVM(master) {
 
     self.available_products = ko.computed(function() {
         return _.filter(window.catalog.PRODUCTS(), function(prod) {
-            return prod.price() && prod.product_type === 'Monitoring';
+            return prod.price() && prod.price().available && prod.product_type === 'Monitoring';
         });
     });
 

@@ -67,6 +67,7 @@ ReviewVM = function(master) {
                 console.log("Somethign is wrong, ", iline.code, iline.product);
             }
 
+            console.log(iline.product);
             last_by_type[iline.product.product_type] = iline;
         });
 

@@ -68,7 +68,7 @@ class CreditFile(models.Model):
 
     # Credit files are not reused or shared among applicants.  They'll be
     # copied instead, by using the person_id ( below)
-    applicant = models.ForeignKey(Applicant)
+    applicant = models.ForeignKey(Applicant, related_name='credit_file')
 
     # person_id is used to identify the name/social used to run it.
     person_id = models.CharField(max_length=128)

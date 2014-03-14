@@ -77,12 +77,13 @@ class AgreementUpdater(object):
             target_address.save()
             self.agreement.system_address = target_address
 
-        self.available_install_methods = self.agreement.available_install_methods()
-
         for field in ['floorplan', 'property_type', 'install_method']:
             print update_blob[field]
             if field in update_blob:
                 setattr(self.agreement, field, update_blob[field])
+
+        self.available_install_methods = self.agreement.available_install_methods()
+        print "install stuff", self.available_install_methods
 
         if self.agreement.install_method and self.agreement.install_method not in self.available_install_methods:
             self.agreement.install_method = None

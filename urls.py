@@ -19,6 +19,6 @@ urlpatterns = patterns('',
     url(r'^json/(?P<agreement_id>\d+)$', 'views.dyn_json', name='dyn_json2'),
     url(r'^json/?$', 'views.dyn_json', name='dyn_json'),
     url(r'credit_review/$', 'agreement.views.CreditReview', name='credit_review'),
-    url(r'index/$', 'agreement.views.Index', name='index'),
+    url(r'^$', 'agreement.views.Index', name='index'),
     url(r'bypass/$', 'agreement.views.BypassUpfrontAuthorization', name='bypass'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

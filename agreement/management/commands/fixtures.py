@@ -12,6 +12,9 @@ from django.core.management.base import BaseCommand, CommandError
 
 # my imports
 from agreement.models import *
+from inventory.models import *
+from org.models import *
+
 
 NAME = 'fixtures'
 VERSION = '0.3 alpha'

@@ -11,44 +11,43 @@
         <meta name="author" content="">
 
         {% compress css %}
-            {% block stylesheets %}
-                <link type="text/less" rel="stylesheet" href="{% static "less/style.less" %}">
-                <style type="text/less">
-                    body {
-                        padding-top: 0px;
-                    }
-                    .top-container {
-                        padding-top: 0px;
-                    }
-                    .table-back {
-                        background-color: #d9f2ff;
-                    }
-                    .credit-btn {
-                        width: 180px !important;
-                    }
-                    .filter-btn {
-                        width: 120px !important;
-                    }
-                    .bypass-btn {
-                        width: 160px;
-                    }
-                    .status {
-                        width: 130px;
-                        text-align: center;
-                    }
-                    .date-badge {
-                        width: 95px;
-                        text-align: center;
-                    }
-                    .navbar-inner {
-                        padding-left: 480px;
-                    }
-                    .navbar .nav > li > a:hover {
-                        color: black;
-                        background-color: #E5E4E2;
-                    }
+            <link type="text/less" rel="stylesheet" href="{% static "less/style.less" %}">
+            <style type="text/less">
+                body {
+                    padding-top: 0px;
+                }
+                .top-container {
+                    padding-top: 0px;
+                }
+                .table-back {
+                    background-color: #d9f2ff;
+                }
+                .credit-btn {
+                    width: 180px !important;
+                }
+                .filter-btn {
+                    width: 120px !important;
+                }
+                .bypass-btn {
+                    width: 160px;
+                }
+                .status {
+                    width: 130px;
+                    text-align: center;
+                }
+                .date-badge {
+                    width: 95px;
+                    text-align: center;
+                }
+                .navbar-inner {
+                    padding-left: 480px;
+                }
+                .navbar .nav > li > a:hover {
+                    color: black;
+                    background-color: #E5E4E2;
+                }
                 </style>
-            {% endblock %}
+            {% block stylesheets %}{% endblock %}
         {% endcompress %}
 
         <link rel="shortcut icon" href="{% static "images/favicon.ico" %}">

@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+{% block stylesheets %}
+<style type="text/less">
+  #restrictions_btn{
+    margin-top: 10px;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div id="master_vm">
 <div class="left_sidebar">
@@ -26,6 +34,8 @@
                } "></li>
         <!-- /ko -->
     </ul>
+
+    <a id="restrictions_btn" href="#" class="btn btn-danger" data-bind="visible: $data.restrictions().length > 0"><i class="fa fa-warning"></i> Restrictions</a>
 </div>
 <div class="container">
     <div data-bind="template: {name: 'navbar', data: $data.navbar, as: 'vm'}"></div>

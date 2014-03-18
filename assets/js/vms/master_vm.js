@@ -182,6 +182,22 @@ MasterVM = function() {
         self.errors(data.errors);
         self.restrictions(data.restrictions);
 
+        if(self.restrictions().length > 0){
+            var list = $('<ul>');
+            _.each(self.restrictions(), function(restriction){
+                item = $("<li/>", {
+                    text: restriction
+                });
+                list.append(item);
+            });
+
+            $("#restrictions_btn").popover({
+                title: 'Restrictions',
+                placement: 'left',
+                content: list,
+                html: true
+            });
+        }
 
     }
 

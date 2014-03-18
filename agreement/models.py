@@ -3,7 +3,7 @@ from django.db.models import Model
 from django.conf import settings
 import _models
 
-from _models.product import Product, ProductRegistry
+#from _models.product import Product, ProductRegistry
 
 
 # this function from ice takes a package, then uses pkgutil to import each submodule.

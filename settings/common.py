@@ -69,6 +69,8 @@ INSTALLED_APPS = (
     'compressor',
     'raven.contrib.django.raven_compat',
 
+    'org',
+    'inventory',
     'agreement',
     'handy',
     'regional',

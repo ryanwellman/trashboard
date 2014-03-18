@@ -4,13 +4,12 @@ from django.utils import timezone
 from ..uas import Serializable, Updatable
 from applicant import Applicant
 from address import Address
-from campaign import Campaign
-from package import Package
-from product import Product
+
 from handy import intor, first
 from collections import defaultdict
 from handy.controller import JsonResponse
 import regional.restrictions as restrictions
+from org.models import Campaign
 
 class Agreement(Updatable):
     """
@@ -44,9 +43,10 @@ class Agreement(Updatable):
     date_updated = models.DateTimeField(default=timezone.now) # update when updated
     email = models.CharField(max_length=75)
     approved = models.CharField(max_length=20)
-    package = models.ForeignKey(Package, related_name='package', blank=True, null=True) # now nullable
-    shipping = models.CharField(max_length=20)
-    monitoring = models.CharField(max_length=20)
+
+    #package = models.ForeignKey(Package, related_name='package', blank=True, null=True) # now nullable
+    #shipping = models.CharField(max_length=20)
+    #monitoring = models.CharField(max_length=20)
 
     install_method = models.CharField(max_length=20, blank=True, null=True)
     property_type = models.CharField(max_length=20, blank=True, null=True)

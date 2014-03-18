@@ -41,10 +41,10 @@
 <script type="text/javascript">
 $(function(){
     $('ul.nav > li').click(function(e) {
+        e.preventDefault();
         $('ul.nav > li').removeClass('active');
         $(this).addClass('active');
     });
-    e.preventDefault();
 });
 </script>
 {% endblock %}

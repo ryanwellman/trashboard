@@ -1,14 +1,61 @@
 {% extends "base.html" %}
 
+{% block content %}
+<div id="master_vm">
+<div class="left_sidebar">
+    <!-- this is intentionally left blank for future expansion -->
+</div>
+<div class="well" id="right_sidebar" data-target="right_sidebar">
+    <ul class="nav nav-list">
+      <li class="login-display">
+          <b>Logged in as:</b><br />
+          <i class="fa fa-user"></i> {{ user }}
+      </li>
+        <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
+            <li data-bind="
+               attr: {
+                   id: vm.name+'_id'
+               },
+               css: {
+                   'complete': vm.is_completed(),
+                   'incomplete': !vm.is_completed()
+               },
+               template: {
+                    name: vm.nav_template_name(),
+                    data:vm,
+               } "></li>
+        <!-- /ko -->
+    </ul>
+</div>
+<div class="container">
+    <div data-bind="template: {name: 'navbar', data: $data.navbar, as: 'vm'}"></div>
+    <div class="content">
+        <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
+            <section data-bind="
+               attr: {
+                   id: vm.name+'_id'
+               },
+               css: vm.get_css_classes(),
+               'template': {
+                    name: vm.template_name(),
+                    data:vm,
+               } "></section>
+        <!-- /ko -->
+
+    </div>
+</div>
+</div>
+{% endblock %}
+
 {% block javascript_nocompress %}
 
 <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
 
 <script type="text/javascript">
-  window.InitialCatalogData = loads('{{catalog_json|escapejs}}');
+  window.InitialCatalogData = loads('{{ catalog_json|escapejs }}');
     //window.PRODUCTS = loads('{{products_json|escapejs}}');
     //window.PRICES = loads('{{pricelist_json|escapejs}}');
-    window.agreement_id = {{agreement_id}};
+    window.agreement_id = {{ agreement_id }};
 
     /*window.PACKAGES = {{packages|safe}};
     window.PARTS = {{parts|safe}};
@@ -47,49 +94,4 @@
 <script type="text/javascript" src="{% static 'js/vms/review_vm.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/vms/credit_vm.js' %}"></script>
 
-{% endblock %}
-
-
-{% block content %}
-<div id="master_vm">
-<div class="left_sidebar">
-    <!-- this is intentionally left blank for future expansion -->
-</div>
-<div class="well" id="right_sidebar" data-target="right_sidebar">
-    <ul class="nav nav-list">
-        <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
-            <li data-bind="
-               attr: {
-                   id: vm.name+'_id'
-               },
-               css: {
-                   'complete': vm.is_completed(),
-                   'incomplete': !vm.is_completed()
-               },
-               template: {
-                    name: vm.nav_template_name(),
-                    data:vm,
-               } "></li>
-        <!-- /ko -->
-
-    </ul>
-</div>
-<div class="container">
-    <div data-bind="template: {name: 'navbar', data: $data.navbar, as: 'vm'}"></div>
-    <div class="content">
-        <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
-            <section data-bind="
-               attr: {
-                   id: vm.name+'_id'
-               },
-               css: vm.get_css_classes(),
-               'template': {
-                    name: vm.template_name(),
-                    data:vm,
-               } "></section>
-        <!-- /ko -->
-
-    </div>
-</div>
-</div>
 {% endblock %}

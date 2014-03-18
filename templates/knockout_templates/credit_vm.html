@@ -2,7 +2,7 @@
 {% block section_content %}
 	<div class="row">
 		<div class="span11">
-			<table>
+			<table class="table table-condensed">
 				<thead>
 					<th></th>
 					<th>Name</th>
@@ -21,7 +21,7 @@
 							text: cf.credit_status()
 						"></td>
 						<td>
-							<input data-bind="value: cf.social" placeholder="Social" />
+							<input type="text" data-bind="value: cf.social" placeholder="Social" />
 						</td>
 						<td data-bind="
 							text: cf.person_id() ? '(Saved)' : ''

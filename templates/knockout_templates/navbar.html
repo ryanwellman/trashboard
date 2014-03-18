@@ -1,97 +1,95 @@
 <script type="text/html" id="navbar">
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <ul class="unstyled">
-            <li class="span2">
-                <b>Customer Info:</b><br>
-                <span data-bind="
-                	css: {
-                		muted: !vm.master.vms.applicant.full_name()
-                	},
-                	text: master.vms.applicant.full_name() || 'First Last'
-                "></span>
-                <br>
-                <span class="nav_street1" data-bind="
-	                css: {
-	                	muted: !vm.master.vms.system_address.street1()
-	                },
-	                text: master.vms.system_address.street1() || '(System Address)'
-                "></span>
-                <br>
-	            <span class="nav_street2" data-bind="
-	                css: {
-	                	muted: !vm.master.vms.system_address.street2()
-	                },
-	                text: master.vms.system_address.street2() || ''
-	            "></span>
-	            <span class="nav_city_and_state" data-bind="
-	                css: {
-	                	muted: !vm.master.vms.system_address.city_and_state()
-	                },
-	                text: master.vms.system_address.city_and_state() || 'City, State'
-	            "></span>
-	            <br>
-            </li>
-            <li class="span1.5">
-                <b>Package:</b><br>
-                <h4>
-                	<!-- <span id="package_link" data-bind="text: master.vms.package.package ? master.vms.package.package.name : 'No Package'"></span>--> &nbsp;
-                </h4>
-            </li>
-            <li class="span1.5">
-                <b>Monthly Cost:</b>
-                <span data-bind="text: formatCurrency(master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total(), 1, '/mo')"></span>
-            </li>
-            <li class="span1.5">
-                <b>Upfront Cost:</b><br>
-                <span data-bind="text: formatCurrency(master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total())"></span>
+        <div class="agreement_info_display">
+            <ul class="unstyled">
+                <li class="span2">
+                    <b>Customer Info:</b><br />
+                    <span data-bind="
+                    	css: {
+                    		muted: !vm.master.vms.applicant.full_name()
+                    	},
+                    	text: master.vms.applicant.full_name() || 'First Last'
+                    "></span>
+                    <br />
+                    <span class="nav_street1" data-bind="
+    	                css: {
+    	                	muted: !vm.master.vms.system_address.street1()
+    	                },
+    	                text: master.vms.system_address.street1() || '(System Address)'
+                    "></span>
+                    <br />
+    	            <span class="nav_street2" data-bind="
+    	                css: {
+    	                	muted: !vm.master.vms.system_address.street2()
+    	                },
+    	                text: master.vms.system_address.street2() || ''
+    	            "></span>
+    	            <span class="nav_city_and_state" data-bind="
+    	                css: {
+    	                	muted: !vm.master.vms.system_address.city_and_state()
+    	                },
+    	                text: master.vms.system_address.city_and_state() || 'City, State'
+    	            "></span>
+    	            <br />
+                </li>
+                <li class="span2">
+                    <b>Package:</b><br />
+                    <h4>
+                    	<!-- <span id="package_link" data-bind="text: master.vms.package.package ? master.vms.package.package.name : 'No Package'"></span>--> &nbsp;
+                    </h4>
+                </li>
+                <li class="span2">
+                    <b>Monthly Cost:</b>
+                    <span data-bind="text: formatCurrency(master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total(), 1, '/mo')"></span>
+                </li>
+                <li class="span2">
+                    <b>Upfront Cost:</b><br />
+                    <span data-bind="text: formatCurrency(master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total())"></span>
 
 
-            </li>
-            <li class="span1.5">
-                <b>Chargeback:</b><br>
+                </li>
+                <li class="span2">
+                    <b>Chargeback:</b><br />
 
-                <center><span class="navbadge badge" data-bind="
-                	text: vm.master.cb_balance(),
-                	css: {
-                		'badge-success': vm.master.cb_balance() >= 0,
-                		'badge-important': vm.master.cb_balance() < 0
-                	}
-               	"></span>
-            </li>
-            <li class="span2.5">
-                <b>Agreement ID:</b>
-                <span data-bind="text: vm.master.agreement_id()"></span><br>
-                <b>Monitoring:</b>
-                <span data-bind="
-                	text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected()
-                		  ? vm.master.vms.monitoring.selected().name
-                		  : 'None Selected'
-                "></span><br>
-                <b>Promotions:</b> promotions
-            </li>
-            <li class="span2.5">
-                <b>Combos:</b> combos<br>
-                <b>Shipping:</b>
-                <span data-bind="
-                	text: vm.master.vms.shipping && vm.master.vms.shipping.selected()
-                	      ?	vm.master.vms.shipping.selected().name
-                	      : 'None Selected'
-                "</span>
-                <br>
-            </li>
-            <li class="span2">
-                <b>Credit Status:</b><br>
-                <span class="btn btn-large btn-info">
-                    <i class="fa fa-clock-o"></i>
-                    <span data-bind="text: vm.master.credit_status()"></span>
-                </span>
-            </li>
-            <li class="span2 pull-right">
-                <b>Logged in as:</b><br>
-                <i class="fa fa-user"></i> {{ user }}
-            </li>
-        </ul>
+                    <center><span class="navbadge badge" data-bind="
+                    	text: vm.master.cb_balance(),
+                    	css: {
+                    		'badge-success': vm.master.cb_balance() >= 0,
+                    		'badge-important': vm.master.cb_balance() < 0
+                    	}
+                   	"></span>
+                </li>
+                <li class="span3">
+                    <b>Agreement ID:</b>
+                    <span data-bind="text: vm.master.agreement_id()"></span><br />
+                    <b>Monitoring:</b>
+                    <span data-bind="
+                    	text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected()
+                    		  ? vm.master.vms.monitoring.selected().name
+                    		  : 'None Selected'
+                    "></span><br />
+                    <b>Promotions:</b> promotions
+                </li>
+                <li class="span3">
+                    <b>Combos:</b> combos<br />
+                    <b>Shipping:</b>
+                    <span data-bind="
+                    	text: vm.master.vms.shipping && vm.master.vms.shipping.selected()
+                    	      ?	vm.master.vms.shipping.selected().name
+                    	      : 'None Selected'
+                    "</span>
+                    <br />
+                </li>
+                <li class="span2">
+                    <b>Credit Status:</b><br />
+                    <span class="btn btn-large btn-info">
+                        <i class="fa fa-clock-o"></i>
+                        <span data-bind="text: vm.master.credit_status()"></span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 </script>

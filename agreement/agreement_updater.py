@@ -79,7 +79,7 @@ class AgreementUpdater(object):
             target_address.save()
             self.agreement.system_address = target_address
 
-        for field in ['floorplan', 'property_type', 'install_method']:
+        for field in ['floorplan', 'property_type', 'install_method', 'email']:
             print update_blob[field]
             if field in update_blob:
                 setattr(self.agreement, field, update_blob[field])

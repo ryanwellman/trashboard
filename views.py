@@ -52,6 +52,10 @@ def dyn_json(request, agreement_id=None):
 
     # If we're posting, then get the JSON out of the post data
     post_data = request.POST.get('agreement_update_blob')
+    print "*" * 15
+    print "THis is what we are savign"
+    print post_data
+    print "*" * 15
     if not post_data:
         print request.POST
         jsonable = agreement.as_jsonable()

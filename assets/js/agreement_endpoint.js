@@ -16,7 +16,7 @@ AgreementEndpoint = function() {
             dataType: "text",
             dataFilter: function(data, type) {
                 var loaded = loads(data);
-                console.log("Magic loads", loaded);
+                //console.log("Magic loads", loaded);
                 return loaded;
             },
             url: '/json/' + window.agreement_id,
@@ -32,8 +32,8 @@ AgreementEndpoint = function() {
         // log success
         result.done(function(data) {
             payload = data;
-            console.log("loaded json" + (window.agreement_id ? " from agreement " + window.agreement_id : ''));
-            console.log(ko.toJSON(data))
+            //console.log("loaded json" + (window.agreement_id ? " from agreement " + window.agreement_id : ''));
+            //console.log(ko.toJSON(data))
         });
 
         return payload;
@@ -51,9 +51,9 @@ AgreementEndpoint = function() {
             type: "POST",
             dataType: "text",
             dataFilter: function(data, type) {
-                console.log("Got data: ", data);
+                //console.log("Got data: ", data);
                 var loaded = loads(data);
-                console.log("And was able to loads it:", loaded);
+                //console.log("And was able to loads it:", loaded);
                 return loaded;
 
             },

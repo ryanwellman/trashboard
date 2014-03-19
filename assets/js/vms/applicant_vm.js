@@ -28,7 +28,7 @@ ApplicantVM = function(master, which) {
         if(self.which === 'coapplicant' && !self.has_coapplicant()) {
             return true;
         }
-        return self.first_name() && self.last_name() && self.phone1() && self.master.email() && self.master.ssn();
+        return self.first_name() && self.last_name() && self.phone1() && self.master.email();
     });
 
     self.full_name = ko.computed(function() {
@@ -47,7 +47,13 @@ ApplicantVM = function(master, which) {
     };
 
     self.update_from_agreement = function(agreement) {
-        var person = agreement[self.which] || {};
+        var person = agreement[self.which];
+
+        if(self.which === 'coapplicant'){
+            self.has_coapplicant(!!person);
+        }
+
+        person = person || {};
 
         self.first_name(person.first_name || '');
         self.last_name(person.last_name || '');

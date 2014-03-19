@@ -10,7 +10,7 @@ template.add_to_builtins('django.contrib.staticfiles.templatetags.staticfiles')
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'trashboard.views.home', name='home'),
+    url(r'^$', 'agreement.views.Index', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/?', include(admin.site.urls)),

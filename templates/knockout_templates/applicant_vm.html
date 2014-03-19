@@ -22,20 +22,15 @@
 			<span class="help-inline"></span>
 		</div>
 
-		<div class="control-group">
-			<label class="control-label">SSN or Tax ID:</label>
-			<div class="controls">
-				<input data-bind="value: master.ssn" type="text" placeholder="SSN or Tax ID">
-			</div>
-			<span class="help-inline"></span>
-		</div>
+		<!-- ko if: which !== 'coapplicant' -->
 		<div class="control-group">
 			<label class="control-label">E-mail Address:</label>
 			<div class="controls">
-				<input type="text" placeholder="E-mail" data-bind="value: vm.master.email">
+				<input type="text" placeholder="E-mail" data-bind="value: vm.master.email" />
 			</div>
 			<span class="help-inline"></span>
 		</div>
+		<!-- /ko -->
 	</div>
 
 

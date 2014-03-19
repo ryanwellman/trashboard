@@ -181,8 +181,23 @@ MasterVM = function() {
         self.messages(data.messages);
         self.errors(data.errors);
         self.restrictions(data.restrictions);
+    }
 
+    self.onRestrictionClick = function(context, event){
+        event.preventDefault();
+        elem = $("#restrictions_btn");
+        elem.popover({
+            title: 'Restrictions',
+            placement: 'bottom',
+            trigger: 'manual',
+            content: function(){
+                console.log($('#restrictions_list'))
+                return $('#restrictions_list').clone();
+            },
+            html: true
+        });
 
+        elem.popover('toggle');
     }
 
     self.onCatalogUpdated = function() {

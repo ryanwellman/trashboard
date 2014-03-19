@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container top-container">
     <div>
-        <h2>Credit Reviewing</h2>
+        <h2>Credit Review</h2>
     </div>
     <!--
     <div class="row">
@@ -31,105 +31,96 @@
     </div>
     -->
 
-    <!--
-</div>
-<div class="container-fluid">
-    <table class="table table-bordered table-condensed">
-        <thead class="table-back">
-            <th>ID</center></th>
-            <th><center>DATE</center></th>
-            <th><center>NAME</center></th>
-            <th><center>INTERCONNECT ID</center></th>
-            <th><center>BEACON</center></th>
-            <th><center>ORGANIZATION</center></th>
-            <th><center>ACTIONS</center></th>
-        </thead>
-        <tbody>
+    <div class="container-fluid">
+        <form id="agreement_search" class="form-inline" method="GET">
+            <div class="well">
+                <strong>Search by Agreement ID:</strong>
+                <input type="text" class="input-large" name="agreement_id" placeholder="Agreement ID" />
+            </div>
+        </form>
+        <table class="table table-condensed">
+        {% for p in pending_credit %}
+            <tr class="table-credit">
+                <td colspan="2">Agreement ID: {{ p.agreement_id }}</td>
+                <form id="credit_review" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="agreement_id" value="{{p.agreement_id}}">
+                    <td colspan="2"><center>
+                            <button class="btn btn-success credit-btn" name="approve_credit">APPROVE</button>
+                            <button class="btn btn-danger credit-btn" name="decline_credit">DECLINE</button>
+                    </center></td>
+                </form>
+            </tr>
             <tr>
-                <td><center>1490660</center></td>
-                <td><center>2014-03-10</center></td>
-                <td><center>BRADY m MATHEWS</center></td>
-                <td><center>10000059007306</center></td>
-                <td><center>EFX ?</center></td>
-                <td><center>Protect America</center></td>
-                <td><center>
-                    <button class="btn btn-success credit-btn">APPROVE</button>
-                    <button class="btn btn-danger credit-btn">DECLINE</button>
+                <td><strong>Organization:</strong> {{ p.organization_name }}</td>
+                <td><strong>Date:</strong> {{ p.date_updated|date }}</td>
+                <td colspan="2"><strong>Status:</strong> {{ p.credit_status }}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><strong>Name</strong></td>
+                <td><strong>Beacon</strong></td>
+                <td><strong>Interconnect ID</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Applicant</strong></td>
+                <td>{{ p.applicant_first_name }} {{ p.applicant_last_name }}</td>
+                <td>{{ p.applicant_beacon }}</td>
+                <td>{{ p.applicant_transaction_id }}</td>
+            </tr>
+            {% if p.coapplicant_first_name %}
+            <tr>
+                <td><strong>Coapplicant</strong></td>
+                <td>{{ p.coapplicant_first_name }} {{ p.coapplicant_last_name }}</td>
+                <td>{{ p.coapplicant_beacon }}</td>
+                <td>{{ p.coapplicant_transaction_id }}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+        </table>
+    </div>
+    <!--
+    <h4>Test #1</h4>
+    <div class="container-fluid">
+        <table class="table table-bordered table-condensed">
+        {% for p in pending_credit %}
+            <tr>
+                <td colspan="4" class="table-header">Agreement ID: {{ p.agreement_id }}</td>
+            </tr>
+            <tr>
+                <td><strong>Organization:</strong> {{ p.organization_name }}</td>
+                <td><strong>Date:</strong> {{ p.date_updated|date }}</td>
+                <td colspan="2"><strong>Status:</strong> {{ p.credit_status }}</td>
+            </tr>
+            <tr>
+                <td><strong>Type</strong></td>
+                <td><strong>Name</strong></td>
+                <td><strong>Beacon</strong></td>
+                <td><strong>Interconnect ID</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Applicant</strong></td>
+                <td>{{ p.applicant_first_name }} {{ p.applicant_last_name }}</td>
+                <td>{{ p.applicant_beacon }}</td>
+                <td>{{ p.applicant_transaction_id }}</td>
+            </tr>
+            {% if p.coapplicant_first_name %}
+            <tr>
+                <td><strong>Coapplicant</strong></td>
+                <td>{{ p.coapplicant_first_name }} {{ p.coapplicant_last_name }}</td>
+                <td>{{ p.coapplicant_beacon }}</td>
+                <td>{{ p.coapplicant_transaction_id }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td colspan="4"><center>
+                    <button class="btn btn-success credit-btn" name="approve_credit">APPROVE</button>
+                    <button class="btn btn-danger credit-btn" name="decline_credit">DECLINE</button>
                 </center></td>
             </tr>
-        </tbody>
-        <tfoot class="table-back">
-            <tr>
-                <td colspan="8">back to top</td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
--->
-<!-- aaa
-{% for p in pending_credit %}
-   bbb {{p}}
-{% endfor %}
-ccc -->
-<div class="container-fluid">
-    <table class="table table-bordered table-condensed">
-        <thead class="table-back">
-            <th>ID</th>
-            <th>ORGANIZATION</th>
-            <th>DATE</th>
-            <th>NAME</th>
-            <th>INTERCONNECT ID</th>
-            <th>BEACON</th>
-            <th>ACTIONS</th>
-        </thead>
-        <tbody>
-            {% for p in pending_credit %}
-                <tr>
-                    <td>{{p.agreement_id}}</td>
-                    <td>{{p.organization_name}}</td>
-                    <td>{{p.date_updated|date}}</td>
-                    <td>Status: {{ p.credit_status }}</td>
-                    <td>Override to: {{p.credit_override}}</td>
-                    <td></td>
-                    <td>
-                            <form id="credit_review" method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="agreement_id" value="{{p.agreement_id}}">
-                                <button class="btn btn-success credit-btn" name="approve_credit">APPROVE</button>
-                                <button class="btn btn-danger credit-btn" name="decline_credit">DECLINE</button>
-                            </form>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td colspan="3"><strong>Applicant</strong></td>
-                    <td>{{p.applicant_first_name}} {{p.applicant_last_name}}</td>
-                    <td>{{p.applicant_transaction_id}}</td>
-                    <td>{{p.applicant_beacon}}</td>
-
-                </tr>
-                {% if p.coapplicant_transaction_id %}
-                <tr>
-                    <td colspan="3"><strong>Coapplicant</strong></td>
-                    <!--<td colspan="2">
-                        <!--<strong>Coapplicant</strong>
-                    </td>-->
-                    <td>{{p.coapplicant_first_name}} {{p.coapplicant_last_name}}</td>
-                    <td>{{p.coapplicant_transaction_id}}</td>
-                    <td>{{p.coapplicant_beacon}}</td>
-                    <td>
-
-                    </center></td>
-                </tr>
-                {% endif %}
-
-            {% endfor %}
-        </tbody>
-        <tfoot class="table-back">
-            <tr>
-                <td colspan="8">back to top</td>
-            </tr>
-        </tfoot>
-    </table>
+        {% endfor %}
+        </table>
+    </div>
+    -->
 </div>
 {% endblock %}

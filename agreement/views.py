@@ -32,22 +32,25 @@ def CreditReview(request):
     # Re-review a specific id
     if request.GET.get('agreement_id'):
         agreements = agreements.filter(pk=request.GET.get('agreement_id'))
+        print "agreements", agreements
     else:
         # Review anything that isn't overridden already.
         agreements = agreements.filter(credit_status__in=['REVIEW', 'NO HIT'], credit_override__isnull=True)
 
     fields = {
         'id' : 'agreement_id',
-        'date_updated' : 'date_updated',
-        'campaign__organization__name' : 'organization_name',
+        'date_updated': 'date_updated',
+        'credit_status': 'credit_status',
+        'credit_override': 'credit_override',
+        'campaign__organization__name': 'organization_name',
         'applicant_id__first_name': 'applicant_first_name',
         'applicant_id__last_name': 'applicant_last_name',
-        'applicant_id__credit_file__beacon' : 'applicant_beacon',
-        'applicant_id__credit_file__transaction_id' : 'applicant_transaction_id',
+        'applicant_id__credit_file__beacon': 'applicant_beacon',
+        'applicant_id__credit_file__transaction_id': 'applicant_transaction_id',
         'coapplicant_id__first_name': 'coapplicant_first_name',
         'coapplicant_id__last_name': 'coapplicant_last_name',
-        'coapplicant_id__credit_file__beacon' : 'coapplicant_beacon',
-        'coapplicant_id__credit_file__transaction_id' : 'coapplicant_transaction_id',
+        'coapplicant_id__credit_file__beacon': 'coapplicant_beacon',
+        'coapplicant_id__credit_file__transaction_id': 'coapplicant_transaction_id',
     }
     pending_credit = agreements.values(*fields.keys())
     pending_credit = [
@@ -65,11 +68,10 @@ def CreditReview(request):
 
 @render_to('bypass.html')
 def BypassUpfrontAuthorization(request):
-    qs = Agreement.objects.filter(status='PUBLISHED')
-    published = qs.values('id', 'date_updated', 'applicant_id__first_name', 'applicant_id__last_name')
+    qs = Agreement.objects.filter(status='PUBLISHED', bypass_upfront_authorization=False)
+    published = qs.values('id', 'date_updated', 'applicant_id__first_name', 'applicant_id__last_name', 'campaign__organization__name')
 
     if request.POST:
-        print "let's bypass this shit"
         bypass_agreement = request.POST.get('agreement_id')
         agreement = Agreement.objects.get(id=bypass_agreement)
         agreement.bypass_upfront_authorization = True

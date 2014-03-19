@@ -44,11 +44,12 @@ class CreditRequest(models.Model):
         req.applicant = applicant
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
+        req.country_code = 'CA'
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
         req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
         req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
         req.bureaus = settings.CREDIT_BUREAUS
-        req.last_4 = social[-4:]
+        req.last_4 = str(social)[-4:]
         req.stop_running_at_beacon = settings.STOP_RUNNING_AT_BEACON
         req.save()
 

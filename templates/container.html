@@ -35,7 +35,15 @@
         <!-- /ko -->
     </ul>
 
-    <a id="restrictions_btn" href="#" class="btn btn-danger" data-bind="visible: $data.restrictions().length > 0"><i class="fa fa-warning"></i> Restrictions</a>
+    <a id="restrictions_btn" href="#" class="btn btn-danger" data-bind="visible: $data.restrictions().length > 0, click: $data.onRestrictionClick"><i class="fa fa-warning"></i> Restrictions</a>
+    <div id="blah"></div>
+    <div class="hide">
+      <ul id="restrictions_list" data-bind="
+        foreach: {data: $data.restrictions(), as: 'restriction'}
+      ">
+      <li data-bind="text: restriction"></li>
+    </ul>
+  </div>
 </div>
 <div class="container">
     <div data-bind="template: {name: 'navbar', data: $data.navbar, as: 'vm'}"></div>
@@ -77,6 +85,22 @@
     window.MONITORS = {{monitors|safe}};
     window.SHIPPERS = {{shippers|safe}};
     */
+
+    $(function(){
+    ko.bindingHandlers.creditlabel = {
+        init: function (element, valueAccessor) {
+            console.log("init on custom handler label")
+            var local = ko.utils.unwrapObservable(valueAccessor());
+            console.log('ko label', local)
+        },
+        update: function(element, valueAccessor){
+            console.log("update on custom handler label")
+            var local = ko.utils.unwrapObservable(valueAccessor());
+            console.log('ko label', local)
+        }
+    };
+  });
+
 </script>
 
 <script type="text/javascript" src="{% static 'js/vms/master_vm.js' %}"></script>

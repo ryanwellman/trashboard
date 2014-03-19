@@ -181,24 +181,23 @@ MasterVM = function() {
         self.messages(data.messages);
         self.errors(data.errors);
         self.restrictions(data.restrictions);
+    }
 
-        if(self.restrictions().length > 0){
-            var list = $('<ul>');
-            _.each(self.restrictions(), function(restriction){
-                item = $("<li/>", {
-                    text: restriction
-                });
-                list.append(item);
-            });
+    self.onRestrictionClick = function(context, event){
+        event.preventDefault();
+        elem = $("#restrictions_btn");
+        elem.popover({
+            title: 'Restrictions',
+            placement: 'bottom',
+            trigger: 'manual',
+            content: function(){
+                console.log($('#restrictions_list'))
+                return $('#restrictions_list').clone();
+            },
+            html: true
+        });
 
-            $("#restrictions_btn").popover({
-                title: 'Restrictions',
-                placement: 'left',
-                content: list,
-                html: true
-            });
-        }
-
+        elem.popover('toggle');
     }
 
     self.onCatalogUpdated = function() {

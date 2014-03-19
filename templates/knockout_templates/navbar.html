@@ -82,14 +82,7 @@
                     <br />
                 </li>
                 <li class="span2">
-                    <b>Credit Status:</b><br />
-                    <span class="btn btn-large btn-info">
-                        <i class="fa fa-clock-o"></i>
-                        <span data-bind="text: vm.master.credit_status()"></span>
-                    </span>
-                    <div data-bind="creditlabel: vm.master.credit_status()">
-                        Holy Balls
-                    </div>
+                    <span class="agreement_credit_status" data-bind="html: vm.master.label_display_text, css: vm.master.label_display"></span>
                 </li>
             </ul>
         </div>

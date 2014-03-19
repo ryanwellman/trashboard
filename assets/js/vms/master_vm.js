@@ -89,9 +89,15 @@ MasterVM = function() {
         return total_balance;
     });
 
+    self.label_display_text = ko.computed(function(){
+        var icon = '<i class="'+window.CREDIT_LABEL_ICON_OPTIONS[self.credit_status()]+'"></i>'
 
+        return icon + " " + self.credit_status();
+    });
 
-
+    self.label_display = ko.computed(function(){
+        return window.CREDIT_LABEL_OPTIONS[self.credit_status()];
+    });
 
     self.construct_agreement = function() {
         agreement = {
@@ -183,23 +189,6 @@ MasterVM = function() {
         self.restrictions(data.restrictions);
     }
 
-    self.onRestrictionClick = function(context, event){
-        event.preventDefault();
-        elem = $("#restrictions_btn");
-        elem.popover({
-            title: 'Restrictions',
-            placement: 'bottom',
-            trigger: 'manual',
-            content: function(){
-                console.log($('#restrictions_list'))
-                return $('#restrictions_list').clone();
-            },
-            html: true
-        });
-
-        elem.popover('toggle');
-    }
-
     self.onCatalogUpdated = function() {
         self.cart.update_from_catalog();
         self.customization_cart.update_from_catalog();
@@ -208,8 +197,6 @@ MasterVM = function() {
             vm.cart_trigger.valueHasMutated();
         });
     }
-
-
 
     // XXX: insert other fns above this line
     return self;

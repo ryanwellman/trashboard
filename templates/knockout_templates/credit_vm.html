@@ -11,15 +11,15 @@
 					<th></th>
 				</thead>
 				<tbody>
-					<!-- ko foreach: {data: [vm.applicant_credit, coapplicant_credit], as: 'cf' } -->
+					<!-- ko foreach: {data: [vm.applicant_credit, vm.coapplicant_credit], as: 'cf' } -->
 					<tr data-bind="visible: cf.should_show()">
 						<td style="font-weight: bold" data-bind="text: cf.which"></td>
 						<td data-bind="
 							text: cf.first_name() + ' ' + cf.last_name()
 						"></td>
-						<td data-bind="
-							text: cf.credit_status()
-						"></td>
+						<td>
+							<span data-bind="text: cf.credit_status(), css: cf.label_display"></span>
+						</td>
 						<td>
 							<input type="text" data-bind="value: cf.social" placeholder="Social" />
 						</td>

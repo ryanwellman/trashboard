@@ -45,7 +45,7 @@ AddressVM = function(master, which) {
             }
             cs += state;
         }
-        return state;
+        return cs;
     });
 
     self.update_from_agreement = function(agreement) {

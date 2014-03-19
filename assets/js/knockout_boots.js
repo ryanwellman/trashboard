@@ -40,3 +40,30 @@ ko.bindingHandlers.popover = {
         container: false
     }
 };
+
+ko.bindingHandlers.bootstrapswitch = {
+    init: function(element, valueAccessor){
+        var local = ko.utils.unwrapObservable(valueAccessor()),
+            options = {},
+            $elem = $(element);
+
+        ko.utils.extend(options, ko.bindingHandlers.popover.options);
+        ko.utils.extend(options, local);
+
+        $elem.bootstrapSwitch(options);
+    },
+
+    options: {
+        size: null,
+        animate: true,
+        disabled: false,
+        readonly: false,
+        onColor: "primary",
+        offColor: "default",
+        onText: "ON",
+        offText: "OFF",
+        labelText: "&nbsp;",
+        onInit: function() {},
+        onSwitchChange: function() {}
+    }
+};

@@ -21,7 +21,7 @@ ApplicantVM = function(master, which) {
 
 
     self.which = which; // Which is the field I am working with on the agreement (applicant, coapplicant)
-    self.has_coapplicant = ko.observable(false);
+    self.has_coapplicant = tidyObservable(false);
 
 
     self.is_completed = ko.computed(function() {

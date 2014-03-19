@@ -46,7 +46,8 @@ window.CREDIT_LABEL_OPTIONS = {
     'DCS': 'label label-warning',
     'NOHIT': 'label label-inverse',
     'PENDING': 'label label-info',
-    'REVIEW': 'label label-important'
+    'REVIEW': 'label label-important',
+    'NOT RUN': 'label'
 };
 
 window.CREDIT_LABEL_ICON_OPTIONS = {
@@ -54,7 +55,8 @@ window.CREDIT_LABEL_ICON_OPTIONS = {
     'DCS': 'fa fa-warning',
     'NOHIT': 'fa fa-times',
     'PENDING': 'fa fa-clock-o',
-    'REVIEW': 'fa fa-exclamation'
+    'REVIEW': 'fa fa-exclamation',
+    'NOT RUN': ''
 };
 
 // The truth is that none of this should really EVER change, other than adding and removing, right?

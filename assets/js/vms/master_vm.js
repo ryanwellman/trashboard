@@ -93,7 +93,7 @@ MasterVM = function() {
         var status = self.credit_status();
 
         if(!status){
-            status = 'PENDING';
+            status = 'NOT RUN';
         }
 
         // jQuery object to string
@@ -108,7 +108,7 @@ MasterVM = function() {
         var status = self.credit_status();
 
         if(!status){
-            status = 'PENDING';
+            status = 'NOT RUN';
         }
 
         return window.CREDIT_LABEL_OPTIONS[status];

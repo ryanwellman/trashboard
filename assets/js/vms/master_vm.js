@@ -90,13 +90,28 @@ MasterVM = function() {
     });
 
     self.label_display_text = ko.computed(function(){
-        var icon = '<i class="'+window.CREDIT_LABEL_ICON_OPTIONS[self.credit_status()]+'"></i>'
+        var status = self.credit_status();
 
-        return icon + " " + self.credit_status();
+        if(!status){
+            status = 'PENDING';
+        }
+
+        // jQuery object to string
+        var icon = $("<i/>", {
+            'class': window.CREDIT_LABEL_ICON_OPTIONS[status]
+        }).wrap('<div/>').parent().html();
+
+        return icon + " " + status;
     });
 
     self.label_display = ko.computed(function(){
-        return window.CREDIT_LABEL_OPTIONS[self.credit_status()];
+        var status = self.credit_status();
+
+        if(!status){
+            status = 'PENDING';
+        }
+
+        return window.CREDIT_LABEL_OPTIONS[status];
     });
 
     self.construct_agreement = function() {

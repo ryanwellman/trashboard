@@ -53,7 +53,7 @@ window.CREDIT_LABEL_ICON_OPTIONS = {
     'APPROVED': 'fa fa-check',
     'DCS': 'fa fa-warning',
     'NOHIT': 'fa fa-times',
-    'PENDING': 'fa fa-clock',
+    'PENDING': 'fa fa-clock-o',
     'FRAUD': 'fa fa-exclamation'
 };
 

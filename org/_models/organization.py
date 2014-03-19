@@ -16,13 +16,16 @@ class Organization(Model):
     that governs what they charge for our products
     """
 
+    organization_id = models.AutoField(primary_key=True)
     pricegroup =    models.ForeignKey(PriceGroup) # must have this
     #campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
     name        =   models.CharField(max_length=50)
-    provider_id =   models.CharField(max_length=32, primary_key=True)
+    org_code    =   models.CharField(max_length=50)
+    provider_id =   models.IntegerField(null=True, blank=True)
+    distribution_email = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
-        return u','.join([unicode(f) for f in [self.name, self.provider_id]])
+        return u' : '.join([unicode(f) for f in [self.org_code, self.name]])
 
     class Meta:
         ordering = ['name']

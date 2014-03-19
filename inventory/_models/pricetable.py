@@ -10,12 +10,12 @@ class PriceTable(models.Model):
     layered on top of it later
     """
 
-    name        =   models.CharField(max_length=40, primary_key=True)
-    products    =   models.ManyToManyField(Product, through='ProductPrice', related_name='ProductPrices')
+    pricetable_id  =   models.CharField(max_length=40, primary_key=True)
+    products       =   models.ManyToManyField(Product, through='ProductPrice', related_name='ProductPrices')
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.name]])
 
     class Meta:
-        ordering = ['name']
+        ordering = ['pricetable_id']
         app_label = 'inventory'

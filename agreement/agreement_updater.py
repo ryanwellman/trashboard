@@ -4,7 +4,9 @@ from django.utils import timezone
 from handy import intor, first
 from collections import defaultdict
 from handy.controller import JsonResponse
-from agreement.models import Applicant, Address, Campaign, Package, Product, Agreement, InvoiceLine, ProductContent
+from agreement.models import Applicant, Address, Agreement, InvoiceLine
+from inventory.models import Package, Product,ProductContent
+from org.models import Campaign
 from annoying.functions import get_object_or_None as gooN
 import regional.restrictions as restrictions
 

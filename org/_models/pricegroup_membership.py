@@ -16,7 +16,7 @@ class PGMembership(Model):
 
     pricegroup      =   models.ForeignKey(PriceGroup)
     pricetable      =   models.ForeignKey(PriceTable)
-    date_updated    =   models.DateTimeField()
+    date_updated    =   models.DateTimeField(auto_now=True)
     notes           =   models.CharField(max_length=200, blank=True)
     zorder          =   models.IntegerField(default=0)
 

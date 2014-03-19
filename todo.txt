@@ -1,0 +1,18 @@
+DONE fire availability
+DONE dcs availability
+DONE install method
+DONE credit override shadowing
+
+orgusers
+agreement ownership
+agreement read-only
+agreement view/takeover permissions
+
+publishing (steal this)
+signing (steal this)
+equipment credit (quicken)
+credit override
+bypass upfront
+
+
+dcs pricing?

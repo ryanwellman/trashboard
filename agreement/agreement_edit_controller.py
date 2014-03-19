@@ -1,7 +1,8 @@
 from handy.controller import GenericController
 from handy import intor
 from handy.jsonstuff import dumps
-from agreement.models import Agreement, Product
+from agreement.models import Agreement
+from inventory.models import Product
 from pricefunctions import get_global_context
 from django.shortcuts import get_object_or_404, redirect
 

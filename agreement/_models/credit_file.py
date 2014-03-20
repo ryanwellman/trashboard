@@ -14,7 +14,7 @@ class CreditRequest(models.Model):
     # person_id is used to identify the name/social used to run it.
     person_id = models.CharField(max_length=64)
     name = models.CharField(max_length=64)
-    last_4 = models.IntegerField()
+    last_4 = models.CharField(max_length=4)
 
     # The social is stored in social_data, encrypted with the social_data_key
     # and encoded as base64.  The full social is destroyed as soon as it
@@ -33,6 +33,7 @@ class CreditRequest(models.Model):
     processor_pid = models.IntegerField(blank=True, null=True)
 
     processed = models.BooleanField(default=False)
+    error = models.BooleanField(default=False)
     # need to store these things
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
@@ -75,9 +76,9 @@ class CreditRequest(models.Model):
 
         # figure out which one of these things contains something useful
         # XXX: put these in order of preference
-        country_info =  [   process_country(active_agreement.billing_address.country),
-                            process_state(active_agreement.billing_address.state),
-                            process_zip(active_agreement.billing_address.zip),
+        country_info =  [   process_country(active_agreement.system_address.country),
+                            process_state(active_agreement.system_address.state),
+                            process_zip(active_agreement.system_address.zip),
                         ]
         try:
             # let's try to get the first useful value
@@ -86,11 +87,11 @@ class CreditRequest(models.Model):
             # because brian said so
             return None
 
-        # we need this person's BILLING address to run their credit
-        req.address = ' '.join([active_agreement.billing_address.street1, active_agreement.billing_address.street2])
-        req.city = active_agreement.billing_address.city
-        req.state = active_agreement.billing_address.state
-        req.zipcode = active_agreement.billing_address.zip
+        # we need this person's SYSTEM address to run their credit
+        req.address = ' '.join([active_agreement.system_address.street1, active_agreement.system_address.street2])
+        req.city = active_agreement.system_address.city
+        req.state = active_agreement.system_address.state
+        req.zipcode = active_agreement.system_address.zip
         req.country_code = active_country_info
 
         # obtain their name
@@ -154,6 +155,7 @@ class CreditFile(models.Model):
     frozen = models.BooleanField(default=False)
     nohit = models.BooleanField(default=False)
     vermont = models.BooleanField(default=False)
+    status_string = models.CharField(max_length=20)
 
     # bookkeeping
     transaction_id = models.CharField(max_length=64)
@@ -181,15 +183,15 @@ class CreditFile(models.Model):
         }
         return jsonable
 
-    @property
-    def status_string(self):
-        if self.fraud or self.frozen or self.vermont:
-            return 'REVIEW'
-        if self.nohit:
-            return 'NO HIT'
-        if self.beacon >= settings.CREDIT_APPROVED_BEACON:
-            return 'APPROVED'
-        return 'DCS'
+    #@property
+    #def another_status_string(self):
+    #    if self.fraud or self.frozen or self.vermont:
+    #        return 'REVIEW'
+    #    if self.nohit:
+    #        return 'NO HIT'
+    #    if self.beacon >= settings.CREDIT_APPROVED_BEACON:
+    #        return 'APPROVED'
+    #    return 'DCS'
 
 
     class Meta:

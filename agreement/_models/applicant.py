@@ -75,8 +75,18 @@ class Applicant(Updatable):
         if not social:
             return None
 
-        # if i don't have a billing address, i can't start it either
-        if not self.agreement.billing_address:
+        # if i don't have a SYSTEM address, i can't start it either
+        things_to_check =   [   self.agreement.system_address,
+                                self.agreement.system_address.street1,
+                                self.agreement.system_address.street2,
+                                self.agreement.system_address.city,
+                                self.agreement.system_address.state,
+                                self.agreement.system_address.zip,
+                            ]
+        # anyone home?
+        try:
+            first_not_falsy = next((thing for thing in things_to_check if thing))
+        except StopIteration:
             return None
 
         # Is the social I got passed in actually what's on this

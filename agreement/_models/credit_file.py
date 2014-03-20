@@ -36,23 +36,81 @@ class CreditRequest(models.Model):
     # need to store these things
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
+    address = models.CharField(max_length=80)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=25)
+    zipcode = models.CharField(max_length=10)
     country_code = models.CharField(max_length=10)
 
     @staticmethod
     def create_request(applicant, social):
         req = CreditRequest()
         req.applicant = applicant
+        active_agreement = applicant.agreement
+
+        # pre-processors for the country information
+        def process_country(info):
+            if not info:
+                return None
+            elif info.upper() in ['CANADA', 'CA']:
+                return 'CA'
+            else:
+                return  'US'
+
+        def process_state(info):
+            if not info:
+                return None
+            elif info.upper() in ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT']:
+                return 'CA'
+            else:
+                return  'US'
+
+        def process_zip(info):
+            if not info:
+                return None
+            elif not info[0].isdigit():
+                return 'CA'
+            else:
+                return  'US'
+
+        # figure out which one of these things contains something useful
+        # XXX: put these in order of preference
+        country_info =  [   process_country(active_agreement.billing_address.country),
+                            process_state(active_agreement.billing_address.state),
+                            process_zip(active_agreement.billing_address.zip),
+                        ]
+        try:
+            # let's try to get the first useful value
+            active_country_info = next((info for info in country_info if info is not None))
+        except StopIteration:
+            # because brian said so
+            return None
+
+        # we need this person's BILLING address to run their credit
+        req.address = ' '.join([active_agreement.billing_address.street1, active_agreement.billing_address.street2])
+        req.city = active_agreement.billing_address.city
+        req.state = active_agreement.billing_address.state
+        req.zipcode = active_agreement.billing_address.zip
+        req.country_code = active_country_info
+
+        # obtain their name
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
-        req.country_code = 'CA'
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
+
+        # call out to generate_person_id
         req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
+
+        # encrypt social data
         req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
+
+        # credit settings
         req.bureaus = settings.CREDIT_BUREAUS
         req.last_4 = str(social)[-4:]
         req.stop_running_at_beacon = settings.STOP_RUNNING_AT_BEACON
-        req.save()
 
+        # save and return
+        req.save()
         return req
 
     class Meta:
@@ -100,6 +158,13 @@ class CreditFile(models.Model):
     # bookkeeping
     transaction_id = models.CharField(max_length=64)
     transaction_status = models.CharField(max_length=20)
+
+    # address
+    address = models.CharField(max_length=80)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=25)
+    zipcode = models.CharField(max_length=10)
+    country_code = models.CharField(max_length=10)
 
 
     def __unicode__(self):

@@ -75,6 +75,10 @@ class Applicant(Updatable):
         if not social:
             return None
 
+        # if i don't have a billing address, i can't start it either
+        if not self.agreement.billing_address:
+            return None
+
         # Is the social I got passed in actually what's on this
         # agreement?  This should never not be true.
         sanity_check = self.person_id == Applicant.generate_person_id(self.first_name, self.last_name, social)

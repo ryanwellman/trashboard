@@ -47,12 +47,12 @@ class Applicant(Updatable):
             final_cfile = cf[0] # take the first one if it exists
             for cfile in cf:
                 # XXX: obtain the one with the highest beacon?
-                if cfile.beacon > final_beacon:
+                if cfile.beacon > final_cfile.beacon:
                     final_cfile = cfile
 
 
         if final_cfile:
-            return cf.status_string
+            return final_cfile.status_string
 
         # I don't have a credit file for me,
         # so see if I can find and copy one.

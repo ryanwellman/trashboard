@@ -43,6 +43,7 @@ class Applicant(Updatable):
         from credit_file import CreditFile, CreditRequest
         # now there's many credit files
         cf = CreditFile.objects.filter(applicant=self)
+        final_cfile = None
         if cf:
             final_cfile = cf[0] # take the first one if it exists
             for cfile in cf:

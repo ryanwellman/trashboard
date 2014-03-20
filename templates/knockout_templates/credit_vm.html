@@ -1,37 +1,30 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block section_content %}
-	<div class="row">
-		<div class="span11">
-			<table class="table table-condensed">
-				<thead>
-					<th></th>
-					<th>Name</th>
-					<th>Status</th>
-					<th>Social</th>
-					<th></th>
-				</thead>
-				<tbody>
-					<!-- ko foreach: {data: [vm.applicant_credit, vm.coapplicant_credit], as: 'cf' } -->
-					<tr data-bind="visible: cf.should_show()">
-						<td style="font-weight: bold" data-bind="text: cf.which"></td>
-						<td data-bind="
-							text: cf.first_name() + ' ' + cf.last_name()
-						"></td>
-						<td>
-							<span data-bind="text: cf.credit_status(), css: cf.label_display"></span>
-						</td>
-						<td>
-							<input type="text" data-bind="value: cf.social" placeholder="Social" />
-						</td>
-						<td data-bind="
-							text: cf.person_id() ? '(Saved)' : ''
-						"></td>
-					</tr>
-					<!-- /ko -->
-
-				</tbody>
-			</table>
-	    </div>
-	</div>
+    <div class="row">
+        <div class="span11">
+            <table class="table table-condensed section-table">
+                <thead>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Social</th>
+                </thead>
+                <tbody data-bind="foreach: {data: [vm.applicant_credit, vm.coapplicant_credit], as: 'cf' }">
+                    <tr data-bind="visible: cf.should_show()">
+                        <td style="font-weight: bold" data-bind="text: cf.which"></td>
+                        <td data-bind="
+                            text: cf.first_name() + ' ' + cf.last_name()
+                        "></td>
+                        <td>
+                            <span data-bind="html: cf.label_display_text, css: cf.label_display"></span>
+                        </td>
+                        <td>
+                            <input type="text" data-bind="value: cf.social" placeholder="Social" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 {% endblock %}

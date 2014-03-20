@@ -1,89 +1,75 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block section_content %}
 
-<!-- combo selection lines -->
-
-
-
-
-<div class="row"><div class="span11">
-
-    <table class="table">
-        <thead>
-            <th colspan="2">Combo</th>
-            <th>Upfront</th>
-            <th>Monthly</th>
-            <th>&times;</th>
-            <th>Quantity</th>
-            <th>=</th>
-            <th>Upfront</th>
-            <th>Monthly</th>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.cart_lines,
-                as: 'cline'
-            }
-            ">
-            <tr data-bind="
-            ">
-
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-
-                <td data-bind="text: cline.upfront_each_fmted()"></td>
-                <td data-bind="text: cline.monthly_each_fmted()"></td>
-                <td>&times;</td>
-                <td style="text-align:right;">
-                    <input class="input-mini text-right" data-bind="value: cline.quantity" type="text" />
-                </td>
-                <td>=</td>
-                <td data-bind="text: cline.upfront_line_fmted()"></td>
-                <td data-bind="text: cline.monthly_line_fmted()"></td>
-
-            </tr>
-            <!-- ko foreach: {data: cline.product.contents, as: 'pc'} -->
-            <tr>
-                <td>
-                    <!-- <i class="fa fa-arrow-circle-right"></i> -->
-                    <span style="font-family: monospace; padding-left: 30px; font-style: italic;" data-bind="text: pc.product.code"></span>
-                </td>
-                <td data-bind="text: pc.product.name"></td>
-                <td data-bind="text: formatCurrency(pc.upfront_strike)" class="strike-red"></td>
-                <td data-bind="text: formatCurrency(pc.monthly_strike)" class="strike-red"></td>
-                <td>&times;</td>
-                <td style="text-align: right">
-                    (<span data-bind="text: pc.quantity"></span>
-                    &times;
-                    <strong data-bind="text: cline.quantity"></strong>
-                    =
-                    <span data-bind="text: pc.quantity * cline.quantity()"></span>)
-                </td>
-                <td>=</td>
-                <td class="strike-red" data-bind="
-                    text: cline.quantity() && pc.upfront_strike ?
-                    formatCurrency(pc.upfront_strike * pc.quantity * cline.quantity()) : ''
-                "></td>
-                <td class="strike-red" data-bind="
-                    text: cline.quantity() && pc.monthly_strike ?
-                    formatCurrency(pc.monthly_strike * pc.quantity * cline.quantity()) : ''
-                "></td>
-            </tr>
-            <!-- /ko -->
-
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="7"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
-            </tr>
-        </tfoot>
-    </table>
-</div></div>
-
-
-
-
+    <div class="row">
+        <div class="span11">
+            <table class="table table-condensed section-table">
+                <thead>
+                    <th colspan="2">Combo</th>
+                    <th>Upfront</th>
+                    <th>Monthly</th>
+                    <th>&times;</th>
+                    <th>Quantity</th>
+                    <th>=</th>
+                    <th>Upfront</th>
+                    <th>Monthly</th>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.cart_lines,
+                        as: 'cline'
+                    }
+                    ">
+                    <tr>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.upfront_each_fmted()"></td>
+                        <td data-bind="text: cline.monthly_each_fmted()"></td>
+                        <td>&times;</td>
+                        <td style="text-align:right;">
+                            <input class="input-mini text-right" data-bind="value: cline.quantity" type="text" />
+                        </td>
+                        <td>=</td>
+                        <td data-bind="text: cline.upfront_line_fmted()"></td>
+                        <td data-bind="text: cline.monthly_line_fmted()"></td>
+                    </tr>
+                    <!-- ko foreach: {data: cline.product.contents, as: 'pc'} -->
+                    <tr>
+                        <td>
+                            <span style="font-family: monospace; padding-left: 30px; font-style: italic;" data-bind="text: pc.product.code"></span>
+                        </td>
+                        <td data-bind="text: pc.product.name"></td>
+                        <td data-bind="text: formatCurrency(pc.upfront_strike)" class="strike-red"></td>
+                        <td data-bind="text: formatCurrency(pc.monthly_strike)" class="strike-red"></td>
+                        <td>&times;</td>
+                        <td style="text-align: right">
+                            (<span data-bind="text: pc.quantity"></span>
+                            &times;
+                            <strong data-bind="text: cline.quantity"></strong>
+                            =
+                            <span data-bind="text: pc.quantity * cline.quantity()"></span>)
+                        </td>
+                        <td>=</td>
+                        <td class="strike-red" data-bind="
+                            text: cline.quantity() && pc.upfront_strike ?
+                            formatCurrency(pc.upfront_strike * pc.quantity * cline.quantity()) : ''
+                        "></td>
+                        <td class="strike-red" data-bind="
+                            text: cline.quantity() && pc.monthly_strike ?
+                            formatCurrency(pc.monthly_strike * pc.quantity * cline.quantity()) : ''
+                        "></td>
+                    </tr>
+                    <!-- /ko -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="7"></th>
+                        <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                        <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
 {% endblock %}

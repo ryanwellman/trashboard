@@ -34,6 +34,23 @@ section {
     }
 }
 
+.footermenu{
+  margin-top: @baseLineHeight;
+  margin-bottom: @baseLineHeight;
+  margin-left: 0;
+  ul{
+    li{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+.container > div.footer p {
+  text-align: center; /* center align it with the container */
+}
+
 #infobar {
     display: table;
     border-spacing: 5px;
@@ -177,7 +194,7 @@ section.vm {
     position: fixed;
     top: 0%;
 }
-.container {
+.container > .content {
     padding-top: 130px;
 }
 .page_section {
@@ -254,4 +271,8 @@ section.vm {
 .nav-list > .active > a:hover,
 .nav-list > .active > a:focus {
     .border-radius(5px);
+}
+
+table.section-table{
+    margin-left: 20px;
 }

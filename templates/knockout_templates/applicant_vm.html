@@ -1,46 +1,39 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block section_content %}
-    <!-- ko if: which === 'coapplicant' -->
-    <span>Has coapplicant?</span>
-    <input type="checkbox" data-bind="checked: vm.has_coapplicant,
-        bootstrapswitch: {
-            size: 'mini',
-            onColor: 'success',
-            offColor: 'danger',
-            onText: 'Yes',
-            offText: 'No',
-            onSwitchChange: function(evt, data){ vm.has_coapplicant(data); }
-        }" />
-    <!-- /ko -->
-
-    <div class="controls controls-row" data-bind="visible: vm.which !== 'coapplicant' || vm.has_coapplicant()">
-        <!-- <legend>Customer Info</legend> -->
-        <div class="control-group" >
-            <label class="control-label">Name:</label>
-            <div class="controls">
-                <input type="text" placeholder="First" data-bind="value: vm.first_name">
-                <input type="text" placeholder="Last" data-bind="value: vm.last_name">
-            </div>
-            <span class="help-inline"></span>
+    <div class="control-group" data-bind="visible: which === 'coapplicant'">
+        <label class="control-label" for="inputEmail">Has coapplicant?</label>
+        <div class="controls">
+            <input type="checkbox" data-bind="checked: vm.has_coapplicant,
+                bootstrapswitch: {
+                    size: 'small',
+                    onColor: 'success',
+                    offColor: 'danger',
+                    onText: 'Yes',
+                    offText: 'No',
+                    onSwitchChange: function(evt, data){ vm.has_coapplicant(data); }
+                }" />
         </div>
-        <div class="control-group">
-            <label class="control-label">Phone Number:</label>
-            <div class="controls">
-                <input type="text" placeholder="Phone Number" data-bind="value: vm.phone1">
-            </div>
-            <span class="help-inline"></span>
-        </div>
-
-        <!-- ko if: which !== 'coapplicant' -->
-        <div class="control-group">
-            <label class="control-label">E-mail Address:</label>
-            <div class="controls">
-                <input type="text" placeholder="E-mail" data-bind="value: vm.master.email" />
-            </div>
-            <span class="help-inline"></span>
-        </div>
-        <!-- /ko -->
     </div>
 
+    <div data-bind="visible: vm.which !== 'coapplicant' || vm.has_coapplicant()">
+        <div class="control-group">
+            <div class="controls controls-row">
+                <input type="text" class="span3" placeholder="First Name" data-bind="value: vm.first_name" />
+                <input type="text" class="span3" placeholder="Last Name" data-bind="value: vm.last_name" />
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <input type="text" id="inputPhoneNumber" placeholder="Phone Number" data-bind="value: vm.phone1" />
+            </div>
+        </div>
+
+        <div class="control-group" data-bind="visible: which !== 'coapplicant'">
+            <div class="controls">
+                <input type="text" id="inputEmail" placeholder="Email Address" data-bind="value: vm.master.email" />
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

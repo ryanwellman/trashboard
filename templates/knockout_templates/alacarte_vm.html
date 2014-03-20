@@ -1,106 +1,103 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block vm_id %}alacarte{% endblock %}
 {% block section_content %}
-<div class="row" data-bind="
-    visible: !vm.customizing()
-"><div class="span11">
-    <table class="package_customization table">
-        <thead>
-            <tr>
-                <th colspan="2">Part</th>
-                <th>Upfront ea.</th>
-                <th>Monthly ea.</th>
-                <th>&times;</th>
-                <th>Quantity</th>
-                <th>=</th>
-                <th>Upfront</th>
-                <th>Monthly</th>
-            </tr>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.cart_lines,
-                as: 'cline'
-            }
-            ">
-            <!-- ko if: cline.quantity() -->
-            <tr>
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-
-                <td data-bind="text: cline.upfront_each_fmted()"></td>
-                <td data-bind="text: cline.monthly_each_fmted()"></td>
-                <td>&times;</td>
-                <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
-                <td>=</td>
-                <td data-bind="text: cline.upfront_line_fmted()"></td>
-                <td data-bind="text: cline.monthly_line_fmted()"></td>
-
-            </tr>
-            <!-- /ko -->
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="7"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
-            </tr>
-        </tfoot>
-    </table>
-
-</div></div>
+    <div class="row" data-bind="visible: !vm.customizing()">
+        <div class="span11">
+            <table class="package_customization table table-condensed section-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Part</th>
+                        <th>Upfront ea.</th>
+                        <th>Monthly ea.</th>
+                        <th>&times;</th>
+                        <th>Quantity</th>
+                        <th>=</th>
+                        <th>Upfront</th>
+                        <th>Monthly</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.cart_lines,
+                        as: 'cline'
+                    }
+                    ">
+                    <!-- ko if: cline.quantity() -->
+                    <tr>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.upfront_each_fmted()"></td>
+                        <td data-bind="text: cline.monthly_each_fmted()"></td>
+                        <td>&times;</td>
+                        <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
+                        <td>=</td>
+                        <td data-bind="text: cline.upfront_line_fmted()"></td>
+                        <td data-bind="text: cline.monthly_line_fmted()"></td>
+                    </tr>
+                    <!-- /ko -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="7">&nbsp;</th>
+                        <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                        <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
 
-<div class="row" data-bind="
-    visible: vm.customizing()
-"><div class="span10">
-    <table class="table">
-        <thead>
-            <tr>
-                <th colspan="2">Part</th>
-                <th>Upfront ea.</th>
-                <th>Monthly ea.</th>
-                <th>&times;</th>
-                <th>Quantity</th>
-                <th>=</th>
-                <th>Upfront</th>
-                <th>Monthly</th>
-            </tr>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.cart_lines,
-                as: 'cline'
-            }">
-            <tr>
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
+    <div class="row" data-bind="visible: vm.customizing()">
+        <div class="span11">
+            <table class="table table-condensed section-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Part</th>
+                        <th>Upfront ea.</th>
+                        <th>Monthly ea.</th>
+                        <th>&times;</th>
+                        <th>Quantity</th>
+                        <th>=</th>
+                        <th>Upfront</th>
+                        <th>Monthly</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.cart_lines,
+                        as: 'cline'
+                    }">
+                    <tr>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.upfront_each_fmted()"></td>
+                        <td data-bind="text: cline.monthly_each_fmted()"></td>
+                        <td>&times;</td>
+                        <td><input class="span1" type="text" data-bind="value: cline.quantity" style="text-align:center;" /></td>
+                        <td>=</td>
+                        <td data-bind="text: cline.upfront_line_fmted()"></td>
+                        <td data-bind="text: cline.monthly_line_fmted()"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="7"></th>
+                        <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                        <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
-                <td data-bind="text: cline.upfront_each_fmted()"></td>
-                <td data-bind="text: cline.monthly_each_fmted()"></td>
-                <td>&times;</td>
-                <td><input class="input-mini" type="text" data-bind="value: cline.quantity" style="text-align:center;" /></td>
-                <td>=</td>
-                <td data-bind="text: cline.upfront_line_fmted()"></td>
-                <td data-bind="text: cline.monthly_line_fmted()"></td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="7"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
-            </tr>
-        </tfoot>
-    </table>
-</div></div>
-
-<div class="row"><div class="span12">
-    <button class="btn btn-success" data-bind="
-        text:  vm.customizing() ? 'Done Adding' : 'Add Equipment',
-        click: vm.customizing() ? vm.finish_customizing :
-                                  vm.start_customizing,
-    ">Customize</button>
-</div></div>
+    <div class="row">
+        <div class="span11" style="padding-left: 20px;">
+            <button class="btn btn-success" data-bind="
+                text:  vm.customizing() ? 'Done Adding' : 'Add Equipment',
+                click: vm.customizing() ? vm.finish_customizing :vm.start_customizing,
+            "></button>
+        </div>
+    </div>
 
 {% endblock %}

@@ -121,6 +121,16 @@
                         }
                     }
                 });
+
+                // Uber bojangles
+                // The label in the top left corner of each well was pushing
+                // the forms down to add too much padding on the top, so I
+                // moved the form up but the well didnt change, so bojangles!!
+                var $wells = $(".content .well");
+                _.each($wells, function(well){
+                    var $the_well = $(well);
+                    $the_well.height($the_well.height() - 20);
+                });
             });
         </script>
 

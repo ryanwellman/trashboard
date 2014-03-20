@@ -21,18 +21,13 @@
     </div>
 
     <div class="control-group">
-        <div class="controls">
-            <select data-bind="
+        <div class="controls controls-row">
+            <select class="span3" data-bind="
                 options: window.FLOORPLANS,
                 optionsCaption: 'Floorplan',
                 value: vm.master.floorplan
             "></select>
-        </div>
-    </div>
-
-    <div class="control-group">
-        <div class="controls">
-            <select data-bind="
+            <select class="span3" data-bind="
                 options: window.PROPERTY_TYPES,
                 optionsCaption: 'Property Type',
                 value: vm.master.property_type

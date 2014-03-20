@@ -24,14 +24,9 @@
         </div>
 
         <div class="control-group">
-            <div class="controls">
-                <input type="text" id="inputPhoneNumber" placeholder="Phone Number" data-bind="value: vm.phone1" />
-            </div>
-        </div>
-
-        <div class="control-group" data-bind="visible: which !== 'coapplicant'">
-            <div class="controls">
-                <input type="text" id="inputEmail" placeholder="Email Address" data-bind="value: vm.master.email" />
+            <div class="controls controls-row">
+                <input type="text" class="span3" id="inputPhoneNumber" placeholder="Phone Number" data-bind="value: vm.phone1" />
+                <input type="text" class="span3" id="inputEmail" placeholder="Email Address" data-bind="value: vm.master.email, visible: which !== 'coapplicant'" />
             </div>
         </div>
     </div>

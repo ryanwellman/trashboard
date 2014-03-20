@@ -14,7 +14,7 @@ class CreditRequest(models.Model):
     # person_id is used to identify the name/social used to run it.
     person_id = models.CharField(max_length=64)
     name = models.CharField(max_length=64)
-    last_4 = models.IntegerField()
+    last_4 = models.CharField(max_length=4)
 
     # The social is stored in social_data, encrypted with the social_data_key
     # and encoded as base64.  The full social is destroyed as soon as it
@@ -25,6 +25,7 @@ class CreditRequest(models.Model):
     bureaus = models.CharField(max_length=64)
     # Stop running bureaus if you get a response that is at least this value.
     stop_running_at_beacon = models.IntegerField(null=True, blank=True)
+    approved_at_beacon = models.IntegerField()
 
     # When and where this was run.
     insert_date = models.DateTimeField(auto_now_add=True)
@@ -33,23 +34,26 @@ class CreditRequest(models.Model):
     processor_pid = models.IntegerField(blank=True, null=True)
 
     processed = models.BooleanField(default=False)
+    error = models.BooleanField(default=False)
     # need to store these things
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
     country_code = models.CharField(max_length=10)
 
     @staticmethod
-    def create_request(applicant, social):
+    def create_request(applicant, social, social_type):
         req = CreditRequest()
         req.applicant = applicant
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
-        req.country_code = 'CA'
+        req.country_code = social_type
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
-        req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
+        req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social, social_type)
+        req.last_4 = str(social)[-4:]
+
         req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
         req.bureaus = settings.CREDIT_BUREAUS
-        req.last_4 = str(social)[-4:]
+        req.approved_at_beacon = settings.CREDIT_APPROVED_BEACON
         req.stop_running_at_beacon = settings.STOP_RUNNING_AT_BEACON
         req.save()
 
@@ -97,17 +101,17 @@ class CreditFile(models.Model):
     nohit = models.BooleanField(default=False)
     vermont = models.BooleanField(default=False)
 
+    status_string = models.CharField(max_length=20)
+
     # bookkeeping
     transaction_id = models.CharField(max_length=64)
     transaction_status = models.CharField(max_length=20)
 
 
     def __unicode__(self):
-        if self.initial:
-            mid = self.initial + '. '
-        else:
-            mid = ''
-        return "{0} {1}{2}".format(self.fname, mid, self.lname)
+
+        return "CreditFile(name=%r, bureau=%r, beacon=%r, status_string=%r)" % (
+            self.name, self.bureau, self.beacon, self.status_string)
 
     def as_jsonable(self):
         jsonable = {
@@ -116,15 +120,15 @@ class CreditFile(models.Model):
         }
         return jsonable
 
-    @property
-    def status_string(self):
-        if self.fraud or self.frozen or self.vermont:
-            return 'REVIEW'
-        if self.nohit:
-            return 'NO HIT'
-        if self.beacon >= settings.CREDIT_APPROVED_BEACON:
-            return 'APPROVED'
-        return 'DCS'
+    # @property
+    # def status_string(self):
+    #     if self.fraud or self.frozen or self.vermont:
+    #         return 'REVIEW'
+    #     if self.nohit:
+    #         return 'NO HIT'
+    #     if self.beacon >= settings.CREDIT_APPROVED_BEACON:
+    #         return 'APPROVED'
+    #     return 'DCS'
 
 
     class Meta:

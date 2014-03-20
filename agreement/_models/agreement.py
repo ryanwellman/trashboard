@@ -114,6 +114,9 @@ class Agreement(Updatable):
         if 'DCS' in both:
             return 'DCS'
 
+        if 'ERROR' in both:
+            return 'ERROR'
+
         # If none of these five are in either, the only thing left i
         # (None, None) which means nothing has been run.
         assert(both == (None, None))

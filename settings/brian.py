@@ -33,3 +33,4 @@ INSTALLED_APPS += ('django_extensions',)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #COMPRESS_ENABLED = True
+MOCK_CREDIT=False

@@ -1,6 +1,6 @@
 <script type="text/html" id="{{vm_id}}_vm">
+    <span class="label label-inverse box-rotate tab-pos section-tab" data-bind="text: vm.display_label()"></span>
     <div class="well">
-        <span class="label label-inverse box-rotate tab-pos section-tab" data-bind="text: vm.display_label()"></span>
         <form class="form-horizontal" data-bind="attr: { id: vm.name + '_form' }">
             <fieldset>
                 {% block section_content %}{% endblock %}

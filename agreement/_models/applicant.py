@@ -39,11 +39,19 @@ class Applicant(Updatable):
         if not self.person_id:
             return None
 
-        # Do I have a credit file for me?
+        # Do I have a credit file(s) for me?
         from credit_file import CreditFile, CreditRequest
-        cf = gooN(CreditFile, applicant=self)
-
+        # now there's many credit files
+        cf = CreditFile.objects.filter(applicant=self)
         if cf:
+            final_cfile = cf[0] # take the first one if it exists
+            for cfile in cf:
+                # XXX: obtain the one with the highest beacon?
+                if cfile.beacon > final_beacon:
+                    final_cfile = cfile
+
+
+        if final_cfile:
             return cf.status_string
 
         # I don't have a credit file for me,

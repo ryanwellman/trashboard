@@ -20,6 +20,29 @@ CreditVM = function(master) {
             }
         });
         cf.which = which.substring(0,1).toUpperCase() + which.substring(1);
+        cf.label_display_text = ko.computed(function(){
+            var status = cf.credit_status();
+
+            if(!status){
+                status = 'NOT RUN';
+            }
+
+            // jQuery object to string
+            var icon = $("<i/>", {
+                'class': window.CREDIT_LABEL_ICON_OPTIONS[status]
+            }).wrap('<div/>').parent().html();
+
+            return icon + " " + status;
+        });
+        cf.label_display = ko.computed(function(){
+            var status = cf.credit_status();
+
+            if(!status){
+                status = 'NOT RUN';
+            }
+
+            return window.CREDIT_LABEL_OPTIONS[status];
+        });
         return cf;
     }
     self.applicant_credit = field_subset('applicant');

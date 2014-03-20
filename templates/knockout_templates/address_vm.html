@@ -1,57 +1,48 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block section_content %}
-<div class="control-group">
-	<label class="control-label">System Address:</label>
-	<div class="controls">
-		<input type="text" placeholder="Street 1" data-bind="value: vm.master.vms.system_address.street1">
-		<input type="text" placeholder="Street 2" data-bind="value: vm.master.vms.system_address.street2">
 
-	</div>
-</div>
+    <div class="control-group">
+        <div class="controls controls-row">
+            <input type="text" class="span3" placeholder="Street 1" data-bind="value: vm.master.vms.system_address.street1" />
+            <input type="text" class="span3" placeholder="Street 2" data-bind="value: vm.master.vms.system_address.street2" />
+        </div>
+    </div>
 
-<div class="control-group">
-	<div class="controls">
+    <div class="control-group">
+        <div class="controls controls-row">
+            <input type="text" class="span3" placeholder="City" data-bind="value: vm.master.vms.system_address.city">
+            <select class="span1" data-bind="
+                options: STATES,
+                optionsCaption: 'State',
+                value: vm.master.vms.system_address.state
+            "></select>
+            <input class="span2" type="text" placeholder="Zipcode" data-bind="value: vm.master.vms.system_address.zip">
+        </div>
+    </div>
 
-		<input type="text" placeholder="City" data-bind="value: vm.master.vms.system_address.city">
-		<select class="input-small" data-bind="options: STATES, optionsCaption: 'State', value: vm.master.vms.system_address.state"></select>
-		<input class="input-small zip-input" type="text" placeholder="ZIP" data-bind="value: vm.master.vms.system_address.zip">
+    <div class="control-group">
+        <div class="controls controls-row">
+            <select class="span3" data-bind="
+                options: window.FLOORPLANS,
+                optionsCaption: 'Floorplan',
+                value: vm.master.floorplan
+            "></select>
+            <select class="span3" data-bind="
+                options: window.PROPERTY_TYPES,
+                optionsCaption: 'Property Type',
+                value: vm.master.property_type
+            "></select>
+        </div>
+    </div>
 
-	</div>
-	<!--<span class="help-inline">This must be the address where the system will be installed and monitored.</span>-->
-</div>
-
-<div class="control-group">
-	<label class="control-label">Floorplan:</label>
-	<div class="controls">
-		<select data-bind="
-		    options: window.FLOORPLANS,
-		    optionsCaption: 'Please select...',
-		    value: vm.master.floorplan
-		"></select>
-	</div>
-</div>
-
-<div class="control-group">
-	<label class="control-label">Property Type:</label>
-	<div class="controls">
-		<select data-bind="
-		    options: window.PROPERTY_TYPES,
-		    optionsCaption: 'Please select...',
-		    value: vm.master.property_type
-		"></select>
-	</div>
-</div>
-
-<div class="control-group">
-	<label class="control-label">Installation Types:</label>
-	<div class="controls">
-		<select data-bind="
-		    options: catalog.INSTALL_METHODS,
-		    optionsCaption: 'Please select...',
-		    value: vm.master.install_method
-		"></select>
-	</div>
-</div>
-
+    <div class="control-group">
+        <div class="controls">
+            <select data-bind="
+                options: catalog.INSTALL_METHODS,
+                optionsCaption: 'Installation Type',
+                value: vm.master.install_method
+            "></select>
+        </div>
+    </div>
 
 {% endblock %}

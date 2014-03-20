@@ -1,5 +1,6 @@
 @import "../bootstrap/less/bootstrap.less";
 @import "font-awesome/font-awesome.less";
+@import "../bootstrap-switch/less/bootstrap-switch.less";
 
 @copper: #B87333;
 @bronze: #CD7F32;
@@ -31,6 +32,23 @@ section {
             height: 570px;
         }
     }
+}
+
+.footermenu{
+  margin-top: @baseLineHeight;
+  margin-bottom: @baseLineHeight;
+  margin-left: 0;
+  ul{
+    li{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+.container > div.footer p {
+  text-align: center; /* center align it with the container */
 }
 
 #infobar {
@@ -176,7 +194,7 @@ section.vm {
     position: fixed;
     top: 0%;
 }
-.container {
+.container > .content {
     padding-top: 130px;
 }
 .page_section {
@@ -253,4 +271,22 @@ section.vm {
 .nav-list > .active > a:hover,
 .nav-list > .active > a:focus {
     .border-radius(5px);
+}
+
+table.section-table{
+    margin-left: 20px;
+}
+
+.form-actions{
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.well{
+    form{
+        margin-bottom: 0;
+        position: relative;
+        top: -20px;
+    }
 }

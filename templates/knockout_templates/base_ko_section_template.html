@@ -1,34 +1,26 @@
 <script type="text/html" id="{{vm_id}}_vm">
-<div class="well">
-	<span class="label label-inverse box-rotate tab-pos section-tab" data-bind="text: vm.display_label()">
-	</span>
-	<form class="form-horizontal" data-bind="
-		attr: {
-			id: vm.name + '_form'
-		}">
-		<fieldset>
-			{% block section_content %}
-			{% endblock %}
-
-			<div class="form-actions">
-				<div class="pull-right">
-					<button type="submit" class="btn" id="{{vm_id}}_submit" data-bind="
-						css: function() {
-							if(master.dirty()) {
-								return 'btn-warning';
-							} else {
-								return 'btn-success';
-							}
-						}(),
-						click: master.save_and_submit,
-						text: master.dirty() ? 'Save Changes' : 'Saved'
-					">
-						<i class="fa fa-arrow-down"></i>
-						Save
-					</button>
-				</div>
-			</div>
-		</fieldset>
-	</form>
-</div>
+    <div class="well">
+        <span class="label label-inverse box-rotate tab-pos section-tab" data-bind="text: vm.display_label()"></span>
+        <form class="form-horizontal" data-bind="attr: { id: vm.name + '_form' }">
+            <fieldset>
+                {% block section_content %}{% endblock %}
+                <div class="form-actions">
+                    <div class="pull-right">
+                        <button type="submit" class="btn" id="{{vm_id}}_submit" data-bind="
+                            css: function() {
+                                if(master.dirty()) {
+                                    return 'btn-warning';
+                                } else {
+                                    return 'btn-success';
+                                }
+                            }(),
+                            click: master.save_and_submit,
+                            text: master.dirty() ? 'Save Changes' : 'Saved'
+                        ">
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </script>

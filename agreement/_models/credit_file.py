@@ -50,9 +50,6 @@ class CreditRequest(models.Model):
         req.applicant = applicant
         active_agreement = applicant.agreement
 
-<<<<<<< HEAD
-        system_address = active_agreement.system_address
-=======
         # pre-processors for the country information
         def process_country(info):
             if not info:
@@ -90,7 +87,6 @@ class CreditRequest(models.Model):
         except StopIteration:
             # because brian said so
             return None
->>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
 
         # we need this person's SYSTEM address to run their credit
         req.address = ' '.join([active_agreement.system_address.street1, active_agreement.system_address.street2])
@@ -102,22 +98,14 @@ class CreditRequest(models.Model):
         # obtain their name
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
-<<<<<<< HEAD
-
-        req.country_code = social_type
-        req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
-        req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social, social_type)
         req.last_4 = str(social)[-4:]
 
-
-=======
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
 
         # call out to generate_person_id
         req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
 
         # encrypt social data
->>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
         req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
 
         # credit settings
@@ -171,11 +159,6 @@ class CreditFile(models.Model):
     nohit = models.BooleanField(default=False)
     vermont = models.BooleanField(default=False)
     status_string = models.CharField(max_length=20)
-<<<<<<< HEAD
-
-    status_string = models.CharField(max_length=20)
-=======
->>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
 
     # bookkeeping
     transaction_id = models.CharField(max_length=64)
@@ -201,8 +184,6 @@ class CreditFile(models.Model):
         }
         return jsonable
 
-<<<<<<< HEAD
-=======
     #@property
     #def another_status_string(self):
     #    if self.fraud or self.frozen or self.vermont:
@@ -213,10 +194,6 @@ class CreditFile(models.Model):
     #        return 'APPROVED'
     #    return 'DCS'
 
-
->>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
     class Meta:
         verbose_name = "Credit File"
         app_label = 'agreement'
-
-

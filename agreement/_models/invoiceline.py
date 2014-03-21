@@ -179,13 +179,8 @@ class InvoiceLine(Updatable):
         return self.monthly_strike if self.monthly_strike is not None else self.monthly_total
 
     def __unicode__(self):
-        fields = [self.note, self.pricedate]
-        try:
-            fields.append(self.agreement)
-            fields.append(self.parent)
-        except ObjectDoesNotExist:
-            pass
-        return u','.join([unicode(f) for f in fields])
+
+        return 'InvoiceLine(%r)' % self.as_jsonable()
 
     def as_jsonable(self):
         jsonable = dict()

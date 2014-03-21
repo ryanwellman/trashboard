@@ -104,14 +104,14 @@ CustomizationVM = function(master, package_vm) {
 
     self.available_products = ko.computed(function() {
         return _.filter(window.catalog.PRODUCTS(), function(prod) {
-            return prod.price() && prod.price().available && prod.product_type === 'Part' && prod.price().swappable;
+            return prod.product_type === 'Part';
         });
     });
 
     self.cart_lines = ko.computed(function() {
         package_vm.cart_trigger();
         return _.filter(master.customization_cart.cart_lines(), function(cline) {
-            return cline.product.product_type === 'Part';
+            return self.available_products().indexOf(cline.product) != -1;
         });
     });
 

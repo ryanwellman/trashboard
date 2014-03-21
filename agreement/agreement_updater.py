@@ -527,7 +527,7 @@ class AgreementUpdater(object):
             'messages': self.messages,
             'restrictions': self.restrictions,
             'catalog': {
-                'products': {code: prod.as_jsonable() for code, prod in self.products.iteritems()},
+                'products': prod_dict,
                 'prices': {code: price.as_jsonable() for code, price in self.prices.iteritems()},
                 'available_install_methods': self.available_install_methods,
             }

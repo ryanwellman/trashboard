@@ -25,14 +25,9 @@ class ProductContent(models.Model):
         return self.included_product_id
 
     def __unicode__(self):
-        fields = []
-        try:
-            fields.append(self.package)
-            fields.append(self.product)
-        except ObjectDoesNotExist:
-            pass
 
-        return u','.join([unicode(f) for f in fields])
+
+        return u'ProductContent(**%r)' % self.as_jsonable()
 
     def as_jsonable(self):
         jsonable = dict(

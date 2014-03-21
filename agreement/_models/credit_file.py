@@ -50,7 +50,47 @@ class CreditRequest(models.Model):
         req.applicant = applicant
         active_agreement = applicant.agreement
 
+<<<<<<< HEAD
         system_address = active_agreement.system_address
+=======
+        # pre-processors for the country information
+        def process_country(info):
+            if not info:
+                return None
+            elif info.upper() in ['CANADA', 'CA']:
+                return 'CA'
+            else:
+                return  'US'
+
+        def process_state(info):
+            if not info:
+                return None
+            elif info.upper() in ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT']:
+                return 'CA'
+            else:
+                return  'US'
+
+        def process_zip(info):
+            if not info:
+                return None
+            elif not info[0].isdigit():
+                return 'CA'
+            else:
+                return  'US'
+
+        # figure out which one of these things contains something useful
+        # XXX: put these in order of preference
+        country_info =  [   process_country(active_agreement.system_address.country),
+                            process_state(active_agreement.system_address.state),
+                            process_zip(active_agreement.system_address.zip),
+                        ]
+        try:
+            # let's try to get the first useful value
+            active_country_info = next((info for info in country_info if info is not None))
+        except StopIteration:
+            # because brian said so
+            return None
+>>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
 
         # we need this person's SYSTEM address to run their credit
         req.address = ' '.join([active_agreement.system_address.street1, active_agreement.system_address.street2])
@@ -62,6 +102,7 @@ class CreditRequest(models.Model):
         # obtain their name
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
+<<<<<<< HEAD
 
         req.country_code = social_type
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
@@ -69,6 +110,14 @@ class CreditRequest(models.Model):
         req.last_4 = str(social)[-4:]
 
 
+=======
+        req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
+
+        # call out to generate_person_id
+        req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
+
+        # encrypt social data
+>>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
         req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
 
         # credit settings
@@ -122,8 +171,11 @@ class CreditFile(models.Model):
     nohit = models.BooleanField(default=False)
     vermont = models.BooleanField(default=False)
     status_string = models.CharField(max_length=20)
+<<<<<<< HEAD
 
     status_string = models.CharField(max_length=20)
+=======
+>>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
 
     # bookkeeping
     transaction_id = models.CharField(max_length=64)
@@ -149,6 +201,20 @@ class CreditFile(models.Model):
         }
         return jsonable
 
+<<<<<<< HEAD
+=======
+    #@property
+    #def another_status_string(self):
+    #    if self.fraud or self.frozen or self.vermont:
+    #        return 'REVIEW'
+    #    if self.nohit:
+    #        return 'NO HIT'
+    #    if self.beacon >= settings.CREDIT_APPROVED_BEACON:
+    #        return 'APPROVED'
+    #    return 'DCS'
+
+
+>>>>>>> 6d09c91465d6fab398823b65389a593e2e43b713
     class Meta:
         verbose_name = "Credit File"
         app_label = 'agreement'

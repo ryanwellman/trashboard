@@ -39,7 +39,6 @@ class Applicant(Updatable):
         if not self.person_id:
             return None
 
-
         # Social is None, or a dictionary with keys 'social' and 'social_type'
 
         # Do I have a credit file for me?
@@ -52,6 +51,7 @@ class Applicant(Updatable):
                 if status in status_strings:
                     return status
             return 'ERROR'  # It's not possible for a credit file to not be one of those four.
+
 
 
         # I don't have a credit file for me,
@@ -91,6 +91,7 @@ class Applicant(Updatable):
             return None
 
 
+
         # This will fail because system_address will be null, but this list will keep getting constructed and raise an error.
         # things_to_check =   [   self.agreement.system_address,
         #                         self.agreement.system_address.street1,
@@ -103,6 +104,7 @@ class Applicant(Updatable):
         #     first_not_falsy = next((thing for thing in things_to_check if thing))
         # except StopIteration:
         #     return None
+
 
         # Is the social I got passed in actually what's on this
         # agreement?  This should never not be true.

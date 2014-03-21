@@ -3,85 +3,71 @@
 
 {% block section_content %}
 
-<div class="row" data-bind="visible: master.dirty()">
-    <div class="span11 alert alert-info">
-        Your agreement has been modified, please click Save to save your adjustments before continuing.
+    <div class="row" data-bind="visible: master.dirty()">
+        <div class="span11 alert alert-warning">
+            <i class="fa fa-warning"></i> Your agreement has been modified, please click Save before continuing.
+        </div>
     </div>
-</div>
 
-<div class="row" data-bind="visible: !master.dirty()">
-    <div class="span11">
-
-        <table class="table">
-            <thead>
-                <th colspan="2" data-bind="text: vm.cart_heading_label()"></th>
-                <th>Quantity</th>
-                <th>&times;</th>
-                <th>Upfront (ea.)</th>
-                <th>Monthly (ea.)</th>
-                <th>=</th>
-                <th>Upfront Total</th>
-                <th>Monthly Total</th>
-            </thead>
-            <tbody>
-                <!-- ko foreach: {
-                    data: vm.invoice_lines(),
-                    as: 'iline',
-                } -->
-                    <tr data-bind="
-                        css: iline.css_classes()
+    <div class="row" data-bind="visible: !master.dirty()">
+        <div class="span11">
+            <table class="table table-condensed section-table">
+                <thead>
+                    <th colspan="2" data-bind="text: vm.cart_heading_label()"></th>
+                    <th>Quantity</th>
+                    <th>&times;</th>
+                    <th>Upfront (ea.)</th>
+                    <th>Monthly (ea.)</th>
+                    <th>=</th>
+                    <th>Upfront Total</th>
+                    <th>Monthly Total</th>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.invoice_lines(),
+                        as: 'iline'
+                    }
                     ">
-                        <td>
-                            <!-- ko foreach: { data: iline.indents() } -->
-                                <i class="fa fa-ellipsis-h"></i>
-                            <!-- /ko -->
-                            <span  data-bind="text: iline.code"></span>
-                        </td>
-                        <td data-bind="text: iline.product.name"></td>
-
-                        <td data-bind="
-                            text: quantity
-                        "></td>
-
-                        <td>&times;</td>
-
-                        <td data-bind="
-                            text: iline.upfront_each_fmted,
-                            css: iline.upfront_each_classes
-                        "></td>
-                        <td data-bind="
-                            text: iline.monthly_each_fmted,
-                            css: iline.monthly_each_classes
-                        "></td>
-                        <td>=</td>
-                        <td data-bind="
-                            text: iline.upfront_total_fmted,
-                            css: iline.upfront_total_classes
-                        "></td>
-                        <td data-bind="
-                            text: iline.monthly_total_fmted,
-                            css: iline.monthly_total_classes
-                        "></td>
-
-
-                    </tr>
-
-                <!-- /ko -->
-
-            </tbody>
-            <tfoot>
-                <th colspan="7"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_total())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_total(), 1, '/mo')"></th>
-            </tfoot>
-        </table>
-
+                        <tr data-bind="
+                            css: iline.css_classes()
+                        ">
+                            <td>
+                                <!-- ko foreach: { data: iline.indents() } -->
+                                    <i class="fa fa-ellipsis-h"></i>
+                                <!-- /ko -->
+                                <span  data-bind="text: iline.code"></span>
+                            </td>
+                            <td data-bind="text: iline.product.name"></td>
+                            <td data-bind="
+                                text: quantity
+                            "></td>
+                            <td>&times;</td>
+                            <td data-bind="
+                                text: iline.upfront_each_fmted,
+                                css: iline.upfront_each_classes
+                            "></td>
+                            <td data-bind="
+                                text: iline.monthly_each_fmted,
+                                css: iline.monthly_each_classes
+                            "></td>
+                            <td>=</td>
+                            <td data-bind="
+                                text: iline.upfront_total_fmted,
+                                css: iline.upfront_total_classes
+                            "></td>
+                            <td data-bind="
+                                text: iline.monthly_total_fmted,
+                                css: iline.monthly_total_classes
+                            "></td>
+                        </tr>
+                </tbody>
+                <tfoot>
+                    <th colspan="7"></th>
+                    <th data-bind="text: formatCurrency(vm.upfront_total())"></th>
+                    <th data-bind="text: formatCurrency(vm.monthly_total(), 1, '/mo')"></th>
+                </tfoot>
+            </table>
+        </div>
     </div>
-</div>
-<!-- ko if: master.dirty -->
-<!-- /ko -->
-
-
-
 
 {% endblock %}

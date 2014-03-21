@@ -19,7 +19,7 @@ class Address(Updatable):
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=25)
     zip = models.CharField(max_length=10)
-    country = models.CharField(max_length=10)
+    country = models.CharField(max_length=2)
 
     def as_jsonable(self):
         jsonable = {
@@ -33,27 +33,18 @@ class Address(Updatable):
         for field in ('name', 'street1', 'street2', 'city', 'state', 'zip', 'country'):
             setattr(self, field, blob.get(field) or '')
 
-        self.fill_country_from_postal_code()
+        self.infer_country()
 
         if updater:
             updater.errors.extend(errors)
 
-    def fill_country_from_postal_code(self):
-        # source: http://en.wikipedia.org/wiki/List_of_postal_codes
-        # canadian postal codes are ANA NAN with an optional space or hyphen between sections
-        # usa postal codes are NNNNN with an optional -NNNN added on
-
-        # XXX: regexen for future use maybe?
-        # canada: ^[A-CEGHJ-NPRSTVW-Z]\d[A-CEGHJ-NPRSTVW-Z][-\ ]?\d[A-CEGHJ-NPRSTVW-Z]\d$
-        # usa: ^\d\d\d\d\d(-\d\d\d\d)?$
-
-        if not self.zip:
-            return # can't do anything
-        else:
-            if self.zip[0].isdigit():
-                self.country = 'USA'
-            else:
-                self.country = 'Canada'
+    def infer_country(self):
+        country = 'US'
+        if self.state and self.state in ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT']:
+            country = 'CA'
+        if self.zip and not self.zip.isdigit():
+            country = 'CA'
+        self.country = country
 
     def __unicode__(self):
         # street1 city, state, country zip

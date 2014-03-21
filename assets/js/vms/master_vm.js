@@ -89,9 +89,30 @@ MasterVM = function() {
         return total_balance;
     });
 
+    self.label_display_text = ko.computed(function(){
+        var status = self.credit_status();
 
+        if(!status){
+            status = 'NOT RUN';
+        }
 
+        // jQuery object to string
+        var icon = $("<i/>", {
+            'class': window.CREDIT_LABEL_ICON_OPTIONS[status]
+        }).wrap('<div/>').parent().html();
 
+        return icon + " " + status;
+    });
+
+    self.label_display = ko.computed(function(){
+        var status = self.credit_status();
+
+        if(!status){
+            status = 'NOT RUN';
+        }
+
+        return window.CREDIT_LABEL_OPTIONS[status];
+    });
 
     self.construct_agreement = function() {
         agreement = {
@@ -183,23 +204,6 @@ MasterVM = function() {
         self.restrictions(data.restrictions);
     }
 
-    self.onRestrictionClick = function(context, event){
-        event.preventDefault();
-        elem = $("#restrictions_btn");
-        elem.popover({
-            title: 'Restrictions',
-            placement: 'bottom',
-            trigger: 'manual',
-            content: function(){
-                console.log($('#restrictions_list'))
-                return $('#restrictions_list').clone();
-            },
-            html: true
-        });
-
-        elem.popover('toggle');
-    }
-
     self.onCatalogUpdated = function() {
         self.cart.update_from_catalog();
         self.customization_cart.update_from_catalog();
@@ -208,8 +212,6 @@ MasterVM = function() {
             vm.cart_trigger.valueHasMutated();
         });
     }
-
-
 
     // XXX: insert other fns above this line
     return self;

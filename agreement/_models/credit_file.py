@@ -38,25 +38,46 @@ class CreditRequest(models.Model):
     # need to store these things
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
+    address = models.CharField(max_length=80)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=25)
+    zipcode = models.CharField(max_length=10)
     country_code = models.CharField(max_length=10)
 
     @staticmethod
     def create_request(applicant, social, social_type):
         req = CreditRequest()
         req.applicant = applicant
+        active_agreement = applicant.agreement
+
+        system_address = active_agreement.system_address
+
+        # we need this person's SYSTEM address to run their credit
+        req.address = ' '.join([active_agreement.system_address.street1, active_agreement.system_address.street2])
+        req.city = active_agreement.system_address.city
+        req.state = active_agreement.system_address.state
+        req.zipcode = active_agreement.system_address.zip
+        req.country_code = active_country_info
+
+        # obtain their name
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
+
         req.country_code = social_type
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
         req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social, social_type)
         req.last_4 = str(social)[-4:]
 
+
         req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
+
+        # credit settings
         req.bureaus = settings.CREDIT_BUREAUS
         req.approved_at_beacon = settings.CREDIT_APPROVED_BEACON
         req.stop_running_at_beacon = settings.STOP_RUNNING_AT_BEACON
-        req.save()
 
+        # save and return
+        req.save()
         return req
 
     class Meta:
@@ -100,12 +121,20 @@ class CreditFile(models.Model):
     frozen = models.BooleanField(default=False)
     nohit = models.BooleanField(default=False)
     vermont = models.BooleanField(default=False)
+    status_string = models.CharField(max_length=20)
 
     status_string = models.CharField(max_length=20)
 
     # bookkeeping
     transaction_id = models.CharField(max_length=64)
     transaction_status = models.CharField(max_length=20)
+
+    # address
+    address = models.CharField(max_length=80)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=25)
+    zipcode = models.CharField(max_length=10)
+    country_code = models.CharField(max_length=10)
 
 
     def __unicode__(self):
@@ -119,17 +148,6 @@ class CreditFile(models.Model):
             for field in ('name', 'bureau', 'fraud', 'frozen', 'nohit', 'vermont', 'beacon', 'generated_date', 'status_string')
         }
         return jsonable
-
-    # @property
-    # def status_string(self):
-    #     if self.fraud or self.frozen or self.vermont:
-    #         return 'REVIEW'
-    #     if self.nohit:
-    #         return 'NO HIT'
-    #     if self.beacon >= settings.CREDIT_APPROVED_BEACON:
-    #         return 'APPROVED'
-    #     return 'DCS'
-
 
     class Meta:
         verbose_name = "Credit File"

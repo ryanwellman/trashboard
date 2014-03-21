@@ -1,61 +1,58 @@
 <script type="text/html" id="basic_cart_mutex">
 <!-- renders the cart_lines on a vm with mutually exclusive checkboxes. -->
 
-<div class="row"><div class="span11">
-
-    <table class="table">
-        <thead>
-            <th colspan="3" data-bind="text: vm.cart_heading_label()">asdfasff</th>
-            <th>Upfront</th>
-            <th>Monthly</th>
-            <th>&times;</th>
-            <th>Quantity</th>
-            <th>=</th>
-            <th>Upfront</th>
-            <th>Monthly</th>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.cart_lines,
-                as: 'cline'
-            }
-            ">
-            <tr data-bind="
-                style: {
-                    backgroundColor: cline.is_selected_for_vm(vm)() ? '#ddffdd' : ''
-                },
-                click: vm.select_row
-            ">
-                <td>
-                    <input type="checkbox" data-bind="
-                        checked: cline.is_selected_for_vm(vm),
-                        click: function(el, eargs) {
-                            eargs.stopPropagation();
-                        }
+    <div class="row">
+        <div class="span11">
+            <table class="table table-condensed section-table">
+                <thead>
+                    <th colspan="3" data-bind="text: vm.cart_heading_label()"></th>
+                    <th>Upfront</th>
+                    <th>Monthly</th>
+                    <th>&times;</th>
+                    <th>Quantity</th>
+                    <th>=</th>
+                    <th>Upfront</th>
+                    <th>Monthly</th>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.cart_lines,
+                        as: 'cline'
+                    }
                     ">
-                </td>
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-
-                <td data-bind="text: cline.upfront_each_fmted()"></td>
-                <td data-bind="text: cline.monthly_each_fmted()"></td>
-                <td>&times;</td>
-                <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
-                <td>=</td>
-                <td data-bind="text: cline.upfront_line_fmted()"></td>
-                <td data-bind="text: cline.monthly_line_fmted()"></td>
-
-            </tr>
-
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="8"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
-            </tr>
-        </tfoot>
-
-    </table>
-</div></div>
+                    <tr data-bind="
+                        style: {
+                            backgroundColor: cline.is_selected_for_vm(vm)() ? '#ddffdd' : ''
+                        },
+                        click: vm.select_row
+                    ">
+                        <td>
+                            <input type="checkbox" data-bind="
+                                checked: cline.is_selected_for_vm(vm),
+                                click: function(el, eargs) {
+                                    eargs.stopPropagation();
+                                }
+                            ">
+                        </td>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.upfront_each_fmted()"></td>
+                        <td data-bind="text: cline.monthly_each_fmted()"></td>
+                        <td>&times;</td>
+                        <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
+                        <td>=</td>
+                        <td data-bind="text: cline.upfront_line_fmted()"></td>
+                        <td data-bind="text: cline.monthly_line_fmted()"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="8">&nbsp;</th>
+                        <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                        <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 </script>

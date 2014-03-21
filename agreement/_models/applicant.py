@@ -39,6 +39,7 @@ class Applicant(Updatable):
         if not self.person_id:
             return None
 
+
         # Social is None, or a dictionary with keys 'social' and 'social_type'
 
         # Do I have a credit file for me?
@@ -84,6 +85,24 @@ class Applicant(Updatable):
                 return 'ERROR'
 
             return None
+
+        system_address = self.agreement.system_address
+        if not system_address or not all([getattr(system_address, k, None) for k in ('street1', 'city', 'state', 'zip')]):
+            return None
+
+
+        # This will fail because system_address will be null, but this list will keep getting constructed and raise an error.
+        # things_to_check =   [   self.agreement.system_address,
+        #                         self.agreement.system_address.street1,
+        #                         self.agreement.system_address.city,
+        #                         self.agreement.system_address.state,
+        #                         self.agreement.system_address.zip,
+        #                     ]
+        # # anyone home?
+        # try:
+        #     first_not_falsy = next((thing for thing in things_to_check if thing))
+        # except StopIteration:
+        #     return None
 
         # Is the social I got passed in actually what's on this
         # agreement?  This should never not be true.

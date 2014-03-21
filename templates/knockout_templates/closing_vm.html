@@ -1,62 +1,53 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block vm_id %}alacarte{% endblock %}
 {% block section_content %}
-<div class="row" data-bind="
-
-"><div class="span11">
-    <table class="package_customization table">
-        <thead>
-            <tr>
-                <th colspan="3" data-bind="text: vm.cart_heading_label()"></th>
-                <th>Upfront ea.</th>
-                <th>Monthly ea.</th>
-                <th>&times;</th>
-                <th>Quantity</th>
-                <th>=</th>
-                <th>Upfront</th>
-                <th>Monthly</th>
-            </tr>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.cart_lines,
-                as: 'cline'
-            }
-            ">
-            <tr data-bind="
-                style: {
-                    backgroundColor: cline.one_or_none() ? '#ddffdd' : ''
-                }
-            ">
-                <td>
-                    <input type="checkbox" data-bind="
-                        checked: cline.one_or_none
+    <div class="row">
+        <div class="span11">
+            <table class="package_customization table table-condensed section-table">
+                <thead>
+                    <tr>
+                        <th colspan="3" data-bind="text: vm.cart_heading_label()"></th>
+                        <th>Upfront ea.</th>
+                        <th>Monthly ea.</th>
+                        <th>&times;</th>
+                        <th>Quantity</th>
+                        <th>=</th>
+                        <th>Upfront</th>
+                        <th>Monthly</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.cart_lines,
+                        as: 'cline'
+                    }
                     ">
-                </td>
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-
-                <td data-bind="text: cline.upfront_each_fmted()"></td>
-                <td data-bind="text: cline.monthly_each_fmted()"></td>
-                <td>&times;</td>
-                <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
-                <td>=</td>
-                <td data-bind="text: cline.upfront_line_fmted()"></td>
-                <td data-bind="text: cline.monthly_line_fmted()"></td>
-
-            </tr>
-
-        </tbody>
-        <tfoot>
-            <tr>
-                <th colspan="8"></th>
-                <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
-                <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
-            </tr>
-        </tfoot>
-    </table>
-
-</div></div>
-
+                    <tr data-bind="
+                        style: {
+                            backgroundColor: cline.one_or_none() ? '#ddffdd' : ''
+                        }
+                    ">
+                        <td><input type="checkbox" data-bind="checked: cline.one_or_none" /></td>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.upfront_each_fmted()"></td>
+                        <td data-bind="text: cline.monthly_each_fmted()"></td>
+                        <td>&times;</td>
+                        <td data-bind="text: cline.quantity()" style="text-align:center;" /></td>
+                        <td>=</td>
+                        <td data-bind="text: cline.upfront_line_fmted()"></td>
+                        <td data-bind="text: cline.monthly_line_fmted()"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="8"></th>
+                        <th data-bind="text: formatCurrency(vm.upfront_subtotal())"></th>
+                        <th data-bind="text: formatCurrency(vm.monthly_subtotal()) + '/mo'"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 
 {% endblock %}

@@ -27,15 +27,17 @@ class Applicant(Updatable):
     phone1 = models.CharField(max_length=15)
     phone2 = models.CharField(max_length=15)
     last_4 = models.CharField(max_length=4)
+    social_data = models.TextField(null=True, blank=True)
+    social_data_key = models.TextField(null=True, blank=True)
 
     person_id = models.CharField(max_length=64, blank=True, null=True)
 
-    def sync_person_id(self, social, social_type):
+    def sync_person_id(self, social):
         if not (self.first_name or self.last_name) or not social:
             self.person_id = None
-        self.person_id = Applicant.generate_person_id(self.first_name, self.last_name, social, social_type)
+        self.person_id = Applicant.generate_person_id(self.first_name, self.last_name, social)
 
-    def get_credit_status(self, social=None):
+    def get_credit_status(self):
         if not self.person_id:
             return None
 
@@ -47,6 +49,7 @@ class Applicant(Updatable):
         print "Found cfs: ", list(cfs)
         if cfs:
             status_strings = [cf.status_string for cf in cfs]
+            print "status strings: ", status_strings
             for status in ('APPROVED', 'REVIEW', 'NO HIT', 'DCS'):
                 if status in status_strings:
                     return status
@@ -74,15 +77,15 @@ class Applicant(Updatable):
 
         if credit_request:
             if getattr(settings, 'MOCK_CREDIT', None):
-                self.run_mock_credit(credit_request, social['social'], social['social_type'])
+                self.run_mock_credit(credit_request)
                 return self.get_credit_status()
 
             return 'PENDING'
 
         # If I don't have a social, I can't start it.
-        if not social:
-            if list(CreditRequest.objects.filter(applicant=self, error=1)):
-                return 'ERROR'
+        if not self.social_data:
+            #if list(CreditRequest.objects.filter(applicant=self, error=1)):
+            #    return 'ERROR'
 
             return None
 
@@ -108,29 +111,33 @@ class Applicant(Updatable):
 
         # Is the social I got passed in actually what's on this
         # agreement?  This should never not be true.
-        sanity_check = self.person_id == Applicant.generate_person_id(self.first_name, self.last_name, social['social'], social['social_type'])
-        if not sanity_check:
-            # XXX this should probably be handled smarter.
-            # I'd use an assert but I don't want to 500 here.
-            print "SANITY CHECK FAILED"
-            print social
-            return 'ERROR'
+        # sanity_check = self.person_id == Applicant.generate_person_id(self.first_name, self.last_name, social['social'], social['social_type'])
+        # if not sanity_check:
+        #     # XXX this should probably be handled smarter.
+        #     # I'd use an assert but I don't want to 500 here.
+        #     print "SANITY CHECK FAILED"
+        #     print social
+        #     return 'ERROR'
 
 
 
-        rq = CreditRequest.create_request(applicant=self, social=social['social'], social_type=social['social_type'])
+        rq = CreditRequest.create_request(applicant=self)
+        self.social_data = None
 
         # Mock credit run.
         if getattr(settings, 'MOCK_CREDIT', None):
-            self.run_mock_credit(rq, social)
+            self.run_mock_credit(rq)
             return self.get_credit_status()
 
         return 'PENDING'
 
-    def run_mock_credit(self, request, social, social_type):
+    def run_mock_credit(self, request):
         from credit_file import CreditFile
 
+        social = settings.SOCIAL_CIPHER.decrypt_long_encoded(request.social_data, request.social_data_key)
+
         name = ' '.join(filter(None, [self.first_name, self.last_name]))
+        beacon = intor(social[-3:], 601)
         mock = CreditFile(applicant=self,
             person_id=self.person_id,
             name=name,
@@ -142,6 +149,9 @@ class Applicant(Updatable):
             transaction_id='Mock Credit',
             transaction_status='Done'
         )
+
+        mock.status_string = 'APPROVED' if beacon >= settings.CREDIT_APPROVED_BEACON else 'DCS'
+        print "MOCK CREDIT: ", mock.__dict__
         mock.save()
 
     def get_beacon(self):
@@ -159,7 +169,7 @@ class Applicant(Updatable):
 
 
     @staticmethod
-    def generate_person_id(first_name, last_name, social, social_type):
+    def generate_person_id(first_name, last_name, social):
         if not social:
             return None
 
@@ -167,7 +177,7 @@ class Applicant(Updatable):
             return None
 
 
-        person_tuple = (first_name, last_name, social, social_type)
+        person_tuple = (first_name, last_name, social)
         person_tuple_str = repr(person_tuple)
 
 
@@ -199,10 +209,13 @@ class Applicant(Updatable):
 
         if 'social' in blob:
             social = blob.get('social')
-            social_type = blob.get('social_type', 'US')
+
+            # encrypt social data
+            self.social_data, self.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
+
             self.last_4 = social[-4:]
-            print "syncing social: %r, %r" % (social, social_type)
-            self.sync_person_id(social, social_type)
+            #print "syncing social: %r, %r" % (social, social_type)
+            self.sync_person_id(social)
 
         if updater:
             updater.errors.extend(errors)

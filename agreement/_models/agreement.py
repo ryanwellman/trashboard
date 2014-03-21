@@ -65,19 +65,18 @@ class Agreement(Updatable):
     def masked_credit_status(self):
         return self.credit_override or self.credit_status
 
-    def calculate_credit_status(self, socials=None):
+    def calculate_credit_status(self):
         # Return the overall credit status for this agreement.
         # If socials are provided and credit files don't exist for th
         # applicants already, they'll be passed in to the applicants'
         # get_credit_status function so that they can begin running it.
-        socials = socials or {}
 
         applicant = self.applicant
         coapplicant = self.coapplicant
         applicant_status = coapplicant_status = None
         applicant_beacon = None
         if applicant:
-            applicant_status = applicant.get_credit_status(social=socials.get('applicant'))
+            applicant_status = applicant.get_credit_status()
             applicant_beacon = applicant.get_beacon()
 
         should_start_coapplicant = bool(applicant_status and applicant_status != 'APPROVED')
@@ -141,13 +140,14 @@ class Agreement(Updatable):
             id_display = unicode(self.id)
 
         fields = [id_display, self.approved]
-        try:
-            fields.append(self.campaign)
-            fields.append(self.applicant)
-            fields.append(self.package)
-            fields.append(self.billing_address)
-        except ObjectDoesNotExist:
-            pass
+        def getattrornull(obj, attr):
+            try:
+                return getattr(obj, attr, None)
+            except:
+                return None
+
+        fields.extend([getattrornull(self, f) for f in ('campaign', 'applicant', 'package', 'billing_address')])
+
         return u','.join([unicode(f) for f in fields])
 
     def as_jsonable(self):

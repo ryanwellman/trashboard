@@ -45,68 +45,33 @@ class CreditRequest(models.Model):
     country_code = models.CharField(max_length=10)
 
     @staticmethod
-    def create_request(applicant, social, social_type):
+    def create_request(applicant):
         req = CreditRequest()
         req.applicant = applicant
-        active_agreement = applicant.agreement
+        agreement = applicant.agreement
 
-        # pre-processors for the country information
-        def process_country(info):
-            if not info:
-                return None
-            elif info.upper() in ['CANADA', 'CA']:
-                return 'CA'
-            else:
-                return  'US'
-
-        def process_state(info):
-            if not info:
-                return None
-            elif info.upper() in ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT']:
-                return 'CA'
-            else:
-                return  'US'
-
-        def process_zip(info):
-            if not info:
-                return None
-            elif not info[0].isdigit():
-                return 'CA'
-            else:
-                return  'US'
-
-        # figure out which one of these things contains something useful
-        # XXX: put these in order of preference
-        country_info =  [   process_country(active_agreement.system_address.country),
-                            process_state(active_agreement.system_address.state),
-                            process_zip(active_agreement.system_address.zip),
-                        ]
-        try:
-            # let's try to get the first useful value
-            active_country_info = next((info for info in country_info if info is not None))
-        except StopIteration:
-            # because brian said so
-            return None
+        system_address = agreement.system_address
 
         # we need this person's SYSTEM address to run their credit
-        req.address = ' '.join([active_agreement.system_address.street1, active_agreement.system_address.street2])
-        req.city = active_agreement.system_address.city
-        req.state = active_agreement.system_address.state
-        req.zipcode = active_agreement.system_address.zip
-        req.country_code = active_country_info
+        req.address = ' '.join([system_address.street1, system_address.street2])
+        req.city = system_address.city
+        req.state = system_address.state
+        req.zipcode = system_address.zip
+        req.country_code =system_address.country
 
         # obtain their name
         req.first_name = applicant.first_name
         req.last_name = applicant.last_name
-        req.last_4 = str(social)[-4:]
+        req.last_4 = applicant.last_4
 
         req.name = ' '.join(filter(None, [applicant.first_name, applicant.last_name]))
 
         # call out to generate_person_id
-        req.person_id = Applicant.generate_person_id(applicant.first_name, applicant.last_name, social)
+        req.person_id = applicant.person_id
 
+        req.social_data, req.social_data_key = applicant.social_data, applicant.social_data_key
         # encrypt social data
-        req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
+        #req.social_data, req.social_data_key = settings.SOCIAL_CIPHER.encrypt_long_encoded(social)
 
         # credit settings
         req.bureaus = settings.CREDIT_BUREAUS

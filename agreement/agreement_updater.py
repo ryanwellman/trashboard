@@ -163,7 +163,7 @@ class AgreementUpdater(object):
         # If the social is provided, look up an exact match.
         exact_match = None
         if new_social:
-            new_person_id = Applicant.generate_person_id(app_blob.get('first_name'), app_blob.get('last_name'), new_social, new_social_type)
+            new_person_id = Applicant.generate_person_id(app_blob.get('first_name'), app_blob.get('last_name'), new_social)
             if new_person_id:
                 exact_match = gooN(Applicant, person_id=new_person_id)
 
@@ -201,20 +201,20 @@ class AgreementUpdater(object):
             self.agreement.save()
 
     def update_credit_status(self, agreement_blob):
-        socials = {}
-        if agreement_blob.get('applicant', {}).get('social'):
-            socials['applicant'] =  {
-                'social': agreement_blob['applicant']['social'],
-                'social_type': agreement_blob['applicant'].get('social_type', 'US')
-            }
-        if agreement_blob.get('coapplicant', {}).get('social'):
-            socials['coapplicant'] =  {
-                'social': agreement_blob['coapplicant']['social'],
-                'social_type': agreement_blob['coapplicant'].get('social_type', 'US')
-            }
+        # socials = {}
+        # if agreement_blob.get('applicant', {}).get('social'):
+        #     socials['applicant'] =  {
+        #         'social': agreement_blob['applicant']['social'],
+        #         'social_type': agreement_blob['applicant'].get('social_type', 'US')
+        #     }
+        # if agreement_blob.get('coapplicant', {}).get('social'):
+        #     socials['coapplicant'] =  {
+        #         'social': agreement_blob['coapplicant']['social'],
+        #         'social_type': agreement_blob['coapplicant'].get('social_type', 'US')
+        #     }
 
 
-        self.agreement.credit_status = self.agreement.calculate_credit_status(socials=socials)
+        self.agreement.credit_status = self.agreement.calculate_credit_status()
 
 
 

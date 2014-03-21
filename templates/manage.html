@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container top-container">
+        <div class="well span7">
+            <form id="manage_orgs" method="POST">
+            <div class="form-inline">
+                SELECT PROVIDER:
+                <select>
+                    {% for o in orgs %}
+                        <option>{{ o.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>&nbsp;</div>
+            <div>
+                <center>
+                    <button class="btn btn-primary provider-btn">Manage</button>
+                    Or
+                    <button class="btn btn-success provider-btn">New</button>
+                </center>
+            </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

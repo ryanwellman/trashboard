@@ -20,6 +20,9 @@ ko.bindingHandlers.popover = {
         }
 
         $elem.on(popoverEvent, function(evt){
+            if(popoverEvent === 'click'){
+                evt.preventDefault();
+            }
             $elem.popover(options).popover(popoverAction);
         });
 

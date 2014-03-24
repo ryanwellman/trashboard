@@ -1,106 +1,112 @@
 {% extends 'knockout_templates/base_ko_section_template.html' %}
 {% block section_content %}
 
-<!-- Package selection lines -->
-<div data-bind="template: {
-    name: 'basic_cart_mutex',
-    data: vm,
-    as: 'vm'
-}"></div>
+    <!-- Package selection lines -->
+    <div data-bind="template: {
+        name: 'basic_cart_mutex',
+        data: vm,
+        as: 'vm'
+    }"></div>
 
-
-
-
-
-
-<!-- Read-only package contents table. -->
-<div class="controls controls-row" data-bind="visible: vm.selected() && !vm.customize_vm.customizing()">
-
-    <!-- The CURRENT contents of the package. -->
-    <table class="table" id="package_contents">
-        <thead>
-            <tr>
-                <th>Part #</th><th>Description</th><th>Quantity</th><th>CB</th>
-            </tr>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.customize_vm.cart_lines(),
-                as: 'cline'
-            }">
-            <!-- ko if: cline.quantity() || cline.base_quantity() -->
-            <tr>
-                <!--<td data-bind="text: console.log('vm.cart_lines is ', vm.cart_lines, ' and cline is ', cline)"></td>-->
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-                <td data-bind="text: cline.quantity()"></td>
-                <td data-bind="text: cline.customize_cb() || ''"></td>
-            </tr>
-            <!-- /ko -->
-        </tbody>
-        <tfoot>
-                <td colspan="3"></td>
-                <td data-bind="text: vm.customize_vm.cb_balance()"></td>
-
-        </tfoot>
-    </table>
-</div>
-
-<!-- Actual customization table. -->
-
-
-<div class="controls controls-row"  data-bind="visible: vm.selected() && vm.customize_vm.customizing()">
-    <table class="package_customization table">
-        <thead>
-            <tr>
-                <th>Part #</th>
-                <th>Description</th>
-                <th>Must Keep</th>
-                <th><center>Base Quantity Included</center></th>
-                <th>+/-</th>
-                <th>=</th>
-                <th>Quantity</th>
-                <th>&times;<th>
-                <th>CB</th>
-                <th>=</th>
-                <th>CB</th>
-            </tr>
-        </thead>
-        <tbody data-bind="
-            foreach: {
-                data: vm.customize_vm.cart_lines(),
-                as: 'cline'
-            }
-            ">
-            <tr>
-                <td data-bind="text: cline.product.code"></td>
-                <td data-bind="text: cline.product.name"></td>
-                <td data-bind="text: cline.min_quantity() || ''"></td>
-                <td data-bind="text: cline.base_quantity() || ''"></td>
-                <td data-bind="text: cline.delta_fmted()"></td>
-                <td>=</td>
-                <td>
-                    <input class="input-mini" type="text" data-bind="value: cline.customize_quantity" style="text-align:center;" />
+    <!-- Read-only package contents table. -->
+    <div class="row" data-bind="visible: vm.selected() && !vm.customize_vm.customizing()">
+        <div class="span11">
+            <table class="table table-condensed section-table" id="package_contents">
+                <thead>
+                    <tr>
+                        <th>Part #</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>CB</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.customize_vm.cart_lines(),
+                        as: 'cline'
+                    }">
+                    <!-- ko if: cline.quantity() || cline.base_quantity() -->
+                    <tr>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.quantity()"></td>
+                        <td data-bind="text: cline.customize_cb() || ''"></td>
+                    </tr>
                     <!-- /ko -->
-                    <!-- ko: if !cline.price().cb_points -->
-                    <i class="icon-lock"></i> <span data-bind="text: cline.quantity()"></span>
+                </tbody>
+                <tfoot>
+                        <td colspan="3"></td>
+                        <td data-bind="text: vm.customize_vm.cb_balance()"></td>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Actual customization table. -->
+    <div class="row" data-bind="visible: vm.selected() && vm.customize_vm.customizing()">
+        <div class="span11">
+            <table class="package_customization table">
+                <thead>
+                    <tr>
+                        <th>Part #</th>
+                        <th>Description</th>
+                        <th>Must Keep</th>
+                        <th><center>Base Quantity Included</center></th>
+                        <th>+/-</th>
+                        <th>=</th>
+                        <th>Quantity</th>
+                        <th>&times;</th>
+                        <th>CB</th>
+                        <th>=</th>
+                        <th>CB</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="
+                    foreach: {
+                        data: vm.customize_vm.cart_lines(),
+                        as: 'cline'
+                    }
+                    ">
+                    <!-- ko if: (cline.price() && cline.price().swappable && cline.price().cb_points) || cline.quantity() -->
+                    <tr>
+                        <td data-bind="text: cline.product.code"></td>
+                        <td data-bind="text: cline.product.name"></td>
+                        <td data-bind="text: cline.min_quantity() || ''"></td>
+                        <td data-bind="text: cline.base_quantity() || ''"></td>
+                        <td data-bind="text: cline.delta_fmted()"></td>
+                        <td>=</td>
+                        <td style="text-align: center">
+                            <!-- ko if: cline.price() && cline.price().swappable && cline.price().cb_points -->
+                            <input class="input-mini" type="text" data-bind="value: cline.customize_quantity" style="text-align:center;" />
+                            <!-- /ko -->
+                            <!-- ko if: !(cline.price() && cline.price().swappable && cline.price().cb_points) -->
+                            <span data-bind="text: cline.quantity()"></span> <i class="fa fa-lock"></i>
+                            <!-- /ko -->
+                        </td>
+                        <td>&times;</td>
+                        <td><span data-bind="text: (cline.price() ? cline.price().cb_points : 0) || ''" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></td>
+                        <td>=</td>
+                        <td data-bind="text: cline.customize_cb()"></td>
+
+                    </tr>
                     <!-- /ko -->
-                </td>
-                <td>&times;</td>
-                <td><span data-bind="text: (cline.price() ? cline.price().cb_points : 0) || ''" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></td>
-                <td>=</td>
-                <td data-bind="text: cline.customize_cb()"></td>
-
-            </tr>
-        </tbody>
-    </table>
-</div>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 
-<!-- toggle and summary -->
-
-<div class="controls controls-row">
-    <div class="span2" data-bind="visible: vm.selected()">
+    <!-- toggle and summary -->
+    <div class="row">
+        <div class="span3" style="padding-left: 20px; padding-bottom: 20px;">
+            <button class="btn btn-success" data-bind="
+                text:  vm.customize_vm.customizing() ? 'Save Customization' : 'Customize',
+                click: vm.customize_vm.customizing() ? vm.customize_vm.finish_customizing :
+                                                       vm.customize_vm.start_customizing,
+                visible: vm.selected()
+            ">Customize</button>
+        </div>
+        <div class="span8" data-bind="visible: vm.selected()">
             <span data-bind="
                 style: {
                     color: vm.cb_balance() >= 0 ? 'green' : 'firebrick'
@@ -109,16 +115,7 @@
                 CB Balance:
                 <span data-bind="text: vm.cb_balance()"></span>
             </span>
-
+        </div>
     </div>
-    <div class="span3">
-        <button class="btn btn-success" data-bind="
-            text:  vm.customize_vm.customizing() ? 'Save Customization' : 'Customize',
-            click: vm.customize_vm.customizing() ? vm.customize_vm.finish_customizing :
-                                                   vm.customize_vm.start_customizing,
-            visible: vm.selected()
-        ">Customize</button>
-    </div>
-</div>
 
 {% endblock %}

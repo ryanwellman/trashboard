@@ -123,6 +123,7 @@ class Applicant(Updatable):
 
         rq = CreditRequest.create_request(applicant=self)
         self.social_data = None
+        self.save()
 
         # Mock credit run.
         if getattr(settings, 'MOCK_CREDIT', None):

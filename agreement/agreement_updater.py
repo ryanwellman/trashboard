@@ -64,8 +64,6 @@ class AgreementUpdater(object):
         if 'coapplicant' in update_blob:
             self.update_applicant(which='coapplicant', app_blob=update_blob['coapplicant'])
 
-        self.update_credit_status(update_blob)
-
         if self.agreement.applicant_id == self.agreement.coapplicant_id:
             # If coapplicant is the applicant, remove it.
             self.agreement.coapplicant = None
@@ -78,6 +76,9 @@ class AgreementUpdater(object):
             target_address.update_from_blob(update_blob['system_address'], self)
             target_address.save()
             self.agreement.system_address = target_address
+
+        self.update_credit_status(update_blob)
+
 
         for field in ['floorplan', 'property_type', 'install_method', 'email']:
             print update_blob[field]

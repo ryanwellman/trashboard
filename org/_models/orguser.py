@@ -84,9 +84,17 @@ class OrgUser(models.Model):
             return self.cached_permissions
 
         self.cached_permissions = defaultdict(lambda org_code: [])
-        lines = self.values('role__organization__org_code', 'role__permissions__codename')
+        lines = self.values('role__organization__org_code', 'role__applies_globally', 'role__permissions__codename')
         for line in lines:
-            self.cached_permissions[line['role__organizatino__org_code']].append(line['role__permissions__codename'])
+            org_code = line['role__organization__org_code']
+            codename = line['role__permissions__codename']
+            if line['role__applies_globally']:
+                self.cached_permissions['*'].append(codename)
+            elif not org_code:
+                self.cached_permissions[self.organization_id].append(codename)
+            else:
+                self.cached_permissions[org_code].append(codename)
+
 
         return self.cached_permissions
 

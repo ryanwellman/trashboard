@@ -8,8 +8,10 @@ from django.contrib.auth.models import User, Permission
 class Role(models.Model):
 
     name = models.CharField(max_length=80)
-    organization = models.ForeignKey(Organization)
+    organization = models.ForeignKey(Organization, null=True, blank=True)  # When null, applies to user's org.
     permissions = models.ManyToManyField(Permission, blank=True)
+    applies_globally = models.BooleanField(default=False) # when true, applies to all orgs.
+
 
     def __unicode__(self):
         return '{0} {1}'.format(self.organization, self.name)

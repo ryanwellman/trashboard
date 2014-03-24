@@ -16,11 +16,10 @@ class Organization(Model):
     that governs what they charge for our products
     """
 
-    organization_id = models.AutoField(primary_key=True)
     pricegroup =    models.ForeignKey(PriceGroup) # must have this
     #campaigns   =   models.ManyToManyField(Campaign, through='OrgCampaign', related_name='Campaigns')
     name        =   models.CharField(max_length=50)
-    org_code    =   models.CharField(max_length=50)
+    org_code    =   models.CharField(max_length=50, primary_key=True)
     provider_id =   models.IntegerField(null=True, blank=True)
     distribution_email = models.CharField(max_length=255, null=True, blank=True)
 

@@ -10,6 +10,7 @@ from collections import defaultdict
 from handy.controller import JsonResponse
 import regional.restrictions as restrictions
 from org.models import Campaign
+from org.models import OrgUser
 
 class Agreement(Updatable):
     """
@@ -62,9 +63,9 @@ class Agreement(Updatable):
     status = models.CharField(max_length=20)
 
     # users
-    owner_user = models.ForeignKey(OrgUser)
+    owner = models.ForeignKey(OrgUser)
     working_user = models.ForeignKey(OrgUser)
-    created_by_user = models.ForeignKey(OrgUser)
+    created_by = models.ForeignKey(OrgUser)
 
     @property
     def masked_credit_status(self):

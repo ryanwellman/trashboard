@@ -6,6 +6,7 @@ from handy.cipher import MessageCipher
 
 import django.conf.global_settings as DEFAULT_SETTINGS
 
+
 LANGUAGE_CODE = 'en-us'
 USE_TZ = False
 TIME_ZONE = 'America/Chicago'
@@ -148,3 +149,4 @@ CREDIT_REUSABLE_SPAN = timedelta(days=30)
 CREDIT_APPROVED_BEACON = 600
 
 SOCIAL_CIPHER = MessageCipher(private_file='/devd/trashboard/social_cipher_test.private', public_file='/devd/trashboard/social_cipher_test.public')
+

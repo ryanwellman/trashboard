@@ -9,15 +9,20 @@ class OrgUser(models.Model):
     organization = models.ForeignKey(Organization)
     username = models.CharField(max_length=32)
     # The django_user has the password.  If it doesn't exist, this orguser is inaccessible.
-    django_user = models.ForeignKey(User, null=True, blank=True)
+    django_user = models.OneToOneField(User, null=True, blank=True, related_name='orguser')
 
     first_name = models.CharField(max_length=32, blank=True)
     last_name = models.CharField(max_length=32, blank=True)
+    email = models.CharField(max_length=254, null=True, blank=True)
 
     roles = models.ManyToManyField('Role', blank=True)
 
+    old_dashboard_orguser_id = models.IntegerField(null=True, blank=True)
+
     manager_pin = models.CharField(verbose_name="Manager PIN",
                                    max_length=4, blank=True, null=True)
+
+    is_active = models.BooleanField(default=True)
 
     @staticmethod
     def build_django_username(org_code, username):
@@ -36,13 +41,14 @@ class OrgUser(models.Model):
         qs = User.objects.filter(username__istartswith=base_username)
         already_taken = [u[0] for u in qs.values_list('username')]
         already_taken = [username.lower() for username in already_taken]
-
+        #print "Already taken: ", already_taken
         z = 0
         candidate = base_username
-        while candidate in already_taken:
+        while candidate.lower() in already_taken:
             z += 1
             candidate = base_username + '.%02d' % z
 
+        #print "assigning ", candidate
         return candidate
 
     def save(self, *args, **kwargs):
@@ -53,10 +59,26 @@ class OrgUser(models.Model):
         if not self.django_user:
             self.django_user = User()
 
-        django_username = OrgUser.build_django_username(org_code=self.organization.org_code, username=self.username)
-        if self.django_user.username != django_username:
+            django_username = OrgUser.build_django_username(org_code=self.organization.org_code, username=self.username)
             self.django_user.username = django_username
+
+
+        username_matches = ('.'.join(self.django_user.username.split('.')[:2])
+             == '.'.join([self.organization.org_code, self.username]))
+        if not username_matches:
+            self.django_user.username = OrgUser.build_django_username(org_code=self.organization.org_code, username=self.username)
             self.django_user.save()
+
+        if not self.django_user.pk:
+            self.django_user.save()
+
+        self.django_user.is_active = self.is_active
+        self.django_user.first_name = self.first_name
+        self.django_user.last_name = self.last_name
+        self.django_user.email = self.email
+        self.django_user.save()
+
+        self.django_user = self.django_user
 
         super(OrgUser, self).save(*args, **kwargs)
 

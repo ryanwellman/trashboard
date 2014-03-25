@@ -89,6 +89,7 @@ INSTALLED_APPS = (
     'agreement',
     'handy',
     'regional',
+    'monkeypatch',
 )
 
 # This is tacked onto the end of COMPRESS_ROOT (which defaults to STATIC_ROOT)

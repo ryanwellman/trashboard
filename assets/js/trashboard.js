@@ -43,10 +43,11 @@ window.FLOORPLANS = [
 
 window.CREDIT_LABEL_OPTIONS = {
     'APPROVED': 'label label-success',
-    'DCS': 'label label-warning',
-    'NOHIT': 'label label-inverse',
+    'DCS': 'label label-important',
+    'NOHIT': 'label label-warning',
     'PENDING': 'label label-info',
-    'REVIEW': 'label label-important',
+    'REVIEW': 'label label-warning',
+    'ERROR': 'label label-inverse',
     'NOT RUN': 'label'
 };
 
@@ -56,6 +57,7 @@ window.CREDIT_LABEL_ICON_OPTIONS = {
     'NOHIT': 'fa fa-times',
     'PENDING': 'fa fa-clock-o',
     'REVIEW': 'fa fa-exclamation',
+    'ERROR': 'fa fa-exclamation',
     'NOT RUN': ''
 };
 

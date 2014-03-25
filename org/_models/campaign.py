@@ -4,6 +4,7 @@ from pricegroup import PriceGroup
 from organization import Organization
 from pricegroup_membership import PGMembership
 from django.db.models import Q, Model
+from inventory.models import PriceTable
 
 class Campaign(Model):
     """
@@ -48,38 +49,16 @@ class Campaign(Model):
             asof = datetime.now()
 
         pts = self.get_pricetables()
-        pps = []
-
-        # Valid PPs have bounding dates that include asof
-        after_from = Q(fromdate__isnull=True) | Q(fromdate__lte=asof)
-        before_to = Q(todate__isnull=True) | Q(todate__gt=asof)
-
-        timefilter = after_from & before_to
-
-        # Grab every pp for the pricetables (which are already sorted by zorder)
-        # And insert them into a list (so that they will already be sorted by zorder)
-        for pt in pts:
-            pps.extend(list(pt.productprice_set.filter(timefilter)))
-
-        # Compose two lists of prices
-        promo_prices = dict()
-        normal_prices = dict()
+        return PriceTable.get_prices(pts, asof)
 
 
-        # checking just the promo versions
-        for pp in pps:
-            # For each pp, set it (if it has not already been set) in the appropriate
-            # list.
-            if pp.promo:
-                promo_prices.setdefault(pp.product_id, pp)
-            else:
-                normal_prices.setdefault(pp.product_id, pp)
 
-        # Make a dictionary of both sets, where promo_prices overwrites normal.
-        together_prices = dict(normal_prices, **promo_prices)
+    def get_product_contents(self, asof=None):
+        if asof is None:
+            asof = datetime.now()
 
-        # Return the product prices as a list.  (Each product appears only once.)
-        return together_prices
+        pts = self.get_pricetables()
+        return PriceTable.get_contents(pts, asof)
 
 
     def __unicode__(self):

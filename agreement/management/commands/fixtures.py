@@ -46,7 +46,9 @@ def CreateDBEntries():
 
     # producty things
     global_counter += CreateProducts()
-    global_counter += CreateProductContents()
+    pts = [PriceTable.objects.get(pk=pricetable_id) for pricetable_id in PRICETABLES]
+    for pt in pts:
+        global_counter += CreateProductContents(pt)
 
     # actual price lists
     global_counter += CreateProductPrices()
@@ -172,7 +174,7 @@ def CreateProducts():
     return Product.objects.count() - object_counter
 
 
-def CreateProductContents():
+def CreateProductContents(pt):
     """add contents to those products that require it"""
 
     object_counter = ProductContent.objects.count()
@@ -195,9 +197,9 @@ def CreateProductContents():
     # put these things in the packages with fake upfront strike prices
     for k, v in wcont_qtys.iteritems():
         current_package = Package.objects.get(code=k)
-        ProductContent(included_in=current_package, included_product=wcont, quantity=v, upfront_strike=5.0, monthly_strike=None).save()
-        ProductContent(included_in=current_package, included_product=simonxt, quantity=1, upfront_strike=5.0, monthly_strike=None).save()
-        ProductContent(included_in=current_package, included_product=wpir, quantity=1, upfront_strike=5.0, monthly_strike=None).save()
+        ProductContent(pricetable=pt, included_in=current_package, included_product=wcont, quantity=v, upfront_strike=5.0, monthly_strike=None).save()
+        ProductContent(pricetable=pt, included_in=current_package, included_product=simonxt, quantity=1, upfront_strike=5.0, monthly_strike=None).save()
+        ProductContent(pricetable=pt, included_in=current_package, included_product=wpir, quantity=1, upfront_strike=5.0, monthly_strike=None).save()
 
     # stuff that goes in combos
     yrdsign = Part.objects.get(code='YRDSIGN')
@@ -206,7 +208,7 @@ def CreateProductContents():
     testcombo = Combo.objects.get(code='COMBOTEST')
 
     # put stuff in the combos with fake upfront strike prices
-    ProductContent(included_in=testcombo, included_product=yrdsign, quantity=2, upfront_strike=5.5, monthly_strike=None).save()
+    ProductContent(pricetable=pt, included_in=testcombo, included_product=yrdsign, quantity=2, upfront_strike=5.5, monthly_strike=None).save()
 
     return ProductContent.objects.count() - object_counter
 

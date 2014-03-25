@@ -44,12 +44,12 @@ class AgreementUpdater(object):
         self.blob = blob
 
         self.products = Product.get_all_products()
-        self.prices = agreement.campaign.get_product_prices()
+        self.prices = agreement.campaign.get_product_prices(agreement.pricedate)
 
-        pcs = ProductContent.objects.all()
-        self.product_contents = defaultdict(list)
-        for pc in pcs:
-            self.product_contents[pc.included_in_id].append(pc)
+        self.product_contents = agreement.campaign.get_product_contents(agreement.pricedate)
+        #self.product_contents = defaultdict(list)
+        #for pc in pcs:
+        #    self.product_contents[pc.included_in_id].append(pc)
 
         self.apply_restrictions()
         self.available_install_methods = agreement.available_install_methods()
@@ -268,7 +268,7 @@ class AgreementUpdater(object):
             line = self.reclaim_line(code=il.code, line_type='TOP')
             if not line:
                 line = InvoiceLine(agreement=self.agreement)
-            line.update_top(product=il.product, quantity=il.quantity, price=il.price, pricedate=self.agreement.pricetable_date)
+            line.update_top(product=il.product, quantity=il.quantity, price=il.price, pricedate=self.agreement.pricedate)
 
             self.final_lines.append(line)
 
@@ -281,7 +281,7 @@ class AgreementUpdater(object):
             if not line:
                 line = InvoiceLine(agreement=self.agreement)
 
-            line.update_trade(product=il.product, quantity=il.quantity, price=il.price, pricedate=self.agreement.pricetable_date)
+            line.update_trade(product=il.product, quantity=il.quantity, price=il.price, pricedate=self.agreement.pricedate)
 
             self.final_lines.append(line)
 
@@ -375,13 +375,13 @@ class AgreementUpdater(object):
                 ex = existing.get(code)
                 # Does the line already exist?  If so, update the quantity and pricing.  We'll sync the subitems later.
                 if ex:
-                    ex.update(quantity=line.quantity, product=line.product, price=price, pricedate=self.pricetable_date, traded=traded)
+                    ex.update(quantity=line.quantity, product=line.product, price=price, pricedate=self.pricedate, traded=traded)
                     final.append(ex) # Good job!
                 else:
                     # otherwise make a brand new one.
                     new = InvoiceLine()
                     new.agreement = self.agreement
-                    new.update(quantity=line.quantity, product=line.product, price=price, pricedate=self.pricetable_date, traded=traded)
+                    new.update(quantity=line.quantity, product=line.product, price=price, pricedate=self.pricedate, traded=traded)
                     final.append(new)
 
         return final
@@ -482,7 +482,7 @@ class AgreementUpdater(object):
             if not price:
                 self.errors.append('Mandatory product %r has no price.  Campaign=%r' % (code, self.agreement.campaign_id))
 
-            mp.update_mandatory(quantity=quantity, product=product, price=price, pricedate=self.agreement.pricetable_date)
+            mp.update_mandatory(quantity=quantity, product=product, price=price, pricedate=self.agreement.pricedate)
 
         mp.quantity = quantity
         mp.save()

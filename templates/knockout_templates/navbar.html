@@ -1,8 +1,113 @@
 <script type="text/html" id="navbar">
+<div class="my-navbar my-navbar-fixed-top">
+    <div class="my-navbar-inner">
+        <div class="row">
+            <div class="span5 mynav-vertical-align">
+                <span id="agreement_display" data-bind="text: window.agreement_id"></span>
+            </div>
+            <div class="span3">
+                <span data-bind="
+                    css: {
+                        muted: !vm.master.vms.applicant.full_name()
+                    },
+                    text: master.vms.applicant.full_name() || 'First Last'
+                "></span>
+                <br />
+                <span class="nav_street1" data-bind="
+                    css: {
+                        muted: !vm.master.vms.system_address.street1()
+                    },
+                    text: master.vms.system_address.street1() || 'Address'
+                "></span>
+                <br />
+                <!-- ko if: vm.master.vms.system_address.street2() -->
+                <span class="nav_street2" data-bind="
+                    css: {
+                        muted: !vm.master.vms.system_address.street2()
+                    },
+                    text: master.vms.system_address.street2() || ''
+                "></span><br />
+                <!-- /ko -->
+                <span class="nav_city_and_state" data-bind="
+                    css: {
+                        muted: !vm.master.vms.system_address.city_and_state()
+                    },
+                    text: master.vms.system_address.city_and_state() || 'City, State'
+                "></span>
+                <span class="nav_zipcode" data-bind="
+                    css: {
+                        muted: !vm.master.vms.system_address.zip()
+                    },
+                    text: master.vms.system_address.zip() || 'Zipcode'
+                "></span>
+            </div>
+            <div class="span3">
+                <b>Monthly Cost:</b>
+                <span data-bind="
+                    text: formatCurrency(master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total(), 1, '/mo'),
+                    css: {
+                        'muted': (master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total()) <= 0
+                    }
+                "></span><br />
+                <b>Upfront Cost:</b>
+                <span data-bind="
+                    text: formatCurrency(master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total()),
+                    css: {
+                        'muted': (master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total()) <= 0
+                    }
+                "></span>
+            </div>
+            <div class="span3">
+                <b>Monitoring:</b>
+                <span data-bind="
+                    text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected()
+                          ? vm.master.vms.monitoring.selected().name
+                          : '(None)',
+                    css: {
+                        muted: !(vm.master.vms.monitoring && vm.master.vms.monitoring.selected())
+                    }
+                "></span><br />
+                <b>Shipping:</b>
+                <span data-bind="
+                    text: vm.master.vms.shipping && vm.master.vms.shipping.selected()
+                          ? vm.master.vms.shipping.selected().name
+                          : '(None)',
+                    css: {
+                        muted: !(vm.master.vms.shipping && vm.master.vms.shipping.selected())
+                    }
+                "</span>
+            </div>
+            <div class="span2">
+                <span id="package_link" data-bind="
+                    text: master.vms.package.selected() ? master.vms.package.selected().code : '(Package)',
+                    css: master.vms.package.package_css
+                "></span>
+            </div>
+            <div class="span1">
+                <span class="navbadge badge" data-bind="
+                    text: vm.master.cb_balance(),
+                    css: {
+                        'badge-success': vm.master.cb_balance() >= 0,
+                        'badge-important': vm.master.cb_balance() < 0
+                    }
+                "></span>
+            </div>
+            <div class="span2">
+                <span class="agreement_credit_status" data-bind="html: vm.master.label_display_text, css: vm.master.label_display"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% comment %}
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="agreement_info_display">
             <ul class="unstyled">
+                <li class="span2">
+                    <span id="agreement_display" data-bind="text: window.agreement_id"></span>
+                </li>
                 <li class="span2">
                     <span data-bind="
                         css: {
@@ -41,15 +146,46 @@
                 </li>
                 <li class="span2">
                     <b>Package:</b><br />
-                    <span id="package_link" data-bind="text: master.vms.package.package ? master.vms.package.package.name : 'None Selected'"></span>
+                    <span id="package_link" data-bind="
+                        text: master.vms.package.selected() ? master.vms.package.selected().code : '(None)',
+                        css: master.vms.package.package_css
+                    "></span>
                 </li>
-                <li class="span2">
-                    <b>Monthly Cost:</b><br />
-                    <span data-bind="text: formatCurrency(master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total(), 1, '/mo')"></span>
+                <li class="span3">
+                    <b>Monthly Cost:</b>
+                    <span data-bind="
+                        text: formatCurrency(master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total(), 1, '/mo'),
+                        css: {
+                            'muted': (master.dirty() ? master.monthly_subtotal() : master.vms.review.monthly_total()) <= 0
+                        }
+                    "></span><br />
+                    <b>Upfront Cost:</b>
+                    <span data-bind="
+                        text: formatCurrency(master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total()),
+                        css: {
+                            'muted': (master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total()) <= 0
+                        }
+                    "></span>
                 </li>
-                <li class="span2">
-                    <b>Upfront Cost:</b><br />
-                    <span data-bind="text: formatCurrency(master.dirty() ? master.upfront_subtotal() : master.vms.review.upfront_total())"></span>
+                <li class="span3">
+                    <b>Monitoring:</b>
+                    <span data-bind="
+                        text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected()
+                              ? vm.master.vms.monitoring.selected().name
+                              : '(None)',
+                        css: {
+                            muted: !(vm.master.vms.monitoring && vm.master.vms.monitoring.selected())
+                        }
+                    "></span><br />
+                    <b>Shipping:</b>
+                    <span data-bind="
+                        text: vm.master.vms.shipping && vm.master.vms.shipping.selected()
+                              ? vm.master.vms.shipping.selected().name
+                              : '(None)',
+                        css: {
+                            muted: !(vm.master.vms.shipping && vm.master.vms.shipping.selected())
+                        }
+                    "</span>
                 </li>
                 <li class="span2">
                     <b>Chargeback:</b><br />
@@ -61,30 +197,13 @@
                         }
                     "></span>
                 </li>
-                <li class="span3">
-                    <b>Agreement ID:</b>
-                    <span data-bind="text: window.agreement_id"></span><br />
-
-                    <b>Monitoring:</b>
-                    <span data-bind="
-                        text: vm.master.vms.monitoring && vm.master.vms.monitoring.selected()
-                              ? vm.master.vms.monitoring.selected().name
-                              : 'None Selected'
-                    "></span>
-                </li>
-                <li class="span3">
-                    <b>Shipping:</b>
-                    <span data-bind="
-                        text: vm.master.vms.shipping && vm.master.vms.shipping.selected()
-                              ? vm.master.vms.shipping.selected().name
-                              : 'None Selected'
-                    "</span>
-                </li>
                 <li class="span2">
+                    <span style="display: inline-block">&nbsp;</span>
                     <span class="agreement_credit_status" data-bind="html: vm.master.label_display_text, css: vm.master.label_display"></span>
                 </li>
             </ul>
         </div>
     </div>
 </div>
+{% endcomment %}
 </script>

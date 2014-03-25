@@ -22,7 +22,7 @@ class Agreement(Updatable):
         campaign: who gets paid commission
         applicants: whose credit is going to be run
         addresses: where to bill and where the alarm is
-        pricetable_date: what day's prices should be used
+        pricedate: what day's prices should be used
         email: how to contact the applicants about this agreement
         approved: what was their credit score like
         package: what box do we use
@@ -39,7 +39,7 @@ class Agreement(Updatable):
     coapplicant = models.ForeignKey(Applicant, null=True, blank=True, related_name='+')
     billing_address = models.ForeignKey(Address, null=True, blank=True, related_name='billing')
     system_address =models.ForeignKey(Address, null=True, blank=True, related_name='system')
-    pricetable_date = models.DateTimeField(default=timezone.now) # automatically timestamped on creation
+    pricedate = models.DateTimeField(default=timezone.now) # automatically timestamped on creation
     date_updated = models.DateTimeField(default=timezone.now) # update when updated
     email = models.CharField(max_length=75)
     approved = models.CharField(max_length=20)
@@ -129,7 +129,7 @@ class Agreement(Updatable):
         return restrictions.get_available_install_methods(
             zipcode=zipcode,
             property_type=self.property_type,
-            restriction_date=self.pricetable_date
+            restriction_date=self.pricedate
         )
 
 
@@ -159,7 +159,7 @@ class Agreement(Updatable):
             jsonable[field] = obj.as_jsonable() if obj else None
 
         # primitives
-        for field in ('pricetable_date', 'date_updated', 'email',
+        for field in ('pricedate', 'date_updated', 'email',
                       'approved', 'promo_code', 'floorplan',
                     'property_type', 'install_method',
                     'status'):

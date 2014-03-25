@@ -4,7 +4,16 @@ from pricetable import PriceTable
 from product import Product
 
 
-class ProductPrice(models.Model):
+class PricetableEntry(models.Model):
+    pricetable      =   models.ForeignKey(PriceTable, related_name='%(class)ss')
+    fromdate        =   models.DateTimeField(null=True)
+    todate          =   models.DateTimeField(null=True)
+    promo           =   models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+class ProductPrice(PricetableEntry):
     """
     represents membership by a product in a price table
     through table for PriceTable and Product
@@ -13,19 +22,19 @@ class ProductPrice(models.Model):
     stackable price tables for quick access to one-off promos
     """
 
-    pricetable      =   models.ForeignKey(PriceTable)
     product         =   models.ForeignKey(Product)
     max_quantity    =   models.IntegerField(blank=True, null=True)
     monthly_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     upfront_price   =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     cb_points       =   models.IntegerField(default=0, blank=True, null=True)
-    fromdate        =   models.DateTimeField(null=True)
-    todate          =   models.DateTimeField(null=True)
-    promo           =   models.BooleanField(default=False)
     swappable       =   models.BooleanField(default=False)
     # Should be listed in a cart
     available       =   models.BooleanField(default=True)
 
+
+    @property
+    def entry_code(self):
+        return self.product_id
 
     def __unicode__(self):
         return u','.join([unicode(f) for f in [self.pricetable, self.product, self.monthly_price, self.upfront_price]])

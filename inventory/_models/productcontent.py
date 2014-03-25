@@ -2,11 +2,11 @@ from django.db import models
 from datetime import datetime
 
 from product import Product
+from product_price import PricetableEntry
 
 
 
-
-class ProductContent(models.Model):
+class ProductContent(PricetableEntry):
     """
     represents membership by a product in a package
     through table for Package and Product
@@ -19,6 +19,16 @@ class ProductContent(models.Model):
 
     upfront_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
     monthly_strike  =   models.DecimalField(decimal_places=4, max_digits=20, blank=True, null=True)
+
+    # FROM PricetableEntry
+    # pricetable      =   models.ForeignKey(PriceTable)
+    # fromdate        =   models.DateTimeField(null=True)
+    # todate          =   models.DateTimeField(null=True)
+    # promo           =   models.BooleanField(default=False)
+
+    @property
+    def entry_code(self):
+        return self.included_in_id
 
     @property
     def code(self):

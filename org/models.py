@@ -4,7 +4,6 @@ from django.conf import settings
 import _models
 
 
-
 # this function from ice takes a package, then uses pkgutil to import each submodule.
 # It then returns a list of types which are subclasses of kls from those submodules.
 def TypesFromModule(package, kls):

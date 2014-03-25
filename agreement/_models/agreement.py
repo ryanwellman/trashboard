@@ -63,9 +63,9 @@ class Agreement(Updatable):
     status = models.CharField(max_length=20)
 
     # users
-    owner = models.ForeignKey(OrgUser)
-    working_user = models.ForeignKey(OrgUser)
-    created_by = models.ForeignKey(OrgUser)
+    owner = models.ForeignKey(OrgUser, related_name='j_owner')
+    working_user = models.ForeignKey(OrgUser, related_name='j_working_user')
+    created_by = models.ForeignKey(OrgUser, related_name='j_created_by')
 
     @property
     def masked_credit_status(self):

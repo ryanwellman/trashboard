@@ -61,7 +61,8 @@ function BaseSectionVM(master) {
         _.each(custs, function(cline) {
             var il = {
                 'code': cline.code,
-                'quantity': cline.quantity()
+                'quantity': cline.quantity(),
+                'line_type': 'TOP',
             };
             agreement.invoice_lines.push(il);
         });
@@ -75,7 +76,7 @@ function BaseSectionVM(master) {
     };
     self.update_cart_from_agreement = function(agreement) {
         var top_levels = _.filter(agreement.invoice_lines, function(iline) {
-            return !iline.traded && !iline.parent_id && !iline.mandatory;
+            return iline.line_type.toUpperCase() == 'TOP' && !iline.parent_id && !iline.mandatory;
         });
 
         console.log("Update cart from agreement in ", self.name, " using ", top_levels);

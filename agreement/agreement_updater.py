@@ -18,7 +18,7 @@ class IL(object):
         print "In IL init, line is %r" % (line,)
         self.code = line.get('code')
         self.quantity = intor(line.get('quantity'))
-        self.traded = line.get('traded', False)
+        self.line_type = line.get('line_type', 'TOP').upper()
 
         self.product = updater.products.get(self.code)
         self.price = updater.prices.get(self.code)
@@ -262,7 +262,7 @@ class AgreementUpdater(object):
         # Invoice Lines for these should all be TOP.
         # (This includes package, monitoring, alacarte, but not children, mandatory services...)
         for il in incoming_lines:
-            if il.traded:
+            if not il.line_type == 'TOP':
                 continue
             # il is a fakey line.
             line = self.reclaim_line(code=il.code, line_type='TOP')
@@ -274,7 +274,7 @@ class AgreementUpdater(object):
 
         # Now do it again for trade lines.
         for il in incoming_lines:
-            if not il.traded:
+            if not il.line_type == 'TRADE':
                 continue
 
             line = self.reclaim_line(code=il.code, line_type='TRADE')

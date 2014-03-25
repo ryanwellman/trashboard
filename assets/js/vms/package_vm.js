@@ -170,7 +170,7 @@ CustomizationVM = function(master, package_vm) {
             agreement.invoice_lines.push({
                 'code': cline.code,
                 'quantity': delta,
-                'traded': true
+                'line_type': 'TRADE'
             });
 
         });
@@ -179,7 +179,7 @@ CustomizationVM = function(master, package_vm) {
     self.update_from_agreement = function(agreement) {
 
         var trade_lines = _.filter(agreement.invoice_lines, function(iline) {
-            return iline.traded;
+            return iline.line_type.toUpperCase() == 'TRADE';
         });
 
         var trade_lines_by_code = _.indexBy(trade_lines, function(tline) {

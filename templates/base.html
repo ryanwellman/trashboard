@@ -16,6 +16,22 @@
                 body {
                     padding-top: 0px;
                 }
+                .well-container {
+                    padding-top: 50px;
+                }
+                .login-well {
+                    background-color: #413839;
+                    color: white;
+                    border-radius: (15px);
+                }
+                .login-help {
+                    color: #C6DEFF;
+                    font-size: 11px;
+                }
+                .login-btn {
+                    width: 180px !important;
+                    font-size: 18px;
+                }
                 .top-container {
                     padding-top: 0px;
                 }
@@ -148,11 +164,13 @@
         {% block content %}
         {% endblock %}
 
+        {% block footer %}
         <div class="footer">
             <div class="container">
                 <center><p>&copy; Protect America {% now "Y" %}</p></center>
             </div>
         </div>
+        {% endblock %}
 
         {% compress js %}
 

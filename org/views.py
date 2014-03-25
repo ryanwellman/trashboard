@@ -23,7 +23,7 @@ def login(request):
         if next:
             return HttpResponseRedirect(next)
 
-        return HttpResponseRedirect(reverse('index'))
+        return redirect('index')
 
     ctx = dict(
         org_code=org_code,

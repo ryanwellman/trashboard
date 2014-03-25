@@ -107,4 +107,6 @@ def Index(request):
     if not request.user.is_authenticated():
         return redirect('login')
 
+    if request.GET.get('nav_agreement_id'):
+        return redirect('agreement_detail', agreement_id=request.GET.get('nav_agreement_id'))
     return {}

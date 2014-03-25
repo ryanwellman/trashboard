@@ -1,23 +1,43 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block mainheader %}{% endblock %}
+{% block mainnav %}{% endblock %}
 
 {% block content %}
-<form method="post">
-    {% csrf_token %}
-    <p>
-        <label for="org_code">Org Code</label>
-        <input type="text" name="org_code" value="{{org_code}}" />
-    </p>
-    <p>
-        <label for="username">Username</label>
-        <input type="text" name="username" value="{{username}}" />
-    </p>
-    <p>
-        <label for="password">Password</label>
-        <input type="password" name="password"/>
-    </p>
-    <p>
-        <button type="submit">Login</button>
-    </p>
-
-</form>
+<div class="container">
+    <div class="row">
+        <div class="span6">
+            <img src="https://secure.protectamerica.com/assets//images/pa-icon.png">
+        </div>
+        <div class="well-container span6">
+            <div class="well login-well span5">
+                <form method="post">
+                {% csrf_token %}
+                    <p>
+                        <label for="org_code">ORGANIZATION</label>
+                        <input class="span5" type="text" name="org_code" value="{{org_code}}" />
+                        <span class="help-block login-help">YOUR ORGANIZATION'S COMPANY CODE</span>
+                    </p>
+                    <hr>
+                    <p>
+                        <label for="username">USERNAME</label>
+                        <input class="span5" type="text" name="username" value="{{username}}" />
+                    </p>
+                    <p>
+                        <label for="password">PASSWORD</label>
+                        <input class="span5" type="password" name="password"/>
+                    </p>
+                    <p>
+                        <center><button type="submit" class="btn btn-success login-btn">Login Now</button></center>
+                    </p>
+                </form>
+            </div>
+            <div>
+                <center><small>Protect America Trashboard - &copy; Protect America, Inc. {% now "Y" %}</small></center>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
+{% block footer %}{% endblock %}

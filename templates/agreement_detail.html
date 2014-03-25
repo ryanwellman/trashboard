@@ -14,6 +14,10 @@
                 <td><a href="#" rel="tooltip" data-toggle="tooltip" data-placement="right" title="Click here to takeover agreement">Ryan Wellman</a></td>
             </tr>
             <tr>
+                <td><strong>Owned By:</strong></td>
+                <td>Ryan Wellman <span class="label pull-right">Takeover Agreement</span></td>
+            </tr>
+            <tr>
                 <td><strong>Organization:</strong></td>
                 <td>{{ ag.campaign__organization__name }}</td>
             </tr>
@@ -34,6 +38,17 @@
             <tr>
                 <td><strong>Credit Status:</strong></td>
                 <td>
+                {% if ag.credit_status == 'REVIEW' or ag.credit_status == 'NO HIT' %}
+                    <a class="label label-warning" data-toggle="modal" data-target="#creditModal">Review</a>
+                {% else %}
+                    {{ ag.credit_status }}
+                {% endif %}
+                </td>
+            </tr>
+            <!--
+            <tr>
+                <td><strong>Credit Status:</strong></td>
+                <td>
                     {% if ag.credit_status == 'REVIEW' or ag.credit_status == 'NO HIT' %}
                         <button class="btn btn-primary" data-toggle="modal" data-target="#creditModal">{{ ag.credit_status }}</button>
                     {% else %}
@@ -41,6 +56,7 @@
                     {% endif %}
                 </td>
             </tr>
+            -->
         </table>
         <div class="modal fade" id="creditModal" tabindex="-1" role="dialog" aria-labelledby="creditModalLabel" aria-hidden="true">
             <div class="modal-header">
@@ -83,7 +99,15 @@
                 <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
             </div>
         </div>
-    <h3>Agreement Details</h3>
+    <div class="row">
+        <div class="span3">
+            <h3>Agreement Details</h3>
+        </div>
+        <div class="span3 pull-right">
+            <h3><a class="btn btn-info" href="{% url "draw_container" agreement_id=ag.id %}">Rewalk Agreement</a></h3>
+        </div>
+    </div>
+
     <table class="table table-condensed">
         <tr>
             <td><strong>Email:</strong></td>

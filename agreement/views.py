@@ -153,6 +153,7 @@ def BypassUpfrontAuthorization(request):
 @render_to('manage.html')
 def ManageProviders(request):
     if request.GET.get('nav_agreement_id'):
+        print "agreement", request.GET.get('nav_agreement_id')
         return redirect('agreement_detail', agreement_id=request.GET.get('nav_agreement_id'))
 
     orgs = Organization.objects.all()

@@ -22,6 +22,6 @@ urlpatterns = patterns('',
     url(r'^credit_review/$', 'agreement.views.CreditReview', name='credit_review'),
     url(r'^bypass/$', 'agreement.views.BypassUpfrontAuthorization', name='bypass'),
     url(r'^manage/$', 'agreement.views.ManageProviders', name='manage'),
+    url(r'^$', 'views.Index', name='index'),
     url(r'^agreement_detail/(?P<agreement_id>\d+)$', 'agreement.views.AgreementDetail', name='agreement_detail'),
->>>>>>> merging things
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

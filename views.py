@@ -96,6 +96,7 @@ def create_and_redirect(request):
 
     # now update and save this blank agreement
     #agreement.update_from_dict(dict(billing_address=address_default, system_address=address_default))
+    agreement.created_by = agreement.owner=agreement.working_user=request.user.orguser
     agreement.save()
 
     # run the other view and pass in the gen_arrays of it and the agreement we just made

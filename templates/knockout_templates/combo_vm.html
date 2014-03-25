@@ -27,7 +27,7 @@
                         <td data-bind="text: cline.monthly_each_fmted()"></td>
                         <td>&times;</td>
                         <td style="text-align:right;">
-                            <input class="input-mini text-right" data-bind="value: cline.quantity" type="text" />
+                            <input class="input-mini pull-left" data-bind="value: cline.quantity" type="text" />
                         </td>
                         <td>=</td>
                         <td data-bind="text: cline.upfront_line_fmted()"></td>
@@ -42,7 +42,7 @@
                         <td data-bind="text: formatCurrency(pc.upfront_strike)" class="strike-red"></td>
                         <td data-bind="text: formatCurrency(pc.monthly_strike)" class="strike-red"></td>
                         <td>&times;</td>
-                        <td style="text-align: right">
+                        <td>
                             (<span data-bind="text: pc.quantity"></span>
                             &times;
                             <strong data-bind="text: cline.quantity"></strong>

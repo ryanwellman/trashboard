@@ -61,6 +61,15 @@ window.CREDIT_LABEL_ICON_OPTIONS = {
     'NOT RUN': ''
 };
 
+window.PACKAGE_LABEL = {
+    'GOLD': 'label gold',
+    'COPPER': 'label copper',
+    'BUSINESS': 'label business',
+    'SILVER': 'label silver',
+    'BRONZE': 'label bronze',
+    'PLATINUM': 'label platinum'
+}
+
 // The truth is that none of this should really EVER change, other than adding and removing, right?
 // So can I just.. not do this?
 

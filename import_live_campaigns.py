@@ -164,11 +164,16 @@ for user_row in user_rows:
     if ou:
         print "Found orguser ", ou.old_dashboard_orguser_id, " ", ou.django_user.username
         continue
-
-    ou = OrgUser(**pick(user_row, ['first_name', 'last_name', 'username', 'old_dashboard_orguser_id', 'email', 'is_active']))
+    print "User's name is %r %r" % (user_row['first_name'], user_row['last_name'])
+    ou_ctx = pick(user_row, ['first_name', 'last_name', 'username', 'old_dashboard_orguser_id', 'email', 'is_active'])
+    ou = OrgUser(**ou_ctx)
     ou.organization = organizations[user_row['org_code']]
     #print ou.__dict__
     ou.save()
+    du = ou.django_user
+    du.password = user_row['password']
+    du.save()
+
     if user_row['is_manager']:
         ou.roles.add(roles['org_manager'])
     elif user_row['org_code'] == 'protectamerica' and user_row['username'].lower().startswith('is'):

@@ -3,11 +3,6 @@ from _models.agreement import Agreement
 from django.shortcuts import redirect
 
 
-@render_to('index.html')
-def Index(request):
-    return {}
-
-
 @render_to('credit_review.html')
 def CreditReview(request):
 

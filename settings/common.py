@@ -24,6 +24,10 @@ MEDIA_URL = '/uploads/'
 STATIC_ROOT = BASE_DIR / 'static'
 STATIC_URL = "/static/"
 
+LOGIN_URL = '/login/'
+LOGIN_EXEMPT_URLS = []
+
+
 STATICFILES_DIRS = (
     BASE_DIR / 'assets',
 )
@@ -52,6 +56,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'dynamicresponse.middleware.api.APIMiddleware',
     'dynamicresponse.middleware.dynamicformat.DynamicFormatMiddleware',
+    'org.middleware.LoginRequiredMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'org.backends.OrganizationBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 ROOT_URLCONF = 'urls'

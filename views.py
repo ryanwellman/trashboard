@@ -100,3 +100,11 @@ def create_and_redirect(request):
 
     # run the other view and pass in the gen_arrays of it and the agreement we just made
     return redirect('draw_container', agreement_id=agreement.id)
+
+
+@render_to('index.html')
+def Index(request):
+    if not request.user.is_authenticated():
+        return redirect('login')
+
+    return {}

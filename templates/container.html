@@ -16,8 +16,10 @@
 <div class="well" id="right_sidebar" data-target="right_sidebar">
     <ul class="nav nav-list">
       <li class="login-display">
+          {% if user.is_authenticated %}
           <b>Logged in as:</b><br />
-          <i class="fa fa-user"></i> {{ user }}
+          <i class="fa fa-user"></i> {{ user.orguser.full_name }} - {{ user.orguser.organization.name }}
+          {% endif %}
       </li>
         <!-- ko foreach: {data:_.values($data.vms), as: 'vm'} -->
             <li data-bind="

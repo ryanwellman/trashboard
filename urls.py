@@ -10,7 +10,8 @@ template.add_to_builtins('django.contrib.staticfiles.templatetags.staticfiles')
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', 'agreement.views.Index', name='home'),
+    url(r'^login/$', 'org.views.login', name='login'),
+    url(r'^logout/$', 'org.views.logout', name='logout'),
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/?', include(admin.site.urls)),
@@ -19,6 +20,6 @@ urlpatterns = patterns('',
     url(r'^json/(?P<agreement_id>\d+)$', 'views.dyn_json', name='dyn_json2'),
     url(r'^json/?$', 'views.dyn_json', name='dyn_json'),
     url(r'credit_review/$', 'agreement.views.CreditReview', name='credit_review'),
-    url(r'^$', 'agreement.views.Index', name='index'),
+    url(r'^$', 'views.Index', name='index'),
     url(r'bypass/$', 'agreement.views.BypassUpfrontAuthorization', name='bypass'),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

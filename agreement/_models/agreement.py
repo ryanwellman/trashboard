@@ -91,6 +91,7 @@ class Agreement(Updatable):
             # social and this is the only time to run it (unless we save it somewhere,
             # which I'm loathe to do outside of the request itself, which can get purged.)
             coapplicant_status = coapplicant.get_credit_status()
+            # coapplicant_status = coapplicant.get_credit_status(social=socials.get('coapplicant'))
 
             # # Only run the coapplicant's credit if the applicant isn't approved or pending.
             # should_start = bool(applicant_status and applicant_status not in ('APPROVED', 'PENDING')

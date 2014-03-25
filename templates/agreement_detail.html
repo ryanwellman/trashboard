@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container top-container">
+    {% for ag in ag_summary %}
+        <h2>Agreement ID: {{ ag.id }}</h2>
+        <table class="table table-condensed">
+            <tr>
+                <td><strong>Agreement Status:</strong></td>
+                <td>{{ ag.status }}</td>
+            </tr>
+            <tr>
+                <td><strong>Owned By:</strong></td>
+                <td><a href="#" rel="tooltip" data-toggle="tooltip" data-placement="right" title="Click here to takeover agreement">Ryan Wellman</a></td>
+            </tr>
+            <tr>
+                <td><strong>Owned By:</strong></td>
+                <td>Ryan Wellman <span class="label pull-right">Takeover Agreement</span></td>
+            </tr>
+            <tr>
+                <td><strong>Organization:</strong></td>
+                <td>{{ ag.campaign__organization__name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Date Updated:</strong></td>
+                <td>{{ ag.date_updated|date }}</td>
+            </tr>
+            <tr>
+                <td><strong>Applicant:</strong></td>
+                <td>{{ ag.applicant_id__first_name }} {{ ag.applicant_id__last_name }}</td>
+            </tr>
+            {% if ag.coapplicant_id__last_name %}
+            <tr>
+                <td><strong>Coapplicant:</strong></td>
+                <td>{{ ag.coapplicant_id__first_name }} {{ ag.coapplicant_id__last_name }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td><strong>Credit Status:</strong></td>
+                <td>
+                {% if ag.credit_status == 'REVIEW' or ag.credit_status == 'NO HIT' %}
+                    <a class="label label-warning" data-toggle="modal" data-target="#creditModal">Review</a>
+                {% else %}
+                    {{ ag.credit_status }}
+                {% endif %}
+                </td>
+            </tr>
+            <!--
+            <tr>
+                <td><strong>Credit Status:</strong></td>
+                <td>
+                    {% if ag.credit_status == 'REVIEW' or ag.credit_status == 'NO HIT' %}
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#creditModal">{{ ag.credit_status }}</button>
+                    {% else %}
+                        {{ ag.credit_status }}
+                    {% endif %}
+                </td>
+            </tr>
+            -->
+        </table>
+        <div class="modal fade" id="creditModal" tabindex="-1" role="dialog" aria-labelledby="creditModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <h3 id="creditModalLabel">Review Credit</h3>
+            </div>
+            <div class="modal-body">
+                <h4>Applicant: {{ ag.applicant_id__first_name }} {{ ag.applicant_id__last_name }}</h4>
+                <table>
+                    <tr>
+                        <td>Beacon:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Interconnect ID:</td>
+                        <td></td>
+                    </tr>
+                </table>
+                {% if ag.coapplicant_id__last_name %}
+                <h4>Coapplicant: {{ ag.coapplicant_id__first_name }} {{ ag.coapplicant_id__last_name }}</h4>
+                <table>
+                    <tr>
+                        <td>Beacon:</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Interconnect ID:</td>
+                        <td></td>
+                    </tr>
+                </table>
+                {% endif %}
+                <div>&nbsp;</div>
+                <form id="credit_review" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="agreement_id" value="{{ag.id}}">
+                    <button class="btn btn-success credit-btn" name="approve_credit">APPROVE</button>
+                    <button class="btn btn-danger credit-btn" name="decline_credit">DECLINE</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+        </div>
+    <div class="row">
+        <div class="span3">
+            <h3>Agreement Details</h3>
+        </div>
+        <div class="span3 pull-right">
+            <h3><a class="btn btn-info" href="{% url "draw_container" agreement_id=ag.id %}">Rewalk Agreement</a></h3>
+        </div>
+    </div>
+
+    <table class="table table-condensed">
+        <tr>
+            <td><strong>Email:</strong></td>
+            <td colspan="3">{{ ag.email }}</td>
+        </tr>
+        <tr>
+            <td><strong>Package:</strong></td>
+            <td colspan="3">{{ ag_lines.package }}</td>
+        </tr>
+        <tr>
+            <td><strong>Monitoring:</strong></td>
+            <td colspan="3">{{ ag_lines.monitoring }}</td>
+        </tr>
+        <tr>
+            <td><strong>Shipping:</strong></td>
+            <td colspan="3">{{ ag_lines.shipping }}</td>
+        </tr>
+        <tr>
+            <td><strong>Products:</strong></td>
+            <td colspan="3">
+                {% for p in ag_lines.products %}
+                    ({{ p.quantity }}) x {{ p.part }},
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Closers:</strong></td>
+            <td colspan="3">
+                {% for c in ag_lines.closers %}
+                    {{ c }},
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+<script type="text/javascript">
+    $(function() {
+        $('#creditModal').modal();
+    });
+</script>

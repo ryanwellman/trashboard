@@ -122,6 +122,9 @@ class OrgUser(models.Model):
 
 
     def has_organization_permission(self, organization, permission_name):
+        if self.django_user.is_superuser:
+            return True
+
         if isinstance(organization, [str, unicode]):
             org_code = organization
 
@@ -129,10 +132,13 @@ class OrgUser(models.Model):
         org_code = getattr(organization, org_code, organization)
 
 
-        return permission_name in self.org_permissions[org_code]
+        if permission_name in self.org_permissions[org_code]:
+            return True
 
+        if permission_name in self.org_permissions['*'] or []:
+            return True
 
-        pass
+        return False
 
 
     @property

@@ -8,8 +8,6 @@ PackageVM = function(master) {
 
     };
 
-
-
     // copy them out of fields onto this itself.
     _.each(fields, function(v, k) {
          self[k] = v;
@@ -21,8 +19,6 @@ PackageVM = function(master) {
             return prod.price() && prod.price().available && prod.product_type === 'Package';
         });
     });
-
-
 
     self.customize_vm = CustomizationVM(master, self);
 
@@ -55,13 +51,12 @@ PackageVM = function(master) {
         return bal;
     });
 
-    self.package_css = function(cline) {
-        var classes = ['package', cline.product.code];
-        if(cline === self.selected()) {
-             classes.push('selected');
+    self.package_css = ko.computed(function(){
+        if(self.selected()){
+            return window.PACKAGE_LABEL[self.selected().code];
         }
-        return classes.join(' ');
-    }
+        return "muted";
+    });
 
     var SUPER_construct_agreement = _.bind(self.construct_agreement, self);
     self.construct_agreement = function(agreement) {

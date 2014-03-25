@@ -30,7 +30,7 @@ AddressVM = function(master, which) {
 
     self.display_label = ko.computed(function() {
         return {
-            'system_address': 'System Address'
+            'system_address': 'Address'
         }[self.name];
     });
 

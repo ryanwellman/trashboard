@@ -45,7 +45,7 @@
     <!-- Actual customization table. -->
     <div class="row" data-bind="visible: vm.selected() && vm.customize_vm.customizing()">
         <div class="span11">
-            <table class="package_customization table">
+            <table class="package_customization table table-condensed section-table">
                 <thead>
                     <tr>
                         <th>Part #</th>
@@ -87,7 +87,6 @@
                         <td><span data-bind="text: (cline.price() ? cline.price().cb_points : 0) || ''" class="badge badge-mini badge-success" style="width:22px; text-align:center;"</span></td>
                         <td>=</td>
                         <td data-bind="text: cline.customize_cb()"></td>
-
                     </tr>
                     <!-- /ko -->
                 </tbody>

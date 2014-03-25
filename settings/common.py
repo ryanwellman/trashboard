@@ -35,7 +35,11 @@ STATICFILES_FINDERS = (
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'hdi%asicub%e1z$=9h&g&m8$m$n2+bwo*_gne2zqbt5-+u+!##'
+#SECRET_KEY = 'hdi%asicub%e1z$=9h&g&m8$m$n2+bwo*_gne2zqbt5-+u+!##'
+
+# Old dashboard's so that the old passwords work.  (god help us all)
+SECRET_KEY = '0xdeadbeefcafebabe'
+
 
 MIDDLEWARE_CLASSES = (
     'middleware.RequestTimeLoggingMiddleware',

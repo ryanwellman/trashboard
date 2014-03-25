@@ -3,6 +3,12 @@ ALaCarteVM = function(master) {
     var self = new BaseSectionVM(master);
     self.name = 'alacarte';
 
+    self.display_label = ko.computed(function(){
+        return {
+            'alacarte': 'A La Carte'
+        }[self.name]
+    });
+
 
     self.fields = {
 

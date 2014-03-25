@@ -264,10 +264,20 @@ section.vm {
 }
 
 .agreement_info_display{
-    height: 100px;
     line-height: 100px;
     width: 1440px;
     margin: 0 auto;
+    ul{
+        li{
+            height: 90px;
+        }
+    }
+}
+
+#agreement_display{
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 50px;
 }
 
 .nav-list > .active > a,
@@ -289,5 +299,63 @@ table.section-table{
 .well{
     form{
         margin-bottom: 0;
+    }
+}
+
+#package_link{
+    width: 100px;
+    height: 30px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+    font-size: 16px;
+}
+
+@mynavbarHeight: 100px;
+.my-navbar{
+    overflow: visible;
+    margin-bottom: @baseLineHeight;
+
+    // Fix for IE7's bad z-indexing so dropdowns don't appear below content that follows the navbar
+    *position: relative;
+    *z-index: 2;
+}
+
+.my-navbar-fixed-top{
+    position: fixed;
+    right: 0;
+    left: 0;
+    top: 0;
+    z-index: @zindexFixedNavbar;
+    margin-bottom: 0;
+    border-width: 0 0 1px;
+
+    .my-navbar-inner{
+        height: @mynavbarHeight; /* 111px? */
+        min-height: @navbarHeight;
+        padding-left:  20px;
+        padding-right: 20px;
+        #gradient > .vertical(@navbarBackgroundHighlight, @navbarBackground);
+        border: 1px solid @navbarBorder;
+        .border-radius(@baseBorderRadius);
+        .box-shadow(0 1px 4px rgba(0,0,0,.065));
+
+        // Prevent floats from breaking the navbar
+        .clearfix();
+        padding-left: 0;
+        padding-right: 0;
+        .border-radius(0);
+        .box-shadow(~"0 1px 10px rgba(0,0,0,.1)");
+
+        & > .row > [class*="span"]{
+            height: 80px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        & > .row > .mynav-vertical-align{
+            vertical-align: middle;
+            line-height: 80px;
+        }
     }
 }

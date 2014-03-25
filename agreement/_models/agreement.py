@@ -61,6 +61,11 @@ class Agreement(Updatable):
     # DRAFT, PUBLISHED, EXPIRED, SIGNED
     status = models.CharField(max_length=20)
 
+    # users
+    owner_user = models.ForeignKey(OrgUser)
+    working_user = models.ForeignKey(OrgUser)
+    created_by_user = models.ForeignKey(OrgUser)
+
     @property
     def masked_credit_status(self):
         return self.credit_override or self.credit_status

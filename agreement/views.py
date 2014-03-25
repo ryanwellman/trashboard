@@ -33,21 +33,43 @@ def AgreementDetail(request, agreement_id):
 
     ag_summary = agreement.values(*fields.keys())
 
-    ag_lines = InvoiceLine.objects.filter(agreement_id=agreement_id)
-    print "lines", ag_lines
-    # if request.method == 'POST':
-    #     if "approve_credit" in request.POST:
-    #         print "approve the credit yo"
-    #         print "agreement", agreement_id
-    #         agreement = Agreement.objects.get(id=agreement_id)
-    #         agreement.credit_status = 'APPROVED'
-    #         agreement.credit_override = 'APPROVED'
-    #         agreement.save()
-    #         # messages.success(request, "Credit for Agreement {0} has been approved".format(agreement_id))
-    #         return redirect('agreement_detail', agreement_id=agreement_id)
-    #     if "decline_credit" in request.POST:
-    #         print "you've been declined fool"
-    return dict(ag_summary=ag_summary)
+    lines = InvoiceLine.objects.filter(agreement_id=agreement_id).values('product_type', 'product', 'quantity')
+    print "lines", lines
+    ag_lines = {}
+    closers = []
+    products = []
+    for l in lines:
+        if l['product_type'] == "Package":
+            ag_lines['package'] = l['product']
+        if l['product_type'] == "Monitoring":
+            ag_lines['monitoring'] = l['product']
+        if l['product_type'] == "Shipping":
+            ag_lines['shipping'] = l['product']
+        if l['product_type'] == "Closer":
+            closers.append(l['product'])
+        if l['product_type'] == "Part":
+            product = {}
+            product['part'] = l['product']
+            product['quantity'] = l['quantity']
+            products.append(product)
+    ag_lines['closers'] = closers
+    ag_lines['products'] = products
+
+    print "ag", ag_lines
+    if request.method == 'POST':
+        if "approve_credit" in request.POST:
+            print "approve the credit yo"
+            print "agreement", agreement_id
+            agreement = Agreement.objects.get(id=agreement_id)
+            agreement.credit_status = 'APPROVED'
+            agreement.credit_override = 'APPROVED'
+            agreement.save()
+            # messages.success(request, "Credit for Agreement {0} has been approved".format(agreement_id))
+            return redirect('agreement_detail', agreement_id=agreement_id)
+        if "decline_credit" in request.POST:
+            print "you've been declined fool"
+    return dict(ag_summary=ag_summary,
+                ag_lines=ag_lines)
 
 
 @render_to('credit_review.html')

@@ -83,8 +83,42 @@
                 <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
             </div>
         </div>
-    {% endfor %}
     <h3>Agreement Details</h3>
+    <table class="table table-condensed">
+        <tr>
+            <td><strong>Email:</strong></td>
+            <td colspan="3">{{ ag.email }}</td>
+        </tr>
+        <tr>
+            <td><strong>Package:</strong></td>
+            <td colspan="3">{{ ag_lines.package }}</td>
+        </tr>
+        <tr>
+            <td><strong>Monitoring:</strong></td>
+            <td colspan="3">{{ ag_lines.monitoring }}</td>
+        </tr>
+        <tr>
+            <td><strong>Shipping:</strong></td>
+            <td colspan="3">{{ ag_lines.shipping }}</td>
+        </tr>
+        <tr>
+            <td><strong>Products:</strong></td>
+            <td colspan="3">
+                {% for p in ag_lines.products %}
+                    ({{ p.quantity }}) x {{ p.part }},
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Closers:</strong></td>
+            <td colspan="3">
+                {% for c in ag_lines.closers %}
+                    {{ c }},
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+    {% endfor %}
 </div>
 
 {% endblock %}
